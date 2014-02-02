@@ -1,6 +1,7 @@
 #include "camera.h"
 #include <math.h>
-#include <GL/freeglut.h>
+#include <GL/glew.h>
+// #include <GL/freeglut.h>
 #include "constants.h"
 
 double hyperbolicLimit(const double nb,const double limit){

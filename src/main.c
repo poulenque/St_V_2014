@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <pthread.h>
+#include <GL/glew.h>
 
 #include "game.h"
 #include "camera.h"
@@ -123,8 +124,10 @@ int main(int argc, char *argv[]) {
 	int SCREEN_BPP=32;
 	SDL_Init( SDL_INIT_EVERYTHING );
 	SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL );
+	glewInit ();
 	SDL_EnableUNICODE( SDL_TRUE );
 	SDL_WM_GrabInput(SDL_GRAB_ON);
+
 
 	int mouse_x = 0, mouse_y = 0;
 	// int mouse_dx = 0, mouse_dy = 0;

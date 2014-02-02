@@ -1,6 +1,6 @@
 #include "string3d.h"
 #include "constants.h"
-#include <GL/gl.h>
+#include <GL/glew.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>

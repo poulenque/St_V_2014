@@ -2,12 +2,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/gl.h>
-#include <GL/freeglut.h>
+#include <GL/glew.h>
+// #include <GL/freeglut.h>
 #include <SDL/SDL.h>
 #include "string3d.h"
 #include "constants.h"
 #include <math.h>
+#include "shader.h"
+// #include <GL/glew.h>
 
 double time_=0;
 
@@ -19,13 +21,54 @@ void ingame_render(Game* game);
 
 static String3d* str;
 
+
+//creer un texture vide
+//creer frame buffer -> bind -> dessine -> unbind
+
+
+//1 texture pour couleur
+//1 texture depth
+//1 frame buffer -> attacher les 2 textures
+
+//rendre une fois dans le framebuffer
+
+//rendre un carre de la taille de l'ecran
+
+//fragmenet shader -> fx qui donne la couleur du pixel a partir de x,y
+
+
+
+// unsigned int
+// lr_texture_depthmap (int width, int height)
+// {
+//     unsigned int tex_id;
+
+//     glGenTextures (1, &tex_id);
+
+//     glBindTexture (GL_TEXTURE_2D, tex_id);
+
+//     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+//     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+//     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+//     glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
+
+//     glBindTexture (GL_TEXTURE_2D, 0);
+
+//     return tex_id;
+// }
+
+
+
 Game* initGame(Camera* player){
+
 	str = new_string3d();
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
-	glClearColor( 0.f, 0.f, 0.f, 1.f );
+	glClearColor( 0., 0., 0., 1. );
 	//openGL INITIALIZATION
 	// glClearColor(0.03/2, 0.16/2, 0.18/2, 0.0);
 
@@ -50,7 +93,7 @@ Game* initGame(Camera* player){
 	// glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER,local_view); 
 
 
-	// glEnable( GL_LINE_SMOOTH );
+	glDisable( GL_LINE_SMOOTH );
 	// //glEnable( GL_POLYGON_SMOOTH );
 	// //glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
 	// glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
@@ -59,6 +102,13 @@ Game* initGame(Camera* player){
 	game->update=intro_update;
 	game->render=intro_render;
 	game->player=player;
+
+	// glGenFramebuffers (1, &game->frame_buffer_id);
+	// game->depth_tex_id=lr_texture_depthmap (800,600);
+	game->dof_Shader_id=shader_createProgram("dof");
+
+	getUniformLocation(game->dof_Shader_id,"color");
+
 	return game;
 }
 
@@ -91,6 +141,12 @@ void intro_render(Game* game){
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+	// glFramebufferTexture2D (GL_FRAMEBUFFER, GL_DEPTH_COMPONENT, GL_TEXTURE_2D, game->depth_tex_id, 0);
+
+	glUseProgram(game->dof_Shader_id);
+
+
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
