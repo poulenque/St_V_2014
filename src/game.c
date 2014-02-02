@@ -35,7 +35,7 @@ Game* initGame(Camera* player){
 
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_POINT_SMOOTH);
+	glDisable(GL_POINT_SMOOTH);
 	// glEnable(GL_LIGHTING);
 	// glEnable(GL_LIGHT0);
 
@@ -86,6 +86,7 @@ void intro_render(Game* game){
 		game->render=ingame_render;
 		game->update=ingame_update;
 		//TODO -> send signal to quit music loop
+		//and also something that play that music :¬P
 	}
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -132,7 +133,6 @@ void intro_render(Game* game){
 		gluDeleteQuadric(sphere);
 
 		//====================================================
-		// string3d_setTxt(str,"qwertyuiop asdfghjkl zxcvbnm\nqwertyuiop asdfghjkl zxcvbnm\nqwertyuiop asdfghjkl zxcvbnm\nqwertyuiop asdfghjkl zxcvbnm ");
 		string3d_setTxt(str,"     a game by    \n\nLaurent Rohrbasser");
 
 		glRotated(53,0,0,1);
@@ -187,14 +187,6 @@ void intro_render(Game* game){
 
 	glPopMatrix();
 
-	// // Render quad
-	// glBegin( GL_QUADS );
-	// 	glVertex2f( -0.5f+.1-.1*rand()/(double)RAND_MAX, -0.5f+.1-.1*rand()/(double)RAND_MAX );
-	// 	glVertex2f(  0.5f+.1-.1*rand()/(double)RAND_MAX, -0.5f+.1-.1*rand()/(double)RAND_MAX );
-	// 	glVertex2f(  0.5f+.1-.1*rand()/(double)RAND_MAX,  0.5f+.1-.1*rand()/(double)RAND_MAX );
-	// 	glVertex2f( -0.5f+.1-.1*rand()/(double)RAND_MAX,  0.5f+.1-.1*rand()/(double)RAND_MAX );
-	// glEnd();
-
 }
 
 
@@ -206,7 +198,6 @@ void ingame_render(Game* game){
 	
 	//TODO !!
 
-	// // Render quad
 	glColor4d(0,0,0,1);
 	double size=10;
 	glBegin( GL_QUADS );
