@@ -16,6 +16,17 @@ typedef	struct Camera {
 	// double interface_rho;
 	// String3d* interface_txt;
 
+
+	unsigned int shader_id_dummy;
+	unsigned int shader_id_dof;
+	unsigned int shader_dof_color_id;
+	//
+	unsigned int frame_buffer_id;
+	unsigned int color_tex_id;
+	unsigned int depth_tex_id;
+	// unsigned int depth_tex_id;
+	//
+
 	Game* game;
 
 	double theta;

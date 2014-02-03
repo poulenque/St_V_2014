@@ -169,7 +169,8 @@ int main(int argc, char *argv[]) {
 						quit=1;
 					break;
 				case SDL_MOUSEMOTION:
-					camera_rotate(player,0,2*event.motion.xrel,0);
+					camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
+					// camera_rotate(player,0,2*event.motion.xrel,0);
 					break;
 			}
 		}

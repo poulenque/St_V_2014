@@ -26,7 +26,7 @@ void camera_move_acc(Camera* c,double ddx,double ddy,double ddz){
 void camera_rotate    (Camera* c,double dtheta ,double dphi ,double drho ){
 	c->dtheta+=dtheta;
 	c->dphi+=dphi;
-	c->drho+=drho + dphi;
+	c->drho+=drho + dphi/4.;
 }
 void camera_rotate_acc(Camera* c,double ddtheta,double ddphi,double ddrho){
 	c->ddtheta+=ddtheta;
@@ -82,6 +82,34 @@ Camera* new_Camera(){
 	// c->interface_txt->phi=45;
 	// c->interface_txt->z=.2;
 
+	// glGenFramebuffers (1, &c->frame_buffer_id);
+	// c->depth_tex_id=lr_texture_depthmap (800,600);
+
+	c->shader_id_dummy=shader_createProgram("dummy");
+	c->shader_id_dof=shader_createProgram("dof");
+	glGenFramebuffers(1,& (c->frame_buffer_id));
+
+	glGenTextures (1, &(c->depth_tex_id));
+	glBindTexture (GL_TEXTURE_2D, c->depth_tex_id);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 800, 600, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
+
+
+	glGenTextures (1, &(c->color_tex_id));
+	glBindTexture (GL_TEXTURE_2D, c->color_tex_id);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	glBindTexture (GL_TEXTURE_2D, 0);
+
+	c->shader_dof_color_id = glGetUniformLocation(c->shader_id_dof,"color");
+	// glUniform4f (color_id, 1, 0, 0, 1);
 	return c;
 }
 
@@ -136,6 +164,14 @@ void camera_look(Camera* c){
 void camera_render(Camera* c){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// // glFramebufferTexture2D (GL_FRAMEBUFFER, GL_DEPTH_COMPONENT, GL_TEXTURE_2D, game->depth_tex_id, 0);
+
+	// glUseProgram(game->shader_id_dummy);
+	// glFramebufferTexture2D(game->frame_buffer_id,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,game->color_tex_id,0);
+	// // glFramebufferTexture2D(game->frame_buffer_id,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,game->depth_tex_id,0);
+
+	// glBindFramebuffer(GL_FRAMEBUFFER,game->frame_buffer_id);
+
 	camera_look(c);
 	glRotated(c->rho,1,0,0);
 	glRotated(c->theta, 0.0, 1.0, 0.0);
@@ -148,6 +184,26 @@ void camera_render(Camera* c){
 
 	glFlush();
 	SDL_GL_SwapBuffers();
+	// // SDL_Surface * image = IMG_Load("screenshot/01.png");
+	// // glTexImage2D (GL_TEXTURE_2D, 0, 3,
+	// // 	image->w, image->h, 0,
+	// // 	GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+	// glBindFramebuffer(GL_FRAMEBUFFER,0);
+	// glUseProgram(game->shader_id_dof);
+	// glActiveTexture (GL_TEXTURE0);
+	// glBindTexture (GL_TEXTURE_2D, game->color_tex_id);
+	// // glBindTexture (GL_TEXTURE_2D, game->depth_tex_id);
+	// glUniform1i(game->shader_dof_color_id,GL_TEXTURE0);
+
+
+	// glBegin( GL_QUADS );
+	// 	glVertex2d(-1,-1);
+	// 	glVertex2d(-1, 1);
+	// 	glVertex2d( 1, 1);
+	// 	glVertex2d( 1,-1);
+	// glEnd();
+
 }
 
 void camera_ApplyLeftFrustum(Camera* c){
@@ -218,6 +274,7 @@ void camera_update(Camera* c,int dt){
 	c->ddz=0;
 
 	//================================================
+
 
 	c->dtheta+=.001*dt*c->ddtheta - lambda*c->dtheta;
 	c->dphi+=.001*dt*c->ddphi - lambda*c->dphi;

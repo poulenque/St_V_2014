@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glew.h>
-// #include <GL/freeglut.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include "string3d.h"
@@ -11,15 +10,30 @@
 #include <math.h>
 #include "shader.h"
 #include "draw.h"
-// #include <GL/glew.h>
 
 double time_=0;
 
 void intro_update(Game* game,int dt);
 void intro_render(Game* game);
 
-void ingame_update(Game* game,int dt);
-void ingame_render(Game* game);
+void intro_get_weapon_update(Game* game,int dt);
+void intro_get_weapon_render(Game* game);
+
+//friendly ennemies
+void ingame_level1_update(Game* game,int dt);
+void ingame_level1_render(Game* game);
+
+//ennemies are angry
+void ingame_level2_update(Game* game,int dt);
+void ingame_level2_render(Game* game);
+
+//swarm... you get "la sulphateuse"
+void ingame_level3_update(Game* game,int dt);
+void ingame_level3_render(Game* game);
+
+//boss finale !
+void ingame_level3_update(Game* game,int dt);
+void ingame_level3_render(Game* game);
 
 static String3d* str;
 
@@ -29,45 +43,6 @@ static double messages_z[200];
 static double messages_z_exp_offset[200];
 static double messages_z_exp_speed[200];
 static double messages_dephasage[200];
-
-//creer un texture vide
-//creer frame buffer -> bind -> dessine -> unbind
-
-
-//1 texture pour couleur
-//1 texture depth
-//1 frame buffer -> attacher les 2 textures
-
-//rendre une fois dans le framebuffer
-
-//rendre un carre de la taille de l'ecran
-
-//fragmenet shader -> fx qui donne la couleur du pixel a partir de x,y
-
-
-
-// unsigned int
-// lr_texture_depthmap (int width, int height)
-// {
-//     unsigned int tex_id;
-
-//     glGenTextures (1, &tex_id);
-
-//     glBindTexture (GL_TEXTURE_2D, tex_id);
-
-//     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-//     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-//     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-//     glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
-
-//     glBindTexture (GL_TEXTURE_2D, 0);
-
-//     return tex_id;
-// }
-
-
 
 Game* initGame(Camera* player){
 
@@ -88,8 +63,6 @@ Game* initGame(Camera* player){
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
 	glClearColor( 0., 0., 0., 1. );
-	//openGL INITIALIZATION
-	// glClearColor(0.03/2, 0.16/2, 0.18/2, 0.0);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable (GL_BLEND);
@@ -100,6 +73,8 @@ Game* initGame(Camera* player){
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glDisable(GL_POINT_SMOOTH);
+	glDisable( GL_LINE_SMOOTH );
+
 	// glEnable(GL_LIGHTING);
 	// glEnable(GL_LIGHT0);
 
@@ -107,14 +82,6 @@ Game* initGame(Camera* player){
 	// glEnable(GL_NORMALIZE);
 	// glDepthFunc(GL_LESS);
 
-	// GLfloat mod_ambt[] = {0.015, 0.062, 0.09, 0.0}; 
-	// GLfloat local_view[] = {0.0F}; 
-	// glDepthFunc(GL_LESS);
-	// glLightModelfv(GL_LIGHT_MODEL_AMBIENT,mod_ambt); 
-	// glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER,local_view); 
-
-
-	glDisable( GL_LINE_SMOOTH );
 	// //glEnable( GL_POLYGON_SMOOTH );
 	// //glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
 	// glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
@@ -124,45 +91,17 @@ Game* initGame(Camera* player){
 	game->render=intro_render;
 	game->player=player;
 
-	// glGenFramebuffers (1, &game->frame_buffer_id);
-	// game->depth_tex_id=lr_texture_depthmap (800,600);
-
-	game->shader_id_dummy=shader_createProgram("dummy");
-	game->shader_id_dof=shader_createProgram("dof");
-	glGenFramebuffers(1,& (game->frame_buffer_id));
-
-	glGenTextures (1, &(game->depth_tex_id));
-	glBindTexture (GL_TEXTURE_2D, game->depth_tex_id);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 800, 600, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
-
-
-	glGenTextures (1, &(game->color_tex_id));
-	glBindTexture (GL_TEXTURE_2D, game->color_tex_id);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-	glBindTexture (GL_TEXTURE_2D, 0);
-
-	game->shader_dof_color_id = glGetUniformLocation(game->shader_id_dof,"color");
-	// glUniform4f (color_id, 1, 0, 0, 1);
 
 
 	return game;
 }
 
+//==================================================================
+//==================================================================
+//==================================================================
 void intro_update(Game* game,int dt){
 	time_+=dt/15.;
 	camera_update(game->player,dt);
-}
-
-void intro_render(Game* game){
 
 	//distace player begin sphere
 	double x_temp=(game->player->x+20);
@@ -187,22 +126,17 @@ void intro_render(Game* game){
 		time_=0;
 
 		glClearColor( 1.f, 1.f, 1.f, 1.f );
-		game->render=ingame_render;
-		game->update=ingame_update;
-		//TODO -> send signal to quit music loop
-		//and also something that play that music :¬P
+		game->update=intro_get_weapon_update;
+		game->render=intro_get_weapon_render;
 	}
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+}
 
-	// // glFramebufferTexture2D (GL_FRAMEBUFFER, GL_DEPTH_COMPONENT, GL_TEXTURE_2D, game->depth_tex_id, 0);
+void intro_render(Game* game){
 
-	// glUseProgram(game->shader_id_dummy);
-	// glFramebufferTexture2D(game->frame_buffer_id,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,game->color_tex_id,0);
-	// // glFramebufferTexture2D(game->frame_buffer_id,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,game->depth_tex_id,0);
 
-	// glBindFramebuffer(GL_FRAMEBUFFER,game->frame_buffer_id);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -266,75 +200,77 @@ void intro_render(Game* game){
 		str->phi=0;
 
 	glPopMatrix();
-
-	// // SDL_Surface * image = IMG_Load("screenshot/01.png");
-	// // glTexImage2D (GL_TEXTURE_2D, 0, 3,
-	// // 	image->w, image->h, 0,
-	// // 	GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
-
-	// glBindFramebuffer(GL_FRAMEBUFFER,0);
-	// glUseProgram(game->shader_id_dof);
-	// glActiveTexture (GL_TEXTURE0);
-	// glBindTexture (GL_TEXTURE_2D, game->color_tex_id);
-	// // glBindTexture (GL_TEXTURE_2D, game->depth_tex_id);
-	// glUniform1i(game->shader_dof_color_id,GL_TEXTURE0);
-
-
-	// glBegin( GL_QUADS );
-	// 	glVertex2d(-1,-1);
-	// 	glVertex2d(-1, 1);
-	// 	glVertex2d( 1, 1);
-	// 	glVertex2d( 1,-1);
-	// glEnd();
-
-
 }
 
 
-
-void ingame_update(Game* game,int dt){
+//==================================================================
+//==================================================================
+//==================================================================
+void intro_get_weapon_update(Game* game,int dt){
 	camera_update(game->player,dt);
 	time_+=dt/15.;
+
+	//distace player begin square
+	double x_temp=(game->player->x+200);
+	double y_temp=(game->player->y-0);
+	double z_temp=(game->player->z-0);
+
+	x_temp*=x_temp;//square
+	y_temp*=y_temp;//square
+	z_temp*=z_temp;//square
+
+	double d= (sqrt(x_temp+y_temp+z_temp));
+
+	game->shared_var1=d;
+
+	if(d<5){
+		// MUSIC QUIT LOOP
+		// GOTO LEVEL 1 !
+	}
 }
-void ingame_render(Game* game){
-	
-	//TODO !!
-
-	// //distace player begin square
-	// double x_temp=(game->player->x+200);
-	// double y_temp=(game->player->y-0);
-	// double z_temp=(game->player->z-0);
-
-	// x_temp*=x_temp;//square
-	// y_temp*=y_temp;//square
-	// z_temp*=z_temp;//square
-
-	// double d= (sqrt(x_temp+y_temp+z_temp))*.01;
-	// printf("%lf\n",d);
+void intro_get_weapon_render(Game* game){
 
 
-	// glClearColor(d,d,d,1);
+	// glClearColor(d*.01,d*.01,d*.01,1);
+
+	double d= game->shared_var1;
 
 	glColor4d(0,0,0,1);
 	double size=10;
-	glPushMatrix();
-		glTranslated(-10,0,0);
-		draw_face(size,.1);
-	glPopMatrix();
+	// glPushMatrix();
+	// 	glTranslated(-10,0,0);
+	// 	draw_face(size,.1);
+	// glPopMatrix();
 
-	glColor4d(0,0,0,exp(-time_/50.));
-	glPushMatrix();
-		glTranslated(200,0,size*2-exp(6-time_/50.));
-		// glRotated(-45,0,0,1);
-		draw_cube(size,.1);
-	glPopMatrix();
+	// glColor4d(0,0,0,exp(-time_/50.));
+	// glPushMatrix();
+	// 	glTranslated(200,0,size*2-exp(6-time_/50.));
+	// 	// glRotated(-45,0,0,1);
+	// 	draw_cube(size,.1);
+	// glPopMatrix();
 
-	glColor4d(0,0,0,1);
+	// glColor4d(0,0,0,1);
+	glColor4d(0,0,0,1-exp(-time_/100.));
 	glPushMatrix();
 		glTranslated(200,0,-size*2+exp(6-time_/50.));
 		// glRotated(-45,0,0,1);
 		draw_cube(size,.1);
 	glPopMatrix();
+
+
+	for(int i=1;i<50;i++){
+		// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
+		double v= (2-d/200.) ;
+		if(v<.2)
+			v=.2;
+		glColor4d(0,0,0,v*(1-exp(-time_/400.)) * (1-i/50.) *(d/200.) );
+		glPushMatrix();
+			glTranslated(200,0,-size*i*1.1*(1+exp(-time_/50.))-200*exp(-time_/50.) - size);
+			glRotated((i-1)*(time_*.1),0,0,1);
+			draw_cube(size*i,.1/i);
+		glPopMatrix();
+	}
+
 
 
 
@@ -358,8 +294,9 @@ void ingame_render(Game* game){
 
 	glPushMatrix();
 	glScaled(1,-1,1);
+	// glColor4d(0,0,0,1);
+	glColor4d(0,0,0,1-exp(-time_/100.));
 	for(int i=0;i<10;i++){
-		glColor4d(0,0,0,1);
 		string3d_setTxt(str,"go accomplish your mission");
 		str->size=1.12 + .15*(1+cos (time_*.1+i));
 		str->dist=7.15 + 1+cos (time_*.1+i);
@@ -376,9 +313,19 @@ void ingame_render(Game* game){
 	glColor4d(1,0,0,1);
 	//
 	//NOISE SHOULD BE CONTROLLED BY SOUND
-	// for(int i=0;i<10;i++){
+	// draw_guy(time_,((int)time_%20)*.02,10);
+
+	// draw_wing(time_,0,10);
+
+	// glColor4d(0,0,0,1);
+	// for(int i=0;i<100;i++){
 	// 	glTranslated(10,0,0);
-	// 	draw_guy(time_,((int)time_%20)*.02);
+	// 	draw_guy(time_,((int)time_%20)*.02,2);
+	// }
+
+	// for(int i=0;i<500;i++){
+	// 	glTranslated(10,0,0);
+	// 	draw_guy(time_,((int)time_%20)*.02,1);
 	// }
 	//
 	glPopMatrix();
