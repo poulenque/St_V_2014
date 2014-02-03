@@ -6,9 +6,13 @@
 typedef struct Camera Camera;
 
 typedef struct Game{
-	unsigned int dof_Shader_id;
+	unsigned int shader_id_dummy;
+	unsigned int shader_id_dof;
+	unsigned int shader_dof_color_id;
 	//
-	// unsigned int frame_buffer_id;
+	unsigned int frame_buffer_id;
+	unsigned int color_tex_id;
+	unsigned int depth_tex_id;
 	// unsigned int depth_tex_id;
 	//
 	Camera* player;

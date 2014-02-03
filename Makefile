@@ -10,12 +10,10 @@ C_FLAGS += -std=c11
 C_FLAGS += -march=native
 
 LIBS += -lm
-LIBS += -lSDL
+LIBS += -lSDL -lSDL_image
 LIBS += -lvorbisfile -lopenal
 LIBS += -lpthread
 LIBS += -lGL -lGLU -lGLEW
-LIBS += 
-LIBS += 
 
 
 SOURCES = $(wildcard src/*.c)
