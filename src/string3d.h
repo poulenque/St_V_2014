@@ -4,6 +4,7 @@
 
 typedef struct String3d{
 	char* str;
+	// unsigned int vbo_buff_a;
 
 	double noise;
 	double size;

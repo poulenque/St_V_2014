@@ -78,45 +78,4 @@ void camera_move_acc(Camera* c,double ddx,double ddy,double ddz);
 void camera_rotate    (Camera* c,double dtheta ,double dphi ,double drho );
 void camera_rotate_acc(Camera* c,double ddtheta,double ddphi,double ddrho);
 
-// void ApplyLeftFrustum();
-// void ApplyRightFrustum();
-// void look();
-	
-// void focusMove(double const& var);
-// void perspectiveMove(double const& var);
-// void motionBlurMove(double const& var);
-// double getMotionBlur();
-// double getPerspective();
-// double getFocus();
-// int getCompassState();
-	
-// void dispRepere();
-// void dispInterface();
-	
-// void update(double deltaT);
-	
-// double fast;
-// int showBoussole;
-// bool showTerminal;
-
-// void PanelBackground(int );
-
-// void message(string const&,double timedisp = 1500);
-
-
-// string messagestr;
-// string leftPanelstr;
-// string rightPanelstr;
-// string titlestr;
-
-// Vect posLIGHT;
-
-// Vect w,s,q;
-// double camSpeed;
-// double thetaInterface;
-// double phiInterface;
-// double rhoInterface;
-// double motionBlur;
-// double dmotionBlur;
-
 #endif

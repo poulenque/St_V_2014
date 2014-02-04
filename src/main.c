@@ -4,6 +4,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <GL/glew.h>
+#include "random.h"
 
 #include "game.h"
 #include "camera.h"
@@ -115,7 +116,7 @@ int main(int argc, char *argv[]) {
 	if(parseReturn==2) stereo=1;
 
 	//RANDOM INIT
-	srand((unsigned)time(NULL));
+	random_init();
 
 	//SDL INITIALIZATION
 	putenv("SDL_VIDEO_CENTERED=1");
@@ -185,10 +186,16 @@ int main(int argc, char *argv[]) {
 		if (keystate[SDLK_d]){
 			camera_move_acc(player,0,speed,0);
 		}
-		if (keystate[SDLK_w] || keystate[SDLK_UP]){
+		// if (keystate[SDLK_w] || keystate[SDLK_UP]){
+		// 	camera_move_acc(player,-speed,0,0);			
+		// }
+		// if (keystate[SDLK_s] || keystate[SDLK_DOWN]){
+		// 	camera_move_acc(player,speed,0,0);
+		// }
+		if (keystate[SDLK_w]){
 			camera_move_acc(player,-speed,0,0);			
 		}
-		if (keystate[SDLK_s] || keystate[SDLK_DOWN]){
+		if (keystate[SDLK_s]){
 			camera_move_acc(player,speed,0,0);
 		}
 		// if (keystate[SDLK_e]){
@@ -214,12 +221,12 @@ int main(int argc, char *argv[]) {
 				camera_rotate_acc(player,0,speed,0);
 			}
 		}
-		// if (keystate[SDLK_UP]){
-		// 	camera_rotate_acc(player,speed,0,0);
-		// }
-		// if (keystate[SDLK_DOWN]){
-		// 	camera_rotate_acc(player,-speed,0,0);
-		// }
+		if (keystate[SDLK_UP]){
+			camera_rotate_acc(player,speed,0,0);
+		}
+		if (keystate[SDLK_DOWN]){
+			camera_rotate_acc(player,-speed,0,0);
+		}
 
 
 		ULTRA_NECESSARY_TITLE_ANIMATION();
