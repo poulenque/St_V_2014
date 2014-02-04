@@ -204,8 +204,12 @@ void draw_sphere2(double size,double time_,double noise){
 void draw_gentil(double noise,int detail){
 	if (detail==0){
 		glBegin(GL_LINES);
+			glColor4d(0,0,0,1);
 			glVertex3d(0,0,1);
 			glVertex3d(0,0,-5);
+			glColor4d(.9,.9,.9,1);
+			glVertex3d(0,0,-5);
+			glVertex3d(0,0,-11);
 		glEnd();
 		return;
 	}
