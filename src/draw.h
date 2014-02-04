@@ -15,6 +15,7 @@ void draw_sphere2(double size,double time_,double noise);
 void draw_init();
 
 void draw_bow(double noise,double force);
+void draw_arrow(double noise);
 
 void draw_gentil(double noise,int detail);
 void draw_mechant(double noise,int detail);

@@ -13,6 +13,12 @@ void camera_move (Camera* c,double dx ,double dy ,double dz ){
 	c->dy=dx*sin(-c->phi/360*2*PI)  +  dy*sin(-c->phi/360*2*PI+PI/2);
 	c->dz=dz;
 	c->dtheta+=dx/50.;
+	if(dx>0)
+		c->avance=1;
+	else if(dx<0)
+		c->avance=-1;
+	else
+		c->avance=0;
 }
 
 void camera_move_acc(Camera* c,double ddx,double ddy,double ddz){
@@ -21,6 +27,12 @@ void camera_move_acc(Camera* c,double ddx,double ddy,double ddz){
 	c->ddz+=ddz;
 	c->dtheta+=ddx/50.;
 	c->drho+=ddy/50.;
+	if(ddx>0)
+		c->avance=1;
+	else if(ddx<0)
+		c->avance=-1;
+	else
+		c->avance=0;
 }
 
 void camera_rotate    (Camera* c,double dtheta ,double dphi ,double drho ){
@@ -73,6 +85,8 @@ Camera* new_Camera(){
 	c->mNearClippingDistance=.01;
 	c->mFarClippingDistance=1000.;
 
+	c->avance=0;
+
 	// c->interface_theta=0;
 	// c->interface_phi=0;
 	// c->interface_rho=0;
@@ -113,10 +127,24 @@ Camera* new_Camera(){
 	return c;
 }
 
-
-void camera_look(Camera* c){
+void camera_HUD(Camera* c){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
+	gluPerspective(c->mFOV, c->mAspectRatio, c->mNearClippingDistance, c->mFarClippingDistance);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();	
+	gluLookAt(
+	0,0,0,//pos
+	1,0,0,//pt visé
+	0,0,1);//up
+
+	c->game->HUD_render(c->game);
+
+
+}
+
+void camera_look(Camera* c){
 
 	double vitesse_avant =
 						sqrt(
@@ -131,34 +159,10 @@ void camera_look(Camera* c){
 								,2)
 							);
 
-	// gluPerspective(c->mFOV, c->mAspectRatio, c->mNearClippingDistance, c->mFarClippingDistance);
-	// gluLookAt(
-	// 0,0,0,//pos
-	// 1,0,0,//pt visé
-	// 0,0,1);//up
-
-	// double r= rand()*1./RAND_MAX;
-	// glColor4d(r,r,r,1);
-	// string3d_draw(c->interface_txt);
-	
-	// glColor4d(1,1,1,1);
-	// glPointSize(2.);
-	// glBegin(GL_POINTS);
-	// 	glVertex3d(.05,.003,0);
-	// 	glVertex3d(.05,-.003,0);	glVertex3d(.05,0,0);	glVertex3d(.05,0,.003);
-	// 	glVertex3d(.05,0,-.003);
-	// glEnd();
-
+	//THIS IS THE REAL THING
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-
-	gluPerspective(c->mFOV-hyperbolicLimit(.05*vitesse_avant,60), c->mAspectRatio, c->mNearClippingDistance, c->mFarClippingDistance);
-	gluLookAt(
-	0,0,0,//pos
-	1,0,0,//pt visé
-	0,0,1);//up
-
-	
-
+	gluPerspective(c->mFOV-hyperbolicLimit(.06*vitesse_avant,60), c->mAspectRatio, c->mNearClippingDistance, c->mFarClippingDistance);
 }
 
 void camera_render(Camera* c){
@@ -172,15 +176,25 @@ void camera_render(Camera* c){
 
 	// glBindFramebuffer(GL_FRAMEBUFFER,game->frame_buffer_id);
 
+	// camera_HUD(c);
+
 	camera_look(c);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(
+	0,0,0,//pos
+	1,0,0,//pt visé
+	0,0,1);//up
 	glRotated(c->rho,1,0,0);
 	glRotated(c->theta, 0.0, 1.0, 0.0);
 	glRotated(c->phi, 0.0, 0.0, 1.0);
 	glTranslated(c->x, c->y, c->z);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 	c->game->render(c->game);
+
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	camera_HUD(c);
 
 	glFlush();
 	SDL_GL_SwapBuffers();
@@ -207,13 +221,11 @@ void camera_render(Camera* c){
 }
 
 void camera_ApplyLeftFrustum(Camera* c){
-	glMatrixMode(GL_PROJECTION);
 	glTranslated(c->mConvergence,0,0);
 	glRotated( -180/PI*atan(c->mEyeSeparation/c->mConvergence),0,0,1);
 	glTranslated(-c->mConvergence,0,0);
 }
 void camera_ApplyRightFrustum(Camera* c){
-	glMatrixMode(GL_PROJECTION);
 	glTranslated(c->mConvergence,0,0);
 	glRotated( +180/PI*atan(c->mEyeSeparation/c->mConvergence),0,0,1);
 	glTranslated(-c->mConvergence,0,0);
@@ -221,17 +233,22 @@ void camera_ApplyRightFrustum(Camera* c){
 
 void camera_render_stereo(Camera* c){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	//left
 	camera_look(c);
-	camera_ApplyLeftFrustum(c);
 	glColorMask(1, 0, 0, 0);// bloque Green et Blue et Transparence
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(
+	0,0,0,//pos
+	1,0,0,//pt visé
+	0,0,1);//up
 	glRotated(c->rho,1,0,0);
 	glRotated(c->theta, 0.0, 1.0, 0.0);
 	glRotated(c->phi, 0.0, 0.0, 1.0);
 	glTranslated(c->x, c->y, c->z);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	camera_ApplyLeftFrustum(c);
 	c->game->render(c->game);
 
 	//clear buffer
@@ -239,21 +256,28 @@ void camera_render_stereo(Camera* c){
 
 	//right
 	camera_look(c);
-	camera_ApplyRightFrustum(c);
 	glColorMask(0, 1, 1, 0);//bloque Red et Transparence
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(
+	0,0,0,//pos
+	1,0,0,//pt visé
+	0,0,1);//up
 	glRotated(c->rho,1,0,0);
 	glRotated(c->theta, 0.0, 1.0, 0.0);
 	glRotated(c->phi, 0.0, 0.0, 1.0);
 	glTranslated(c->x, c->y, c->z);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	camera_ApplyRightFrustum(c);
 	c->game->render(c->game);
 
 	//
 	glColorMask(1, 1, 1, 1);
 
+	glClear(GL_DEPTH_BUFFER_BIT);
+	camera_HUD(c);
 	//update screen
+	glFlush();
 	SDL_GL_SwapBuffers();
 }
 
@@ -303,6 +327,12 @@ void camera_update(Camera* c,int dt){
 		// c->dphi  /= .07*dt;
 		// c->drho  /= .07*dt;
 
+		//===============================================
+		//DEBUG !!!
+		//===============================================
+		// c->theta+=.001*dt*c->dtheta -.01*(c->theta+90);
+		//===============================================
+
 		c->theta+=.001*dt*c->dtheta -.01*c->theta;
 		c->phi  +=.001*dt*c->dphi ;
 		c->rho  +=.001*dt*c->drho -.03*c->rho ;
@@ -312,13 +342,28 @@ void camera_update(Camera* c,int dt){
 		// c->dphi=0;
 		// c->drho=0;
 	}	
-c->ddx=0;
-c->ddy=0;
-c->ddz=0;
 
-c->ddtheta=0;
-c->ddphi=0;
-c->ddrho=0;
+	// while(c->theta>360)
+	// 	c->theta-=360;
+	while(c->phi>360)
+		c->phi-=360;
+	// while(c->rho>360)
+	// 	c->rho-=360;
+
+	// while(c->theta<=0)
+	// 	c->theta+=360;
+	while(c->phi<=0)
+		c->phi+=360;
+	// while(c->rho<=0)
+	// 	c->rho+=360;
+
+	c->ddx=0;
+	c->ddy=0;
+	c->ddz=0;
+
+	c->ddtheta=0;
+	c->ddphi=0;
+	c->ddrho=0;
 
 }
 

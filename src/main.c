@@ -168,6 +168,8 @@ int main(int argc, char *argv[]) {
 				case SDL_KEYDOWN:
 					if(event.key.keysym.sym ==SDLK_ESCAPE)
 						quit=1;
+					if(event.key.keysym.sym == SDLK_RETURN)
+						stereo=!stereo;
 					break;
 				case SDL_MOUSEMOTION:
 					camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
@@ -198,12 +200,12 @@ int main(int argc, char *argv[]) {
 		if (keystate[SDLK_s]){
 			camera_move_acc(player,speed,0,0);
 		}
-		// if (keystate[SDLK_e]){
-		// 	camera_move_acc(player,0,0,-speed);
-		// }
-		// if (keystate[SDLK_q]){
-		// 	camera_move_acc(player,0,0,speed);
-		// }
+		if (keystate[SDLK_e]){
+			camera_move_acc(player,0,0,-speed);
+		}
+		if (keystate[SDLK_q]){
+			camera_move_acc(player,0,0,speed);
+		}
 
 		if(keystate[SDLK_LALT]){
 			if (keystate[SDLK_LEFT]){

@@ -10,6 +10,7 @@ typedef struct Game{
 	Camera* player;
 	void (*update)(struct Game* game,int dt);
 	void (*render)(struct Game* game);
+	void (*HUD_render)(struct Game* game);
 }Game;
 
 Game* initGame(Camera* player);

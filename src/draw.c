@@ -203,45 +203,79 @@ void draw_sphere2(double size,double time_,double noise){
 
 void draw_gentil(double noise,int detail){
 	if (detail==0){
+
+		glColor4d(0,0,0,1);
+		//REAL OBJECT
+		glLineWidth(3.0);
 		glBegin(GL_LINES);
-			glColor4d(0,0,0,1);
 			glVertex3d(0,0,1);
+			glVertex3d(0,0,0);
+		glEnd();
+		glLineWidth(2.0);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,0);
+			glVertex3d(0,0,-1);
+		glEnd();
+
+		glLineWidth(7.0);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,-1);
+			glVertex3d(0,0,-1.4);
+		glEnd();
+		glLineWidth(4);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,-1.4);
+			glVertex3d(0,0,-2.2);
+		glEnd();
+		glLineWidth(2.0);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,-2.2);
+			glVertex3d(0,0,-3);
+		glEnd();
+		glLineWidth(4);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,-3);
+			glVertex3d(0,0,-4);
+		glEnd();
+		glLineWidth(7);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,-4);
 			glVertex3d(0,0,-5);
-			glColor4d(.9,.9,.9,1);
+		glEnd();
+		//REFLEXION
+		glColor4d(.9,.9,.9,1);
+		glBegin(GL_LINES);
 			glVertex3d(0,0,-5);
 			glVertex3d(0,0,-11);
 		glEnd();
 		return;
 	}
 
+	int cylinder_subivision=8;
+	if(detail==1)
+		cylinder_subivision=4;
+
 	gluQuadricDrawStyle(quad, GLU_FILL);
 
+	//REAL OBJECT
 	glPushMatrix();
 
-	glTranslated(0,0,1);
-	glColor4d(0,0,0,1);
+		glTranslated(0,0,1);
+		glColor4d(0,0,0,1);
 
 		//HEAD
 		glTranslated(0,0,-1.);
 		glPushMatrix();
-			// glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			// gluCylinder(quad,1-(1.)*d,1,2.*d,8,1);
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,
-				random(.5,noise),
-				random(1,noise),
-				1.,8,1);
+			gluCylinder(quad,random(.5,noise), random(1,noise), 1.,cylinder_subivision,1);
 		glPopMatrix();
 
 
 		glTranslated(0,0,-1.);
 		glPushMatrix();
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,
-				0.,
-				random(.5,noise),
-				1.,8,1);
-			glPopMatrix();
+			gluCylinder(quad,0.,random(.5,noise),1.,cylinder_subivision,1);
+		glPopMatrix();
 
 		//BODY
 		glTranslated(0,0,-2.);
@@ -249,14 +283,10 @@ void draw_gentil(double noise,int detail){
 
 			if(detail>=2){
 				glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-				gluCylinder(quad,
-					random(1-.5,noise),
-					random(1+.5,noise),
-					2.,8,1);
-
+				gluCylinder(quad,random(1-.5,noise),random(1+.5,noise),2.,cylinder_subivision,1);
 			}
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,1-.5,1+.5,2.,8,1);
+			gluCylinder(quad,1-.5,1+.5,2.,cylinder_subivision,1);
 		glPopMatrix();
 
 		glTranslated(0,0,-2.);
@@ -264,14 +294,10 @@ void draw_gentil(double noise,int detail){
 
 			if(detail>=2){
 				glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-				gluCylinder(quad,
-					random(1+.5,noise),
-					random(1-.5,noise),
-					2.,8,1);
-	
+				gluCylinder(quad,random(1+.5,noise),random(1-.5,noise),2.,cylinder_subivision,1);
 			}
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,1+.5,1-.5,2,8,1);
+			gluCylinder(quad,1+.5,1-.5,2,cylinder_subivision,1);
 		glPopMatrix();
 
 	glPopMatrix();
@@ -281,46 +307,27 @@ void draw_gentil(double noise,int detail){
 
 
 
+	//REFLEXION
+	glPushMatrix();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-	glTranslated(0,0,1);
-	glColor4d(.9,.9,.9,1);
-	glScaled(1,1,-1);
-	glTranslated(0,0,12);
+		// glTranslated(0,0,1);
+		glColor4d(.9,.9,.9,1);
+		glScaled(1,1,-1);
+		glTranslated(0,0,11);
 
 		//HEAD
 		glTranslated(0,0,-1.);
 		glPushMatrix();
-			// glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			// gluCylinder(quad,1-(1.)*d,1,2.*d,8,1);
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,
-				random(.5,noise),
-				random(1,noise),
-				1.,8,1);
+			gluCylinder(quad,random(.5,noise), random(1,noise), 1.,cylinder_subivision,1);
 		glPopMatrix();
 
 
 		glTranslated(0,0,-1.);
 		glPushMatrix();
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,
-				0.,
-				random(.5,noise),
-				1.,8,1);
-			glPopMatrix();
+			gluCylinder(quad,0.,random(.5,noise),1.,cylinder_subivision,1);
+		glPopMatrix();
 
 		//BODY
 		glTranslated(0,0,-2.);
@@ -328,14 +335,10 @@ void draw_gentil(double noise,int detail){
 
 			if(detail>=2){
 				glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-				gluCylinder(quad,
-					random(1-.5,noise),
-					random(1+.5,noise),
-					2.,8,1);
-
+				gluCylinder(quad,random(1-.5,noise),random(1+.5,noise),2.,cylinder_subivision,1);
 			}
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,1-.5,1+.5,2.,8,1);
+			gluCylinder(quad,1-.5,1+.5,2.,cylinder_subivision,1);
 		glPopMatrix();
 
 		glTranslated(0,0,-2.);
@@ -343,20 +346,13 @@ void draw_gentil(double noise,int detail){
 
 			if(detail>=2){
 				glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-				gluCylinder(quad,
-					random(1+.5,noise),
-					random(1-.5,noise),
-					2.,8,1);
-	
+				gluCylinder(quad,random(1+.5,noise),random(1-.5,noise),2.,cylinder_subivision,1);
 			}
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,1+.5,1-.5,2,8,1);
+			gluCylinder(quad,1+.5,1-.5,2,cylinder_subivision,1);
 		glPopMatrix();
 
 	glPopMatrix();
-
-
-
 
 
 
@@ -463,24 +459,62 @@ void draw_half_bow(double noise,double force){
 
 void draw_bow(double noise,double force){
 
-	gluQuadricDrawStyle(quad, GLU_FILL);
 	glPushMatrix();
-	glScaled(.25,.25,.25);
-		draw_half_bow(noise,force);
+	glTranslated(0,force*.5,0);
+
+		gluQuadricDrawStyle(quad, GLU_FILL);
 		glPushMatrix();
-		glScaled(1,1,-1);
-		draw_half_bow(noise,force);
+		glScaled(.25,.25,.25);
+			draw_half_bow(noise,force);
+			glPushMatrix();
+			glScaled(1,1,-1);
+			draw_half_bow(noise,force);
+			glPopMatrix();
+		glPopMatrix();
+
+		gluQuadricDrawStyle(quad, GLU_LINE);
+		glPushMatrix();
+		glScaled(.25,.25,.25);
+			draw_half_bow(noise,force);
+			glPushMatrix();
+			glScaled(1,1,-1);
+			draw_half_bow(noise,force);
+			glPopMatrix();
 		glPopMatrix();
 	glPopMatrix();
+}
 
-	gluQuadricDrawStyle(quad, GLU_LINE);
+double t=0;
+void draw_arrow(double noise){
+	t++;
 	glPushMatrix();
-	glScaled(.25,.25,.25);
-		draw_half_bow(noise,force);
-		glPushMatrix();
-		glScaled(1,1,-1);
-		draw_half_bow(noise,force);
-		glPopMatrix();
+		glTranslated(-1,10,0);
+		glRotated(t,1,0,0);
+		gluQuadricDrawStyle(quad, GLU_FILL);
+
+		//fleche
+		gluCylinder(quad,.04,.2,1,3,1);
+		glTranslated(0,0,1);
+
+		//tige
+		gluCylinder(quad,.04,.04,9,3,1);
+
+		glTranslated(0,0,7);
+		gluCylinder(quad,.08,.2,.5,2,1);
+		glTranslated(0,0,.5);
+		gluCylinder(quad,.2,.2,1,2,1);
+
+		glTranslated(0,0,-.5);
+		glRotated(90,0,0,1);
+
+		gluCylinder(quad,.08,.2,.5,2,1);
+		glTranslated(0,0,.5);
+		gluCylinder(quad,.2,.2,1,2,1);
+
+
+
+		// gluCylinder(quad,.4,0,1,3,1);
+
 	glPopMatrix();
 }
 

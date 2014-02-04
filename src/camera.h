@@ -61,6 +61,8 @@ typedef	struct Camera {
 	double mNearClippingDistance;
 	double mFarClippingDistance;
 
+	int avance;
+
 
 } Camera;
 
