@@ -90,8 +90,8 @@ void fake_walk_update(Game* game,int dt){
 	// fake_drho+=fake_walking*70*sin(PI+PI/2*cos(SDL_GetTicks()*.008))/4.;
 
 	for(int i=0;i<dt;i++){
-		// fake_drho+=fake_walking*2*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008);
-		fake_drho+=fake_walking*2*cos(time_*.12)*cos(time_*.12)*cos(time_*.12);
+		fake_drho+=fake_walking*2*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008);
+		// fake_drho+=fake_walking*2*cos(time_*.12)*cos(time_*.12)*cos(time_*.12);
 	
 		double dt=1;
 		//================================================
@@ -108,6 +108,82 @@ void fake_walk_update(Game* game,int dt){
 	}
 
 
+}
+
+
+
+double fire_anim_begin=0;
+void weapon_HUD_FIRE(Game* game){
+	fake_walking=
+		 game->player->dx*game->player->dx
+		+game->player->dy*game->player->dy
+		+game->player->dz*game->player->dz;
+	fake_walking=sqrt(fake_walking);
+	fake_walking*=0.007;
+	double real_rho=game->player->rho    +fake_rho;
+	double real_drho=game->player->drho  +fake_drho;
+	double real_theta=game->player->theta+fake_theta;
+	/////////////////////////////////////////////////////////////////////
+	glPushMatrix();
+	glColor4d(1,0,0,1);
+	glPointSize(2.);
+
+	glRotated(game->player->rho*(-2),1,0,0);
+	glRotated(game->player->theta*.5, 0.0, 1.0, 0.0);
+
+	glEnable(GL_POINT_SMOOTH);
+	glPointSize(6.);
+
+	glBegin(GL_POINTS);
+		glVertex3d(.05,.003,0);
+		glVertex3d(.05,-.003,0);	glVertex3d(.05,0,0);	glVertex3d(.05,0,.003);
+		glVertex3d(.05,0,-.003);
+	glEnd();
+	glDisable(GL_POINT_SMOOTH);
+
+	glPopMatrix();
+	/////////////////////////////////////////////////////////////////////
+
+	glPushMatrix();
+	glRotated(real_rho*(-4),1,0,0);
+	glRotated(real_theta*.5, 0.0, 1.0, 0.0);
+
+	double real_HUD_drho_compensation=HUD_drho_compensation+fake_HUD_drho_compensation;
+
+	glTranslated(0,0,-real_HUD_drho_compensation*real_HUD_drho_compensation*0.0007);
+
+	glTranslated(5,0,-3);
+	glTranslated(real_theta*(.05),0,0);
+
+	glRotated(80, 0, 1, 0);
+	glRotated(70, 1, 0, 0);
+
+
+	glRotated(real_theta*(1),0,0,1);
+
+
+	glRotated(real_HUD_drho_compensation,0,1,0);
+
+	glTranslated(0,0,-1);
+
+	glLineWidth(3.0);
+
+	double oscill_force=.5*sin(time_*.02)+.5*sin(time_*.017);
+
+	draw_bow(.2,.3+.1*oscill_force);
+
+	//ARROW
+	glRotated(60, 0, 1, 0);
+	glRotated(60, 1, 0, 0);
+	glTranslated(0,0,-3+1*oscill_force);
+	// glTranslated(-.3+.1*sin(time_*.034),1+1*sin(cos(time_*.021)),0);
+	glTranslated(-.3+.1*sin(time_*.034),1,0);
+
+	draw_arrow(.2);
+
+	// draw_bow(.2,.5+.5*cos(PI*sin(time_*.05)));
+	// draw_bow(.2,0);
+	glPopMatrix();
 }
 
 void weapon_HUD(Game* game){
@@ -167,12 +243,14 @@ void weapon_HUD(Game* game){
 
 	glLineWidth(3.0);
 
-	draw_bow(.2,.3+.1*sin(time_*.02));
+	double oscill_force=.5*sin(time_*.02)+.5*sin(time_*.017);
+
+	draw_bow(.2,.3+.1*oscill_force);
 
 	//ARROW
 	glRotated(60, 0, 1, 0);
 	glRotated(60, 1, 0, 0);
-	glTranslated(0,0,-3+1*sin(time_*.02));
+	glTranslated(0,0,-3+1*oscill_force);
 	// glTranslated(-.3+.1*sin(time_*.034),1+1*sin(cos(time_*.021)),0);
 	glTranslated(-.3+.1*sin(time_*.034),1,0);
 
@@ -250,7 +328,9 @@ Game* initGame(Camera* player){
 	//THIS IS FOR TESTING PURPOSE
 	//===========================
 	// glClearColor( 1., 1., 1., 1. );
-	game->HUD_render=weapon_HUD;
+	// game->HUD_render=weapon_HUD;
+	
+	// game->HUD_render=weapon_HUD_FIRE;
 	// game->update=ingame_level1_update;
 	// game->render=ingame_level1_render;
 
@@ -336,10 +416,10 @@ void intro_render(Game* game){
 
 	glMatrixMode(GL_MODELVIEW);
 
-	glPushMatrix();
-	glScaled(4,4,4);
-	draw_bow(.4,0);
-	glPopMatrix();
+	// glPushMatrix();
+	// glScaled(4,4,4);
+	// draw_bow(.4,0);
+	// glPopMatrix();
 
 	glPushMatrix();
 	glTranslated(20,0,0);

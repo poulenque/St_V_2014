@@ -388,6 +388,45 @@ void draw_half_bow(double noise,double force){
 	glPopMatrix();
 }
 
+
+void simple_cube(){
+	glBegin(GL_POLYGON);
+	glVertex3f(  0.5, -0.5, 0.5 );
+	glVertex3f(  0.5,  0.5, 0.5 );
+	glVertex3f( -0.5,  0.5, 0.5 );
+	glVertex3f( -0.5, -0.5, 0.5 );
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glVertex3f( 0.5, -0.5, -0.5 );
+	glVertex3f( 0.5,  0.5, -0.5 );
+	glVertex3f( 0.5,  0.5,  0.5 );
+	glVertex3f( 0.5, -0.5,  0.5 );
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glVertex3f( -0.5, -0.5,  0.5 );
+	glVertex3f( -0.5,  0.5,  0.5 );
+	glVertex3f( -0.5,  0.5, -0.5 );
+	glVertex3f( -0.5, -0.5, -0.5 );
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glVertex3f(  0.5,  0.5,  0.5 );
+	glVertex3f(  0.5,  0.5, -0.5 );
+	glVertex3f( -0.5,  0.5, -0.5 );
+	glVertex3f( -0.5,  0.5,  0.5 );
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glVertex3f(  0.5, -0.5, -0.5 );
+	glVertex3f(  0.5, -0.5,  0.5 );
+	glVertex3f( -0.5, -0.5,  0.5 );
+	glVertex3f( -0.5, -0.5, -0.5 );
+	glEnd();
+ 
+}
+
 void draw_hand(double force){
 	glPushMatrix();
 	glTranslated(0,force*.5,0);
@@ -457,11 +496,21 @@ void draw_hand(double force){
 		}
 		glPopMatrix();
 
+		glPushMatrix();
+			glTranslated(.2,-.2,.5);
+			glRotated(45,1,0,0);
+			glRotated(-25,0,0,1);
+			glScaled(.4,.7,.4);
+		// glColor4d(0,1,0,1);
+			simple_cube();
+		// glColor4d(.8,.6,.4,1);
+		glPopMatrix();
+
 		glBegin(GL_QUADS);
 		// glBegin(GL_LINE_STRIP);
 
 			//doigts dessus
-			glVertex3d(-.5, .4, .5);
+			glVertex3d(-.5, .4, .6);
 			glVertex3d(-.5, .2,-.7);
 			glVertex3d(-.0, .6,-.8);
 			glVertex3d(-.0, .6, .7);
@@ -480,24 +529,103 @@ void draw_hand(double force){
 
 
 			//main dessus
-		// glColor4d(0,1,0,1);
-			glVertex3d(-.5, .4, .5);
-		// glColor4d(.8,.6,.4,1);
+			glVertex3d(-.5, .4, .6);
 			glVertex3d(-.5, .2,-.7);
 			glVertex3d(-.5,-.6,-.5);
 			glVertex3d(-.5,-.6, .4);
 
 			//main droite
-			glVertex3d(-.5, .4, .5);
+			glVertex3d(-.5, .4, .6);
 			glVertex3d(-.5,-.6, .4);
-			glVertex3d(-.0,-.6, .6);
+			glVertex3d(-.0,-.6, .7);
 			glVertex3d(-.0, .4, .7);
 
 			//doigts dessous
-			glVertex3d(+.5,  .1,-.7);
-			glVertex3d(+.5,  .1, .4);
-			glVertex3d(+.0, -.2, .4);
-			glVertex3d(+.0, -.2,-.7);
+			glVertex3d(+.3,  .1,-.4);
+			glVertex3d(+.3,  .1, .5);
+			glVertex3d(+.0, -.2, .5);
+			glVertex3d(+.0, -.2,-.4);
+
+			//poignee centre
+			glVertex3d(-.5,-.6,-.5);
+			glVertex3d(-.5,-.6, .4);
+			glVertex3d(-.5,-1., .2);
+			glVertex3d(-.5,-.8,-.5);
+
+			//poignee droite
+			glVertex3d(-.5,-.6, .4);
+			glVertex3d(-.5,-1., .2);
+			glVertex3d(-.4,-1., .4);
+			glVertex3d(-.0,-.6, .7);
+
+
+
+
+
+
+			//poignee gauche
+			glVertex3d(-.5,-.6,-.5);
+			glVertex3d(-.0,-.4,-.7);
+			glVertex3d(-.0,-.6,-.7);
+			glVertex3d(-.5,-.8,-.5);
+
+
+
+			double nb=3;
+
+			glVertex3d(-.4,-1., .4);
+			glVertex3d(-.0,-.6, .7);
+			glVertex3d(.2,-1., .0-.1);
+			glVertex3d(.5,-1.-nb, .4-nb);
+
+			glVertex3d(-.5,-1., .2);
+			glVertex3d(-.4,-1., .4);
+			glVertex3d(.5,-1.-nb, .4-nb);
+			glVertex3d(-.5,-1.-nb, .2-nb);
+
+			glVertex3d(-.0,-.6,-.7);
+			glVertex3d(-.5,-.8,-.5);
+			glVertex3d(-.5,-nb,-nb+.5);
+			glVertex3d(-.0,-nb+1,-nb+.7);
+
+			glVertex3d(-.5,-1., .2);
+			glVertex3d(-.5,-.8,-.5);
+			glVertex3d(-.5,-nb,-nb+.5);
+			glVertex3d(-.5,-nb-1, -nb+.2);
+
+
+			double nb2=100;
+
+
+			// glVertex3d(-.4,-1., .4);
+			// glVertex3d(-.0,-.6, .7);
+			// glVertex3d(.2,-1., .0-.1);
+			// glVertex3d(.5,-1.-nb, .4-nb);
+
+			glVertex3d(.5,-1.-nb, .4-nb);
+			glVertex3d(-.5,-1.-nb, .2-nb);
+			glVertex3d(-.5,-1.-nb-nb2, .2-nb-nb2);
+			glVertex3d(.5,-1.-nb-nb2, .4-nb-nb2);
+
+			glVertex3d(-.5,-nb-nb2,-nb-nb2+.5);
+			glVertex3d(-.0,-nb-nb2+1,-nb-nb2+.7);
+			glVertex3d(-.0,-nb-nb2+1,-nb-nb2+.7);
+			glVertex3d(-.5,-nb-nb2,-nb-nb2+.5);
+
+			glVertex3d(-.5,-nb-nb2,-nb-nb2+.5);
+			glVertex3d(-.5,-nb-nb2-1, -nb-nb2+.2);
+			glVertex3d(-.5,-nb-nb2-1, -nb-nb2+.2);
+			glVertex3d(-.5,-nb-nb2,-nb-nb2+.5);
+
+
+
+
+
+
+
+
+			//bras gauche
+
 
 
 		// 	glVertex3d(-.5,-.6, .6);
