@@ -76,12 +76,22 @@ double fake_HUD_drho_compensation=0;
 
 double fake_walking=0;
 
+void game_pause(Game * game,int state){
+	if(state){
+		//TODO PAUSE MUSIC
+	}else{
+		//TODO UNPAUSE MUSIC
+	}
+}
+
+
 void fake_walk_update(Game* game,int dt){
 	
 	// fake_drho+=fake_walking*70*sin(PI+PI/2*cos(SDL_GetTicks()*.008))/4.;
 
 	for(int i=0;i<dt;i++){
-		fake_drho+=fake_walking*2*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008);
+		// fake_drho+=fake_walking*2*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008);
+		fake_drho+=fake_walking*2*cos(time_*.12)*cos(time_*.12)*cos(time_*.12);
 	
 		double dt=1;
 		//================================================
@@ -177,6 +187,7 @@ void weapon_HUD(Game* game){
 Game* initGame(Camera* player){
 
 	draw_init();
+	audio_init();
 
 	for(int i=0;i<200;i++){
 		messages_x[i]=rand()*1./RAND_MAX;
@@ -226,13 +237,24 @@ Game* initGame(Camera* player){
 
 	game->HUD_render=empty_HUD;
 
+	game->audio= audio_new (PLAYER_AMBIENT&PLAYER_LOOP);
+
 	//===========================
+	// 
+	//  _|_|_|_|_|  _|_|_|_|    _|_|_|  _|_|_|_|_|  _|_|_|  _|      _|    _|_|_|  
+	//      _|      _|        _|            _|        _|    _|_|    _|  _|        
+	//      _|      _|_|_|      _|_|        _|        _|    _|  _|  _|  _|  _|_|  
+	//      _|      _|              _|      _|        _|    _|    _|_|  _|    _|  
+	//      _|      _|_|_|_|  _|_|_|        _|      _|_|_|  _|      _|    _|_|_|  
+	//                                                                            
 	//THIS IS FOR TESTING PURPOSE
 	//===========================
 	// glClearColor( 1., 1., 1., 1. );
 	game->HUD_render=weapon_HUD;
 	// game->update=ingame_level1_update;
 	// game->render=ingame_level1_render;
+
+
 	//===========================
 	//===========================
 
@@ -256,6 +278,9 @@ void intro_update(Game* game,int dt){
 	camera_update(game->player,dt);
 	fake_walk_update(game,dt);
 
+	if(!audio_isPlaying(game->audio)){
+		audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+	}
 	//distace player begin sphere
 	double x_temp=(game->player->x+20);
 	double y_temp=(game->player->y-0);
@@ -310,6 +335,12 @@ void intro_update(Game* game,int dt){
 void intro_render(Game* game){
 
 	glMatrixMode(GL_MODELVIEW);
+
+	glPushMatrix();
+	glScaled(4,4,4);
+	draw_bow(.4,0);
+	glPopMatrix();
+
 	glPushMatrix();
 	glTranslated(20,0,0);
 
@@ -387,6 +418,10 @@ void intro_get_weapon_update(Game* game,int dt){
 	time_+=dt/15.;
 	camera_update(game->player,dt);
 	fake_walk_update(game,dt);
+
+	if(!audio_isPlaying(game->audio)){
+		audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+	}
 
 	//distace player begin square
 	double x_temp=(game->player->x+200);
@@ -476,7 +511,7 @@ void intro_get_weapon_render(Game* game){
 		glRotated(time_,0,0,1);
 		glRotated(45,45,0,1);
 		glColor4d(1,0,0,1);
-		draw_bow(.4,0);
+		draw_bow_to_take(.4,0);
 		glPopMatrix();
 
 	glPopMatrix();
@@ -591,6 +626,10 @@ void ingame_level1_update(Game* game,int dt){
 	time_+=dt/15.;
 	camera_update(game->player,dt);
 	fake_walk_update(game,dt);
+
+	if(!audio_isPlaying(game->audio)){
+		audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
+	}
 }
 void ingame_level1_render(Game* game){
 
@@ -611,10 +650,12 @@ void ingame_level1_render(Game* game){
 	// }
 
 
+	// double z=exp(-time_*.07);
+	double z=exp(-time_*.007);
+
 	for(int i=-100;i<100;i++){
 		for(int j=-100;j<100;j++){
-			glPushMatrix();
-				glTranslated(20*i,20*j,20*exp(-time_*.07));
+			// glPushMatrix();
 				// draw_gentil(time_,4*(i+j)/200.,2);
 
 				double x_guy=20*i;
@@ -635,14 +676,33 @@ void ingame_level1_render(Game* game){
 					){
 					double dist=(x_guy+game->player->x)*(x_guy+game->player->x)+(y_guy+game->player->y)*(y_guy+game->player->y);
 
-					if(dist<20*20*20)
-						draw_gentil(2*(100-(int)time_%100)*.01,2);
-					else if(dist<50*20*20)
-						draw_gentil(2*(100-(int)time_%100)*.01,1);
-					else if(dist<600*20*20)
-						draw_gentil(2*(100-(int)time_%100)*.01,0);
+					int quality=0;
+					if(dist<20*20*20){
+						quality=2;
+					}else if(dist<50*20*20){
+						quality=1;
+					}else if(dist<300*20*20){
+						quality=0;
+					}else{
+						continue;
+					}
+
+					glColor4d(0,0,0,1-z);
+					glPushMatrix();
+						glTranslated(20*i,20*j,20*z);
+						draw_gentil(2*(100-(int)time_%100)*.01,quality);
+					glPopMatrix();
+
+					glColor4d(0.9,0.9,0.9,1-z);
+					glPushMatrix();
+						glTranslated(0,0,-10);
+						glScaled(1,1,-1);
+						glTranslated(20*i,20*j,20*z);
+						draw_gentil(2*(100-(int)time_%100)*.01,quality);
+					glPopMatrix();
+
 				}
-			glPopMatrix();
+			// glPopMatrix();
 		}
 	}
 

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
+#include <math.h>
 #include <pthread.h>
 #include <GL/glew.h>
 #include "random.h"
@@ -155,6 +157,139 @@ int main(int argc, char *argv[]) {
 
 	int MOUSE_ON=1;
 
+
+
+
+
+
+	unsigned int W_KEY=SDLK_w;
+	unsigned int A_KEY=SDLK_a;
+	unsigned int S_KEY=SDLK_s;
+	unsigned int D_KEY=SDLK_d;
+
+
+	while(1){
+		keystate = SDL_GetKeyState(NULL);
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+
+		while( SDL_PollEvent( &event ) );
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		glMatrixMode( GL_PROJECTION );
+		glLoadIdentity();
+		gluOrtho2D(-1, 1, -1, 1);
+
+		glMatrixMode( GL_MODELVIEW );
+		glLoadIdentity();
+
+		glColor4d(0,1,0,.4+.2*sin(SDL_GetTicks()*0.01)+random(0,0.5));
+		// glDisable(GL_DEPTH_TEST);
+		glPushAttrib(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
+
+		glBegin( GL_QUADS );
+			glVertex2f(-random(.7,.1), -random(.7,.1) );
+			glVertex2f( random(.7,.1), -random(.7,.1) );
+			glVertex2f( random(.7,.1),  random(.7,.1) );
+			glVertex2f(-random(.7,.1),  random(.7,.1) );
+
+			glVertex2f(-random(.75,.1), -random(.75,.1) );
+			glVertex2f( random(.75,.1), -random(.75,.1) );
+			glVertex2f( random(.75,.1),  random(.75,.1) );
+			glVertex2f(-random(.75,.1),  random(.75,.1) );
+
+			glVertex2f(-random(.8,.1), -random(.8,.1) );
+			glVertex2f( random(.8,.1), -random(.8,.1) );
+			glVertex2f( random(.8,.1),  random(.8,.1) );
+			glVertex2f(-random(.8,.1),  random(.8,.1) );
+		glEnd();
+		String3d*str=new_string3d();
+		str->size=.1;
+
+		// string3d_setTxt(str,"===PRESS===\n=== q to===\n===QUIT !==");
+		string3d_setTxt(str,"===FRENCH==\n==KEYBOARD=\n===PRESS===\n===  F  ===");
+
+		glLineWidth(20.0);
+
+		str->dist=.6;
+		glTranslated(0,0.05,0);
+		glPushMatrix();
+			glTranslated(0,.5,str->dist*1.2);
+			glRotated(-90+30*sin(SDL_GetTicks()*0.003),1,0,0);
+			glRotated(180,0,0,1);
+			glScaled(1,.5,1);
+			glColor4d(1,1,1,1);
+			string3d_draw(str);
+			string3d_draw(str);
+			string3d_draw(str);
+		glPopMatrix();
+
+		string3d_setTxt(str,"===========");
+
+		glPushMatrix();
+			glTranslated(0,-.06,str->dist*1.2);
+			glRotated(-100,1,0,0);
+			glRotated(180,0,0,1);
+			glScaled(1,.5,1);
+			glColor4d(0,.3,0,.5);
+			string3d_draw(str);
+			string3d_draw(str);
+			string3d_draw(str);
+		glPopMatrix();
+
+		string3d_setTxt(str,"===OTHER===\n==KEYBOARD=\n===PRESS===\n===SPACE===");
+
+		glPushMatrix();
+			glTranslated(0,-.3,str->dist*1.2);
+			glRotated(-90-30*sin(SDL_GetTicks()*0.003),1,0,0);
+			glRotated(180,0,0,1);
+			glScaled(1,.5,1);
+			glColor4d(0,0,0,1);
+			string3d_draw(str);
+			string3d_draw(str);
+			string3d_draw(str);
+		glPopMatrix();
+
+
+		glPopAttrib();
+		free(str);
+
+		glFlush();
+		SDL_GL_SwapBuffers();
+
+		if(keystate[SDLK_SPACE]){
+			break;
+		}
+		if(keystate[SDLK_f]){
+			W_KEY=SDLK_z;
+			A_KEY=SDLK_q;
+			S_KEY=SDLK_s;
+			D_KEY=SDLK_d;
+			break;
+		}
+		if(keystate[SDLK_ESCAPE]){
+			return 0;
+		}
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	while(!quit){
 		dt=SDL_GetTicks()-t_before;
 		t_before = SDL_GetTicks();
@@ -179,9 +314,11 @@ int main(int argc, char *argv[]) {
 						if(MOUSE_ON){
 							SDL_WM_GrabInput(SDL_GRAB_ON);
 							SDL_ShowCursor( SDL_DISABLE );
+							game_pause(game,0);
 						}else{
 							SDL_WM_GrabInput(SDL_GRAB_OFF);
 							SDL_ShowCursor( SDL_ENABLE );
+							game_pause(game,1);
 						}
 					}
 					if(event.key.keysym.sym == SDLK_RETURN)
@@ -196,19 +333,13 @@ int main(int argc, char *argv[]) {
 		}
 		//========================
 		double speed=1000;
-		// if (keystate[SDLK_ESCAPE]){
-		// 	quit=1;
-		// }
-
-		// camera_rotate(player,0,70*sin(PI+PI*cos(SDL_GetTicks()*.008)),0);
-		// camera_rotate(player,0,70*sin(PI+PI/2*cos(SDL_GetTicks()*.007)),0);
 
 		if(MOUSE_ON){
 
-			if (keystate[SDLK_a]){
+			if (keystate[A_KEY]){
 				camera_move_acc(player,0,-speed,0);
 			}
-			if (keystate[SDLK_d]){
+			if (keystate[D_KEY]){
 				camera_move_acc(player,0,speed,0);
 			}
 			// if (keystate[SDLK_w] || keystate[SDLK_UP]){
@@ -217,10 +348,10 @@ int main(int argc, char *argv[]) {
 			// if (keystate[SDLK_s] || keystate[SDLK_DOWN]){
 			// 	camera_move_acc(player,speed,0,0);
 			// }
-			if (keystate[SDLK_w]){
+			if (keystate[W_KEY]){
 				camera_move_acc(player,-speed,0,0);			
 			}
-			if (keystate[SDLK_s]){
+			if (keystate[S_KEY]){
 				camera_move_acc(player,speed,0,0);
 			}
 			// if (keystate[SDLK_e]){
@@ -230,14 +361,15 @@ int main(int argc, char *argv[]) {
 			// 	camera_move_acc(player,0,0,speed);
 			// }
 
-			if(keystate[SDLK_LALT]){
-				if (keystate[SDLK_LEFT]){
-					camera_move_acc(player,0,-speed,0);
-				}
-				if (keystate[SDLK_RIGHT]){
-					camera_move_acc(player,0,speed,0);
-				}
-			}else{
+			// if(keystate[SDLK_LALT]){
+			// 	if (keystate[SDLK_LEFT]){
+			// 		camera_move_acc(player,0,-speed,0);
+			// 	}
+			// 	if (keystate[SDLK_RIGHT]){
+			// 		camera_move_acc(player,0,speed,0);
+			// 	}
+			// }
+			// else{
 				speed=5000;
 				if (keystate[SDLK_LEFT]){
 					camera_rotate_acc(player,0,-speed,0);
@@ -245,7 +377,7 @@ int main(int argc, char *argv[]) {
 				if (keystate[SDLK_RIGHT]){
 					camera_rotate_acc(player,0,speed,0);
 				}
-			}
+			// }
 			if (keystate[SDLK_UP]){
 				camera_rotate_acc(player,speed,0,0);
 			}

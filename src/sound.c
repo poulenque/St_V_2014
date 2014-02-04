@@ -5,7 +5,7 @@
 
 #define BUFFER 4096
 
-static int openOgg (char * path, OggVorbis_File * oggFile, int * format, int * freq) {
+static int openOgg (const char * path, OggVorbis_File * oggFile, int * format, int * freq) {
 	FILE * fp;
 	fp = fopen (path, "rb");
 	if (!fp) {return 1;}
@@ -24,7 +24,7 @@ static int openOgg (char * path, OggVorbis_File * oggFile, int * format, int * f
 	return 0;
 }
 
-Sound * sound_load (char * path) {
+Sound * sound_load (const char * path) {
 	Sound * s;
 	int bitStream;
 	unsigned long bytes;
@@ -71,7 +71,7 @@ Sound * sound_load (char * path) {
 	return s;
 }
 
-SoundSample * sound_loadSample (char * path, int size){
+SoundSample * sound_loadSample (const char * path, int size){
 	SoundSample * s;
 
 	s = malloc (sizeof (SoundSample));

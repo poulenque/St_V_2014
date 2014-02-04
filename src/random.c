@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <limits.h>
+#include <time.h>
 
 // const double invert_RAND_MAX=1./RAND_MAX;
 const double invert_RAND_MAX=.5/INT_MAX;

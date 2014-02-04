@@ -284,16 +284,12 @@ void camera_render_stereo(Camera* c){
 void camera_update(Camera* c,int dt){
 
 	for(int i=0;i<dt;i++){
-		double dt=1;
 
 		double lambda=.2;
 
-		// c->dx+=.001*dt*c->ddx;
-		// c->dy+=.001*dt*c->ddy;
-		// c->dz+=.001*dt*c->ddz;
-		c->dx+=.001*dt*c->ddx;
-		c->dy+=.001*dt*c->ddy;
-		c->dz+=.001*dt*c->ddz;
+		c->dx+=.001*c->ddx;
+		c->dy+=.001*c->ddy;
+		c->dz+=.001*c->ddz;
 
 		// c->dx+= -.05*.05*dt*dt*lambda*c->dx;
 		// c->dy+= -.05*.05*dt*dt*lambda*c->dy;
@@ -305,16 +301,16 @@ void camera_update(Camera* c,int dt){
 		// c->dy/= .07*dt;
 		// c->dz/= .07*dt;
 
-		c->x+=.001*dt*c->dx;
-		c->y+=.001*dt*c->dy;
-		c->z+=.001*dt*c->dz;
+		c->x+=.001*c->dx;
+		c->y+=.001*c->dy;
+		c->z+=.001*c->dz;
 
 
 		//================================================
 
-		c->dtheta+=.001*dt*c->ddtheta;
-		c->dphi  +=.001*dt*c->ddphi;
-		c->drho  +=.001*dt*c->ddrho;
+		c->dtheta+=.001*c->ddtheta;
+		c->dphi  +=.001*c->ddphi;
+		c->drho  +=.001*c->ddrho;
 
 		// c->dtheta+= - .05*.05*dt*dt*lambda*c->dtheta;
 		// c->dphi+=   - .05*.05*dt*dt*lambda*c->dphi;
@@ -333,9 +329,9 @@ void camera_update(Camera* c,int dt){
 		// c->theta+=.001*dt*c->dtheta -.01*(c->theta+90);
 		//===============================================
 
-		c->theta+=.001*dt*c->dtheta -.01*c->theta;
-		c->phi  +=.001*dt*c->dphi ;
-		c->rho  +=.001*dt*c->drho -.03*c->rho ;
+		c->theta+=.001*c->dtheta -.01*c->theta;
+		c->phi  +=.001*c->dphi ;
+		c->rho  +=.001*c->drho -.03*c->rho ;
 
 
 		// c->dtheta=0;
