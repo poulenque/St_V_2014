@@ -456,7 +456,7 @@ void string3d_draw(String3d* s){
 				glVertex3d(random(0        ,noise),random(0        ,noise),random(0        ,noise));
 			glEnd();
 		}
-		else if (s->str[i] == 'random(0        ,noise)'){
+		else if (s->str[i] == '0'){
 			glBegin(GL_LINE_STRIP);
 				glVertex3d(random(0        ,noise),random(size     ,noise),random(0        ,noise));
 				glVertex3d(random(0        ,noise),random(size     ,noise),random(size     ,noise));
