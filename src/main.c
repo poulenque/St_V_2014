@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <GL/glew.h>
 #include "random.h"
+#include "constants.h"
 
 #include "game.h"
 #include "camera.h"
@@ -143,10 +144,16 @@ int main(int argc, char *argv[]) {
 	player->game=game;
 
 	INIT_ULTRA_NECESSARY_TITLE_ANIMATION();
+
+	SDL_WarpMouse(SCREEN_WIDTH/2,SCREEN_HEIGHT/2);
+	//well sometimes the mouse does not move immediatly
+	usleep(10000);
 	
 	SDL_Event event;
 	while( SDL_PollEvent( &event ) );
 	SDL_ShowCursor( SDL_DISABLE );
+
+	int MOUSE_ON=1;
 
 	while(!quit){
 		dt=SDL_GetTicks()-t_before;
@@ -166,80 +173,196 @@ int main(int argc, char *argv[]) {
 					quit = 1;
 					break;
 				case SDL_KEYDOWN:
-					if(event.key.keysym.sym ==SDLK_ESCAPE)
-						quit=1;
+					if(event.key.keysym.sym ==SDLK_ESCAPE){
+						// quit=1;
+						MOUSE_ON=!MOUSE_ON;
+						if(MOUSE_ON){
+							SDL_WM_GrabInput(SDL_GRAB_ON);
+							SDL_ShowCursor( SDL_DISABLE );
+						}else{
+							SDL_WM_GrabInput(SDL_GRAB_OFF);
+							SDL_ShowCursor( SDL_ENABLE );
+						}
+					}
 					if(event.key.keysym.sym == SDLK_RETURN)
 						stereo=!stereo;
 					break;
 				case SDL_MOUSEMOTION:
-					camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
+					if(MOUSE_ON)
+						camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
 					// camera_rotate(player,0,2*event.motion.xrel,0);
 					break;
 			}
 		}
 		//========================
 		double speed=1000;
-		if (keystate[SDLK_ESCAPE]){
-			quit=1;
-		}
-		if (keystate[SDLK_a]){
-			camera_move_acc(player,0,-speed,0);
-		}
-		if (keystate[SDLK_d]){
-			camera_move_acc(player,0,speed,0);
-		}
-		// if (keystate[SDLK_w] || keystate[SDLK_UP]){
-		// 	camera_move_acc(player,-speed,0,0);			
+		// if (keystate[SDLK_ESCAPE]){
+		// 	quit=1;
 		// }
-		// if (keystate[SDLK_s] || keystate[SDLK_DOWN]){
-		// 	camera_move_acc(player,speed,0,0);
-		// }
-		if (keystate[SDLK_w]){
-			camera_move_acc(player,-speed,0,0);			
-		}
-		if (keystate[SDLK_s]){
-			camera_move_acc(player,speed,0,0);
-		}
-		if (keystate[SDLK_e]){
-			camera_move_acc(player,0,0,-speed);
-		}
-		if (keystate[SDLK_q]){
-			camera_move_acc(player,0,0,speed);
-		}
 
-		if(keystate[SDLK_LALT]){
-			if (keystate[SDLK_LEFT]){
+		// camera_rotate(player,0,70*sin(PI+PI*cos(SDL_GetTicks()*.008)),0);
+		// camera_rotate(player,0,70*sin(PI+PI/2*cos(SDL_GetTicks()*.007)),0);
+
+		if(MOUSE_ON){
+
+			if (keystate[SDLK_a]){
 				camera_move_acc(player,0,-speed,0);
 			}
-			if (keystate[SDLK_RIGHT]){
+			if (keystate[SDLK_d]){
 				camera_move_acc(player,0,speed,0);
 			}
-		}else{
-			speed=5000;
-			if (keystate[SDLK_LEFT]){
-				camera_rotate_acc(player,0,-speed,0);
+			// if (keystate[SDLK_w] || keystate[SDLK_UP]){
+			// 	camera_move_acc(player,-speed,0,0);			
+			// }
+			// if (keystate[SDLK_s] || keystate[SDLK_DOWN]){
+			// 	camera_move_acc(player,speed,0,0);
+			// }
+			if (keystate[SDLK_w]){
+				camera_move_acc(player,-speed,0,0);			
 			}
-			if (keystate[SDLK_RIGHT]){
-				camera_rotate_acc(player,0,speed,0);
+			if (keystate[SDLK_s]){
+				camera_move_acc(player,speed,0,0);
 			}
-		}
-		if (keystate[SDLK_UP]){
-			camera_rotate_acc(player,speed,0,0);
-		}
-		if (keystate[SDLK_DOWN]){
-			camera_rotate_acc(player,-speed,0,0);
+			// if (keystate[SDLK_e]){
+			// 	camera_move_acc(player,0,0,-speed);
+			// }
+			// if (keystate[SDLK_q]){
+			// 	camera_move_acc(player,0,0,speed);
+			// }
+
+			if(keystate[SDLK_LALT]){
+				if (keystate[SDLK_LEFT]){
+					camera_move_acc(player,0,-speed,0);
+				}
+				if (keystate[SDLK_RIGHT]){
+					camera_move_acc(player,0,speed,0);
+				}
+			}else{
+				speed=5000;
+				if (keystate[SDLK_LEFT]){
+					camera_rotate_acc(player,0,-speed,0);
+				}
+				if (keystate[SDLK_RIGHT]){
+					camera_rotate_acc(player,0,speed,0);
+				}
+			}
+			if (keystate[SDLK_UP]){
+				camera_rotate_acc(player,speed,0,0);
+			}
+			if (keystate[SDLK_DOWN]){
+				camera_rotate_acc(player,-speed,0,0);
+			}
 		}
 
 
 		ULTRA_NECESSARY_TITLE_ANIMATION();
 
-		game->update(game,dt);
+		if(MOUSE_ON){
+			game->update(game,dt);
+		}
 
-		if(stereo)
-			camera_render_stereo(player);
-		else
-			camera_render(player);
+			if(stereo)
+				camera_render_stereo(player);
+			else
+				camera_render(player);
 
+
+		if(!MOUSE_ON){
+
+			// gluPerspective(c->mFOV, c->mAspectRatio, c->mNearClippingDistance, c->mFarClippingDistance);
+
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			glMatrixMode( GL_PROJECTION );
+			glLoadIdentity();
+			gluOrtho2D(-1, 1, -1, 1);
+
+			glMatrixMode( GL_MODELVIEW );
+			glLoadIdentity();
+
+			glColor4d(1,0,0,.4+.2*sin(SDL_GetTicks()*0.01)+random(0,0.5));
+			// glDisable(GL_DEPTH_TEST);
+			glPushAttrib(GL_DEPTH_TEST);
+			glDisable(GL_DEPTH_TEST);
+
+			glBegin( GL_QUADS );
+				glVertex2f(-random(.7,.1), -random(.7,.1) );
+				glVertex2f( random(.7,.1), -random(.7,.1) );
+				glVertex2f( random(.7,.1),  random(.7,.1) );
+				glVertex2f(-random(.7,.1),  random(.7,.1) );
+
+				glVertex2f(-random(.75,.1), -random(.75,.1) );
+				glVertex2f( random(.75,.1), -random(.75,.1) );
+				glVertex2f( random(.75,.1),  random(.75,.1) );
+				glVertex2f(-random(.75,.1),  random(.75,.1) );
+
+				glVertex2f(-random(.8,.1), -random(.8,.1) );
+				glVertex2f( random(.8,.1), -random(.8,.1) );
+				glVertex2f( random(.8,.1),  random(.8,.1) );
+				glVertex2f(-random(.8,.1),  random(.8,.1) );
+			glEnd();
+			String3d*str=new_string3d();
+			str->size=.1;
+
+			// string3d_setTxt(str,"===PRESS===\n=== q to===\n===QUIT !==");
+			string3d_setTxt(str,"===PRESS===\n=== q to===\n===QUIT !==");
+
+			glLineWidth(20.0);
+
+			str->dist=.6;
+			glTranslated(0,0.05,0);
+			glPushMatrix();
+				glTranslated(0,.4,str->dist*1.2);
+				glRotated(-90+30*sin(SDL_GetTicks()*0.003),1,0,0);
+				glRotated(180,0,0,1);
+				glScaled(1,.5,1);
+				glColor4d(1,1,1,1);
+				string3d_draw(str);
+				string3d_draw(str);
+				string3d_draw(str);
+			glPopMatrix();
+
+			string3d_setTxt(str,"===========");
+
+			glPushMatrix();
+				glTranslated(0,-.1,str->dist*1.2);
+				glRotated(-100,1,0,0);
+				glRotated(180,0,0,1);
+				glScaled(1,.5,1);
+				glColor4d(.5,.5,.5,1);
+				string3d_draw(str);
+				string3d_draw(str);
+				string3d_draw(str);
+			glPopMatrix();
+
+			string3d_setTxt(str,"===PRESS===\n===ESC to==\n=CONTINUE!=");
+
+			glPushMatrix();
+				glTranslated(0,-.4,str->dist*1.2);
+				glRotated(-90-30*sin(SDL_GetTicks()*0.003),1,0,0);
+				glRotated(180,0,0,1);
+				glScaled(1,.5,1);
+				glColor4d(0,0,0,1);
+				string3d_draw(str);
+				string3d_draw(str);
+				string3d_draw(str);
+			glPopMatrix();
+
+
+			glPopAttrib();
+			free(str);
+
+
+			//TODO
+			//PRINT MESSAGE : QUIT ?
+			// YES NO 
+			// q = QUIT
+			if(keystate[SDLK_q]||keystate[SDLK_9])
+				quit=1;
+		}
+
+	glFlush();
+	SDL_GL_SwapBuffers();
 		// fixed framerate ?
 		// SDL_Delay(40-dt/1000.);
 

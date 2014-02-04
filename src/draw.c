@@ -128,78 +128,6 @@ void draw_sphere2(double size,double time_,double noise){
 		// gluDeleteQuadric(quad);
 }
 
-// void draw_guy(double time_,double noise){
-// 	draw_sphere2(1,time_,noise);
-
-// 	gluQuadricDrawStyle(quad, GLU_FILL);
-
-// 	glPushMatrix();
-// 		glTranslated(0,0,-5);
-// 		gluCylinder(quad,1,0.5,5,8,1);
-// 	glPopMatrix();
-
-// 	gluQuadricDrawStyle(quad, GLU_LINE);
-
-// 	glPushMatrix();
-// 		glTranslated(0,0,-5);
-// 		glRotated(time_*8,0,0,1);
-// 		gluCylinder(quad,1.1,0.6,5,8,5);
-// 	glPopMatrix();
-
-
-// 	glPushMatrix();
-// 		glTranslated(0,0,-4);
-// 		draw_sphere2(1.,time_,noise);
-// 	glPopMatrix();
-
-// 	glPushMatrix();
-// 		glTranslated(0,0,-3);
-// 		draw_sphere2(.9,time_,noise);
-// 	glPopMatrix();
-
-// 	glPushMatrix();
-// 		glTranslated(0,0,-2);
-// 		draw_sphere2(.8,time_,noise);
-// 	glPopMatrix();
-
-// 	glPushMatrix();
-// 		glTranslated(0,0,-1);
-// 		draw_sphere2(.7,time_,noise);
-// 	glPopMatrix();
-
-// 	glBegin(GL_LINES);
-// 		for (int i = 0; i < 100; ++i){
-// 			glVertex3d(2*noise-((double)rand()/RAND_MAX)*4.*noise, 2*noise-((double)rand()/RAND_MAX)*noise*4.,2*noise-((double)rand()/RAND_MAX)*noise*4.+4*(i/100.)-5);
-// 			glVertex3d(2*noise-((double)rand()/RAND_MAX)*4.*noise, 2*noise-((double)rand()/RAND_MAX)*noise*4.,2*noise-((double)rand()/RAND_MAX)*noise*4.+4*(1-i/100.)-5);
-// 		}
-// 	glEnd();
-
-
-// 	// glPushMatrix();
-// 	// 	glTranslated(0,0,-4);
-// 	// 	glRotated(2*time_,3*time_,time_,1);
-// 	// 	gluSphere(quad,1.1+noise*rand()/RAND_MAX,10,8);
-// 	// glPopMatrix();
-
-// 	// glPushMatrix();
-// 	// 	glTranslated(0,0,-3);
-// 	// 	glRotated(2*time_,3*time_,time_,1);
-// 	// 	gluSphere(quad,1.0+noise*rand()/RAND_MAX,10,8);
-// 	// glPopMatrix();
-
-// 	// glPushMatrix();
-// 	// 	glTranslated(0,0,-2);
-// 	// 	glRotated(2*time_,3*time_,time_,1);
-// 	// 	gluSphere(quad,.9+noise*rand()/RAND_MAX,10,8);
-// 	// glPopMatrix();
-
-// 	// glPushMatrix();
-// 	// 	glTranslated(0,0,-1);
-// 	// 	glRotated(2*time_,3*time_,time_,1);
-// 	// 	gluSphere(quad,.8+noise*rand()/RAND_MAX,10,8);
-// 	// glPopMatrix();
-
-// }
 
 void draw_gentil(double noise,int detail){
 	if (detail==0){
@@ -486,10 +414,10 @@ void draw_bow(double noise,double force){
 
 double t=0;
 void draw_arrow(double noise){
-	t++;
+	// t++;
 	glPushMatrix();
-		glTranslated(-1,10,0);
-		glRotated(t,1,0,0);
+		// glTranslated(-1,10,0);
+		// glRotated(t,1,0,0);
 		gluQuadricDrawStyle(quad, GLU_FILL);
 
 		//fleche

@@ -196,8 +196,8 @@ void camera_render(Camera* c){
 	glClear(GL_DEPTH_BUFFER_BIT);
 	camera_HUD(c);
 
-	glFlush();
-	SDL_GL_SwapBuffers();
+	// glFlush();
+	// SDL_GL_SwapBuffers();
 	// // SDL_Surface * image = IMG_Load("screenshot/01.png");
 	// // glTexImage2D (GL_TEXTURE_2D, 0, 3,
 	// // 	image->w, image->h, 0,
@@ -277,8 +277,8 @@ void camera_render_stereo(Camera* c){
 	glClear(GL_DEPTH_BUFFER_BIT);
 	camera_HUD(c);
 	//update screen
-	glFlush();
-	SDL_GL_SwapBuffers();
+	// glFlush();
+	// SDL_GL_SwapBuffers();
 }
 
 void camera_update(Camera* c,int dt){
