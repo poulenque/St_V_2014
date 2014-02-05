@@ -17,9 +17,11 @@ typedef struct Game{
 	void (*HUD_render)(struct Game* game);
 
 	double fire_value;//if [0,1[ : firing ; if =1 , not firing
+	double fire_value_MAX;
 	double trigger_value;
 	double trigger_value_MAX;
 	int trigger_state;
+	int weapon;
 	void (*trigger)(struct Game* game,int state);
 	void (*fire)(struct Game* game);
 }Game;

@@ -31,19 +31,15 @@ void intro_render(Game* game);
 
 void intro_get_weapon_update(Game* game,int dt);
 void intro_get_weapon_render(Game* game);
-
 //friendly ennemies
 void ingame_level1_update(Game* game,int dt);
 void ingame_level1_render(Game* game);
-
 //ennemies are angry
 void ingame_level2_update(Game* game,int dt);
 void ingame_level2_render(Game* game);
-
 //swarm... you get "la sulphateuse"
 void ingame_level3_update(Game* game,int dt);
 void ingame_level3_render(Game* game);
-
 //boss finale !
 void ingame_level4_update(Game* game,int dt);
 void ingame_level4_render(Game* game);
@@ -65,9 +61,9 @@ void game_update(Game* game,int dt){
 	fake_walk_update(game,dt);
 
 	if(game->trigger_value==0){
-		game->HUD_render=weapon_HUD;
+		// game->HUD_render=weapon_HUD;
 	}else{
-		game->HUD_render=weapon_HUD_ARM;
+		// game->HUD_render=weapon_HUD_ARM;
 		// game->HUD_render=weapon_HUD_FIRE;
 	}
 
@@ -81,16 +77,25 @@ void game_update(Game* game,int dt){
 
 	if(game->trigger_state){
 		//augmente jusqu'a trigger_value_MAX
-		game->trigger_value+=dt;
-		if(game->trigger_value>game->trigger_value_MAX){
-			printf("trigger MAX\n");
-			game->trigger_value=game->trigger_value_MAX;
+		game->trigger_value+=dt/game->trigger_value_MAX;
+		if(game->trigger_value>1){
+			// printf("trigger MAX\n");
+			game->trigger_value=1;
 		}
 	}else{
 		//diminue jusqu'a 0
 		//!! VITESSE DIMINUTION PLUS GRANDE 
-		game->trigger_value-=1.5*dt;
+		game->trigger_value-=1.5*dt/game->trigger_value_MAX;
 		if(game->trigger_value<0){
+			game->trigger_value=0;
+		}
+	}
+
+	if(game->fire_value>=1){
+		game->fire_value=1;
+	}else{
+		game->fire_value+=dt/game->fire_value_MAX;
+		if(game->fire_value>=1){
 			game->trigger_value=0;
 		}
 	}
@@ -111,29 +116,18 @@ void game_pause(Game * game,int state){
 
 void trigger(Game* game,int state){
 	game->trigger_state=state;
-	if(state)
-		printf("trigger_ON\n");
-	else
-		printf("trigger_OFF\n");
+	// if(state)
+	// 	printf("trigger_ON\n");
+	// else
+	// 	printf("trigger_OFF\n");
 }
 void fire(Game* game){
-	if(game->trigger_value==game->trigger_value_MAX)
-		printf("fire\n");
-	else
+	if(game->trigger_value==1 & game->fire_value==1){
+		printf("fire BENG BENG BENG BENG !!!\n");
+		game->fire_value=0;
+	}else{
 		printf("fire failed \n");
-}
-
-void fire_no_weapon(Game* game){}
-
-void fire_bow(Game* game){
-	// if(fire_anim_begin+fire_anim_duration<time_||fire_anim_begin>time_){
-	// 	fire_anim_begin=time_;
-	// 	game->HUD_render=weapon_HUD_FIRE;
-	// 	printf("fire\n");
-	// }
-	// else
-	// 	printf("refused\n");
-
+	}
 }
 
 Game* initGame(Camera* player){
@@ -163,21 +157,18 @@ Game* initGame(Camera* player){
 	glEnable(GL_TEXTURE_2D);
 
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthFunc(GL_LESS);//GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL, GL_ALWAYS, GL_LESS
 
 	glDisable(GL_POINT_SMOOTH);
 	glDisable( GL_LINE_SMOOTH );
+	glDisable( GL_POLYGON_SMOOTH ); // THIS MAKES A NICE ARTEFACT :¬D
 
-
-	// glEnable(GL_LIGHTING);
-	// glEnable(GL_LIGHT0);
+	// glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
+	// glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
 
 	// glEnable(GL_AUTO_NORMAL);
 	// glEnable(GL_NORMALIZE);
-	// glDepthFunc(GL_LESS);
 
-	// //glEnable( GL_POLYGON_SMOOTH );
-	// //glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
-	// glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
 
 	Game* game = malloc(sizeof(Game));
 
@@ -186,17 +177,20 @@ Game* initGame(Camera* player){
 
 	game->player=player;
 
-	game->HUD_render=empty_HUD;
+	game->HUD_render=HUD;
 
-	game->trigger_value=0;
 	game->trigger=trigger;
+	game->trigger_value=0;
 	game->trigger_value_MAX=200;
+	game->fire=fire;
+	game->fire_value=1;
+	game->fire_value_MAX=200;
+	game->weapon=0;
 	// game->trigger_value_MAX=800;
 
-	game->fire=fire_no_weapon;
 
 	game->audio= audio_new (PLAYER_AMBIENT|PLAYER_LOOP);
-	// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
 
 	//===========================
 	// 
@@ -210,7 +204,6 @@ Game* initGame(Camera* player){
 	//===========================
 	// glClearColor( 1., 1., 1., 1. );
 	// game->HUD_render=weapon_HUD;
-	game->fire=fire;
 	
 	// game->update=ingame_level1_update;
 	// game->render=ingame_level1_render;
@@ -235,12 +228,6 @@ Game* initGame(Camera* player){
 //==================================================================
 //==================================================================
 void intro_update(Game* game,int dt){
-
-
-
-
-
-
 
 	// if(!audio_isPlaying(game->audio)){
 	// 	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
@@ -300,12 +287,12 @@ void intro_render(Game* game){
 
 	glMatrixMode(GL_MODELVIEW);
 
-	glPushMatrix();
-	glTranslated(40,-40,0);
-	glScaled(4,4,4);
-	draw_hand(0,0,0);
-	draw_bow(.4,0);
-	glPopMatrix();
+	// glPushMatrix();
+	// glTranslated(40,-40,0);
+	// glScaled(4,4,4);
+	// draw_hand(0,0,0);
+	// draw_bow(.4,0);
+	// glPopMatrix();
 
 	glPushMatrix();
 	glTranslated(20,0,0);
@@ -410,7 +397,7 @@ void intro_get_weapon_update(Game* game,int dt){
 		game->player->rho  =0;
 		game->update=ingame_level1_update;
 		game->render=ingame_level1_render;
-		game->HUD_render=weapon_HUD;
+		game->weapon=1;
 
 		time_=0;
 
