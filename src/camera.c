@@ -281,6 +281,8 @@ void camera_update(Camera* c,int dt){
 		c->dy+=.001*c->ddy;
 		c->dz+=.001*c->ddz;
 
+		c->dz-=-1;
+
 		c->dx+= -.011*c->dx;
 		c->dy+= -.011*c->dy;
 		c->dz+= -.011*c->dz;
@@ -288,6 +290,12 @@ void camera_update(Camera* c,int dt){
 		c->x+=.001*c->dx;
 		c->y+=.001*c->dy;
 		c->z+=.001*c->dz;
+
+		if(c->z>0){
+			c->z=0;
+			c->dz=0;
+		}
+
 
 		//================================================
 

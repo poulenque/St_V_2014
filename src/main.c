@@ -355,6 +355,9 @@ int main(int argc, char *argv[]) {
 					}
 					if(event.key.keysym.sym == SDLK_RETURN)
 						STEREOSCOPY=!STEREOSCOPY;
+					if(event.key.keysym.sym ==SDLK_SPACE){
+						player->dz=-400;
+					}
 					break;
 				case SDL_MOUSEMOTION:
 					if(MOUSE_ON){

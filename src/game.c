@@ -46,6 +46,9 @@ void ingame_level4_render(Game* game);
 
 static String3d* str;
 
+static double trigger_value_MAX[3]={0,200,200};
+static double fire_value_MAX[3]   ={0,200,200};
+
 static double messages_x[200];
 static double messages_y[200];
 static double messages_z[200];
@@ -77,7 +80,7 @@ void game_update(Game* game,int dt){
 
 	if(game->trigger_state){
 		//augmente jusqu'a trigger_value_MAX
-		game->trigger_value+=dt/game->trigger_value_MAX;
+		game->trigger_value+=dt/trigger_value_MAX[game->weapon];
 		if(game->trigger_value>1){
 			// printf("trigger MAX\n");
 			game->trigger_value=1;
@@ -85,7 +88,7 @@ void game_update(Game* game,int dt){
 	}else{
 		//diminue jusqu'a 0
 		//!! VITESSE DIMINUTION PLUS GRANDE 
-		game->trigger_value-=1.5*dt/game->trigger_value_MAX;
+		game->trigger_value-=1.5*dt/trigger_value_MAX[game->weapon];
 		if(game->trigger_value<0){
 			game->trigger_value=0;
 		}
@@ -94,7 +97,7 @@ void game_update(Game* game,int dt){
 	if(game->fire_value>=1){
 		game->fire_value=1;
 	}else{
-		game->fire_value+=dt/game->fire_value_MAX;
+		game->fire_value+=dt/fire_value_MAX[game->weapon];
 		if(game->fire_value>=1){
 			game->trigger_value=0;
 		}
@@ -123,14 +126,25 @@ void trigger(Game* game,int state){
 }
 void fire(Game* game){
 	if(game->trigger_value==1 & game->fire_value==1){
-		printf("fire BENG BENG BENG BENG !!!\n");
+		// printf("fire BENG BENG BENG BENG !!!\n");
 		game->fire_value=0;
 	}else{
-		printf("fire failed \n");
+		// printf("fire failed \n");
 	}
 }
 
 Game* initGame(Camera* player){
+
+	//no weapon
+	trigger_value_MAX[0]=0;
+	fire_value_MAX[0]   =0;
+	//bow
+	trigger_value_MAX[1]=200;
+	fire_value_MAX[1]   =200;
+	//la sulfateuse
+	trigger_value_MAX[2]=200;
+	fire_value_MAX[2]   =200;
+
 	draw_init();
 	audio_init();
 
@@ -181,12 +195,9 @@ Game* initGame(Camera* player){
 
 	game->trigger=trigger;
 	game->trigger_value=0;
-	game->trigger_value_MAX=200;
 	game->fire=fire;
 	game->fire_value=1;
-	game->fire_value_MAX=200;
 	game->weapon=0;
-	// game->trigger_value_MAX=800;
 
 
 	game->audio= audio_new (PLAYER_AMBIENT|PLAYER_LOOP);
@@ -203,7 +214,7 @@ Game* initGame(Camera* player){
 	//THIS IS FOR TESTING PURPOSE
 	//===========================
 	// glClearColor( 1., 1., 1., 1. );
-	// game->HUD_render=weapon_HUD;
+	game->weapon=1;
 	
 	// game->update=ingame_level1_update;
 	// game->render=ingame_level1_render;
