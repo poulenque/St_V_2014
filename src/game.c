@@ -10,8 +10,9 @@
 #include <math.h>
 #include "shader.h"
 #include "draw.h"
+#include "HUD.h"
 
-//===============================================================
+//==========================================================
 //                                                      
 //  _|_|_|_|    _|_|    _|      _|  _|_|_|_|_|          
 //  _|        _|    _|  _|_|    _|      _|          _|  
@@ -19,9 +20,9 @@
 //  _|        _|    _|  _|    _|_|      _|              
 //  _|          _|_|    _|      _|      _|          _|  
 //                                                      
-//===============================================================
-//http://patorjk.com/software/taag/#p=display&f=Block&t=LEVEL%202
-//===============================================================
+//==========================================================
+//http://patorjk.com/software/taag/#p=display&f=Block&t=FONT
+//==========================================================
 
 double time_=0;
 
@@ -56,25 +57,49 @@ static double messages_z_exp_offset[200];
 static double messages_z_exp_speed[200];
 static double messages_dephasage[200];
 
-void empty_HUD(Game* game){
-	// glColor4d(1,0,0,1);
-	// glPointSize(2.);
-	// glBegin(GL_POINTS);
-	// 	glVertex3d(.05,.003,0);
-	// 	glVertex3d(.05,-.003,0);	glVertex3d(.05,0,0);	glVertex3d(.05,0,.003);
-	// 	glVertex3d(.05,0,-.003);
-	// glEnd();
+void game_update(Game* game,int dt){
+	//UPDATE PART THAT IS COMMON TO ALL GAMES
+
+	time_+=dt/15.;
+	camera_update(game->player,dt);
+	fake_walk_update(game,dt);
+
+	if(game->trigger_value==0){
+		game->HUD_render=weapon_HUD;
+	}else{
+		game->HUD_render=weapon_HUD_ARM;
+		// game->HUD_render=weapon_HUD_FIRE;
+	}
+
+	// if(game->trigger_state==0 && game->trigger_value==game->trigger_value_MAX){
+	// 	game->fire(game);
+	// 	// MAYBE ???
+	// 	// game->trigger_value=0;
+	// 	//TODO :
+	// 	//TO CHECK
+	// }
+
+	if(game->trigger_state){
+		//augmente jusqu'a trigger_value_MAX
+		game->trigger_value+=dt;
+		if(game->trigger_value>game->trigger_value_MAX){
+			printf("trigger MAX\n");
+			game->trigger_value=game->trigger_value_MAX;
+		}
+	}else{
+		//diminue jusqu'a 0
+		//!! VITESSE DIMINUTION PLUS GRANDE 
+		game->trigger_value-=1.5*dt;
+		if(game->trigger_value<0){
+			game->trigger_value=0;
+		}
+	}
+
+
+
+	game->update(game,dt);
 }
 
-
-double HUD_drho_compensation=0;
-double fake_rho=0;
-double fake_drho=0;
-double fake_theta=0;
-
-double fake_HUD_drho_compensation=0;
-
-double fake_walking=0;
 
 void game_pause(Game * game,int state){
 	if(state){
@@ -84,186 +109,34 @@ void game_pause(Game * game,int state){
 	}
 }
 
-
-void fake_walk_update(Game* game,int dt){
-	
-	// fake_drho+=fake_walking*70*sin(PI+PI/2*cos(SDL_GetTicks()*.008))/4.;
-
-	for(int i=0;i<dt;i++){
-		fake_drho+=fake_walking*2*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008)*cos(SDL_GetTicks()*.008);
-		// fake_drho+=fake_walking*2*cos(time_*.12)*cos(time_*.12)*cos(time_*.12);
-	
-		double dt=1;
-		//================================================
-		fake_drho+=-.013*fake_drho;
-		fake_theta+=  -.01*fake_theta;
-		fake_rho  +=.001*fake_drho -.03*fake_rho ;
-	
-		fake_HUD_drho_compensation=
-							(.2)* fake_drho*(.3) 
-							+ (1-.2)*fake_HUD_drho_compensation;
-
-		HUD_drho_compensation= (.02)* game->player->drho*(.3) 
-							+ (1-.02)*HUD_drho_compensation;
-	}
-
-
+void trigger(Game* game,int state){
+	game->trigger_state=state;
+	if(state)
+		printf("trigger_ON\n");
+	else
+		printf("trigger_OFF\n");
+}
+void fire(Game* game){
+	if(game->trigger_value==game->trigger_value_MAX)
+		printf("fire\n");
+	else
+		printf("fire failed \n");
 }
 
+void fire_no_weapon(Game* game){}
 
-
-double fire_anim_begin=0;
-void weapon_HUD_FIRE(Game* game){
-	fake_walking=
-		 game->player->dx*game->player->dx
-		+game->player->dy*game->player->dy
-		+game->player->dz*game->player->dz;
-	fake_walking=sqrt(fake_walking);
-	fake_walking*=0.007;
-	double real_rho=game->player->rho    +fake_rho;
-	double real_drho=game->player->drho  +fake_drho;
-	double real_theta=game->player->theta+fake_theta;
-	/////////////////////////////////////////////////////////////////////
-	glPushMatrix();
-	glColor4d(1,0,0,1);
-	glPointSize(2.);
-
-	glRotated(game->player->rho*(-2),1,0,0);
-	glRotated(game->player->theta*.5, 0.0, 1.0, 0.0);
-
-	glEnable(GL_POINT_SMOOTH);
-	glPointSize(6.);
-
-	glBegin(GL_POINTS);
-		glVertex3d(.05,.003,0);
-		glVertex3d(.05,-.003,0);	glVertex3d(.05,0,0);	glVertex3d(.05,0,.003);
-		glVertex3d(.05,0,-.003);
-	glEnd();
-	glDisable(GL_POINT_SMOOTH);
-
-	glPopMatrix();
-	/////////////////////////////////////////////////////////////////////
-
-	glPushMatrix();
-	glRotated(real_rho*(-4),1,0,0);
-	glRotated(real_theta*.5, 0.0, 1.0, 0.0);
-
-	double real_HUD_drho_compensation=HUD_drho_compensation+fake_HUD_drho_compensation;
-
-	glTranslated(0,0,-real_HUD_drho_compensation*real_HUD_drho_compensation*0.0007);
-
-	glTranslated(5,0,-3);
-	glTranslated(real_theta*(.05),0,0);
-
-	glRotated(80, 0, 1, 0);
-	glRotated(70, 1, 0, 0);
-
-
-	glRotated(real_theta*(1),0,0,1);
-
-
-	glRotated(real_HUD_drho_compensation,0,1,0);
-
-	glTranslated(0,0,-1);
-
-	glLineWidth(3.0);
-
-	double oscill_force=.5*sin(time_*.02)+.5*sin(time_*.017);
-
-	draw_bow(.2,.3+.1*oscill_force);
-
-	//ARROW
-	glRotated(60, 0, 1, 0);
-	glRotated(60, 1, 0, 0);
-	glTranslated(0,0,-3+1*oscill_force);
-	// glTranslated(-.3+.1*sin(time_*.034),1+1*sin(cos(time_*.021)),0);
-	glTranslated(-.3+.1*sin(time_*.034),1,0);
-
-	draw_arrow(.2);
-
-	// draw_bow(.2,.5+.5*cos(PI*sin(time_*.05)));
-	// draw_bow(.2,0);
-	glPopMatrix();
-}
-
-void weapon_HUD(Game* game){
-	fake_walking=
-		 game->player->dx*game->player->dx
-		+game->player->dy*game->player->dy
-		+game->player->dz*game->player->dz;
-	fake_walking=sqrt(fake_walking);
-	fake_walking*=0.007;
-	double real_rho=game->player->rho    +fake_rho;
-	double real_drho=game->player->drho  +fake_drho;
-	double real_theta=game->player->theta+fake_theta;
-	// double real_rho=fake_rho;
-	// double real_drho=fake_drho;
-	// double real_theta=fake_theta;
-	glPushMatrix();
-	glColor4d(1,0,0,1);
-	glPointSize(2.);
-
-	glRotated(game->player->rho*(-2),1,0,0);
-	glRotated(game->player->theta*.5, 0.0, 1.0, 0.0);
-	// glRotated(game->player->phi, 0.0, 0.0, 1.0);
-
-	glEnable(GL_POINT_SMOOTH);
-	glPointSize(6.);
-
-	glBegin(GL_POINTS);
-		glVertex3d(.05,.003,0);
-		glVertex3d(.05,-.003,0);	glVertex3d(.05,0,0);	glVertex3d(.05,0,.003);
-		glVertex3d(.05,0,-.003);
-	glEnd();
-	glDisable(GL_POINT_SMOOTH);
-
-	glPopMatrix();
-
-	glPushMatrix();
-	glRotated(real_rho*(-4),1,0,0);
-	glRotated(real_theta*.5, 0.0, 1.0, 0.0);
-
-	double real_HUD_drho_compensation=HUD_drho_compensation+fake_HUD_drho_compensation;
-
-	glTranslated(0,0,-real_HUD_drho_compensation*real_HUD_drho_compensation*0.0007);
-
-	glTranslated(5,0,-3);
-	glTranslated(real_theta*(.05),0,0);
-
-	glRotated(80, 0, 1, 0);
-	glRotated(70, 1, 0, 0);
-
-
-	glRotated(real_theta*(1),0,0,1);
-
-
-	glRotated(real_HUD_drho_compensation,0,1,0);
-
-	glTranslated(0,0,-1);
-
-	glLineWidth(3.0);
-
-	double oscill_force=.5*sin(time_*.02)+.5*sin(time_*.017);
-
-	draw_bow(.2,.3+.1*oscill_force);
-
-	//ARROW
-	glRotated(60, 0, 1, 0);
-	glRotated(60, 1, 0, 0);
-	glTranslated(0,0,-3+1*oscill_force);
-	// glTranslated(-.3+.1*sin(time_*.034),1+1*sin(cos(time_*.021)),0);
-	glTranslated(-.3+.1*sin(time_*.034),1,0);
-
-	draw_arrow(.2);
-
-	// draw_bow(.2,.5+.5*cos(PI*sin(time_*.05)));
-	// draw_bow(.2,0);
-	glPopMatrix();
+void fire_bow(Game* game){
+	// if(fire_anim_begin+fire_anim_duration<time_||fire_anim_begin>time_){
+	// 	fire_anim_begin=time_;
+	// 	game->HUD_render=weapon_HUD_FIRE;
+	// 	printf("fire\n");
+	// }
+	// else
+	// 	printf("refused\n");
 
 }
 
 Game* initGame(Camera* player){
-
 	draw_init();
 	audio_init();
 
@@ -315,7 +188,15 @@ Game* initGame(Camera* player){
 
 	game->HUD_render=empty_HUD;
 
-	game->audio= audio_new (PLAYER_AMBIENT&PLAYER_LOOP);
+	game->trigger_value=0;
+	game->trigger=trigger;
+	game->trigger_value_MAX=200;
+	// game->trigger_value_MAX=800;
+
+	game->fire=fire_no_weapon;
+
+	game->audio= audio_new (PLAYER_AMBIENT|PLAYER_LOOP);
+	// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
 
 	//===========================
 	// 
@@ -329,8 +210,8 @@ Game* initGame(Camera* player){
 	//===========================
 	// glClearColor( 1., 1., 1., 1. );
 	// game->HUD_render=weapon_HUD;
+	game->fire=fire;
 	
-	// game->HUD_render=weapon_HUD_FIRE;
 	// game->update=ingame_level1_update;
 	// game->render=ingame_level1_render;
 
@@ -354,13 +235,16 @@ Game* initGame(Camera* player){
 //==================================================================
 //==================================================================
 void intro_update(Game* game,int dt){
-	time_+=dt/15.;
-	camera_update(game->player,dt);
-	fake_walk_update(game,dt);
 
-	if(!audio_isPlaying(game->audio)){
-		audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
-	}
+
+
+
+
+
+
+	// if(!audio_isPlaying(game->audio)){
+	// 	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+	// }
 	//distace player begin sphere
 	double x_temp=(game->player->x+20);
 	double y_temp=(game->player->y-0);
@@ -416,17 +300,19 @@ void intro_render(Game* game){
 
 	glMatrixMode(GL_MODELVIEW);
 
-	// glPushMatrix();
-	// glScaled(4,4,4);
-	// draw_bow(.4,0);
-	// glPopMatrix();
+	glPushMatrix();
+	glTranslated(40,-40,0);
+	glScaled(4,4,4);
+	draw_hand(0,0,0);
+	draw_bow(.4,0);
+	glPopMatrix();
 
 	glPushMatrix();
 	glTranslated(20,0,0);
 
 		glColor4d(1,1,1,1);
 
-		draw_sphere2(5,time_,0);
+		draw_sphere2(5,SDL_GetTicks()*.05,0);
 
 		//====================================================
 		string3d_setTxt(str,"     a game by    \n\nLaurent Rohrbasser");
@@ -477,7 +363,7 @@ void intro_render(Game* game){
 		str->size=.5;
 		str->dist=7.15;
 		str->z=-.25;
-		str->phi=time_*.75;
+		str->phi=SDL_GetTicks()*0.05*.75;
 		string3d_draw(str);
 		str->phi=0;
 
@@ -495,13 +381,10 @@ void intro_render(Game* game){
 //==================================================================
 //==================================================================
 void intro_get_weapon_update(Game* game,int dt){
-	time_+=dt/15.;
-	camera_update(game->player,dt);
-	fake_walk_update(game,dt);
 
-	if(!audio_isPlaying(game->audio)){
-		audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
-	}
+	// if(!audio_isPlaying(game->audio)){
+	// 	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+	// }
 
 	//distace player begin square
 	double x_temp=(game->player->x+200);
@@ -552,9 +435,9 @@ void intro_get_weapon_update(Game* game,int dt){
 void intro_get_weapon_render(Game* game){
 
 
-	// glClearColor(d*.01,d*.01,d*.01,1);
 
 	double d= game->shared_var1;
+	// glClearColor(d*.01,d*.01,d*.01,1);
 
 	glColor4d(0,0,0,1);
 	double size=10;
@@ -645,42 +528,6 @@ void intro_get_weapon_render(Game* game){
 	}
 	glPopMatrix();
 
-	glPushMatrix();
-	glTranslated(20,20,0);
-	glColor4d(1,0,0,1);
-	//
-	//NOISE SHOULD BE CONTROLLED BY SOUND
-	glColor4d(0,0,0,1);
-	// draw_gentil(time_,((int)time_%100)*.02,2);
-	// draw_gentil(time_,(1+cos(time_*.1) )*(100-(int)time_%100)*.01,2);
-	// draw_gentil(time_,(1+cos(time_*.1) ),2);
-
-	// draw_gentil(time_,2*(100-(int)time_%100)*.01,2);
-	// for(int i=0;i<200;i++){
-	// 	glPushMatrix();
-	// 		glRotated(i*10,0,0,1);
-	// 		glTranslated(0,1*i,0);
-	// 		draw_gentil(time_,2*i/200.,2);
-	// 	glPopMatrix();
-	// }
-	// glTranslated(0,5,0);
-	// draw_gentil(time_,0,2);
-
-	// draw_wing(time_,0,10);
-
-	// glColor4d(0,0,0,1);
-	// for(int i=0;i<100;i++){
-	// 	glTranslated(10,0,0);
-	// 	draw_gentil(time_,((int)time_%20)*.02,2);
-	// }
-
-	// for(int i=0;i<500;i++){
-	// 	glTranslated(10,0,0);
-	// 	draw_gentil(time_,((int)time_%20)*.02,1);
-	// }
-	//
-	glPopMatrix();
-
 	// glScaled(-1,-1,1);
 	// glColor4d(0,1,0,1);
 	// string3d_setTxt(str,"abcdefghijklmnopqrstuvwxyz1234567890");
@@ -703,86 +550,62 @@ void intro_get_weapon_render(Game* game){
 //==================================================================
 //==================================================================
 void ingame_level1_update(Game* game,int dt){
-	time_+=dt/15.;
-	camera_update(game->player,dt);
-	fake_walk_update(game,dt);
 
-	if(!audio_isPlaying(game->audio)){
-		audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
-	}
+	// if(!audio_isPlaying(game->audio)){
+	// 	audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
+	// }
 }
 void ingame_level1_render(Game* game){
-
-
-	// for(int i=0;i<200;i++){
-	// 	glPushMatrix();
-	// 		// glRotated(i*10,0,0,1);
-	// 		// glTranslated(0,1*i,0);
-	// 		draw_gentil(time_,2*i/200.,2);
-	// 	glPopMatrix();
-	// }
-	// for(int i=200;i<800;i++){
-	// 	glPushMatrix();
-	// 		glRotated(i*10,0,0,1);
-	// 		glTranslated(0,1*i,0);
-	// 		draw_gentil(time_,2*i/200.,1);
-	// 	glPopMatrix();
-	// }
-
 
 	// double z=exp(-time_*.07);
 	double z=exp(-time_*.007);
 
 	for(int i=-100;i<100;i++){
 		for(int j=-100;j<100;j++){
-			// glPushMatrix();
-				// draw_gentil(time_,4*(i+j)/200.,2);
+			double x_guy=20*i;
+			double y_guy=20*j;
+			// double alpha = atan((x_guy+game->player->x)/(y_guy+game->player->y))*180./PI;
+			double alpha = atan2((y_guy+game->player->y),(x_guy+game->player->x))*180./PI;
 
-				double x_guy=20*i;
-				double y_guy=20*j;
-				// double alpha = atan((x_guy+game->player->x)/(y_guy+game->player->y))*180./PI;
-				double alpha = atan2((y_guy+game->player->y),(x_guy+game->player->x))*180./PI;
+			alpha = alpha+game->player->phi;
+			while(alpha<=0)
+				alpha+=360;
+			while(alpha>360)
+				alpha-=360;
 
-				alpha = alpha+game->player->phi;
-				while(alpha<=0)
-					alpha+=360;
-				while(alpha>360)
-					alpha-=360;
+			int angle=55;
 
-				int angle=55;
+			if(
+				 (alpha <angle||alpha>360-angle)
+				){
+				double dist=(x_guy+game->player->x)*(x_guy+game->player->x)+(y_guy+game->player->y)*(y_guy+game->player->y);
 
-				if(
-					 (alpha <angle||alpha>360-angle)
-					){
-					double dist=(x_guy+game->player->x)*(x_guy+game->player->x)+(y_guy+game->player->y)*(y_guy+game->player->y);
-
-					int quality=0;
-					if(dist<20*20*20){
-						quality=2;
-					}else if(dist<50*20*20){
-						quality=1;
-					}else if(dist<300*20*20){
-						quality=0;
-					}else{
-						continue;
-					}
-
-					glColor4d(0,0,0,1-z);
-					glPushMatrix();
-						glTranslated(20*i,20*j,20*z);
-						draw_gentil(2*(100-(int)time_%100)*.01,quality);
-					glPopMatrix();
-
-					glColor4d(0.9,0.9,0.9,1-z);
-					glPushMatrix();
-						glTranslated(0,0,-10);
-						glScaled(1,1,-1);
-						glTranslated(20*i,20*j,20*z);
-						draw_gentil(2*(100-(int)time_%100)*.01,quality);
-					glPopMatrix();
-
+				int quality=0;
+				if(dist<20*20*20){
+					quality=2;
+				}else if(dist<50*20*20){
+					quality=1;
+				}else if(dist<300*20*20){
+					quality=0;
+				}else{
+					continue;
 				}
-			// glPopMatrix();
+
+				glColor4d(z,z,z,1);
+				glPushMatrix();
+					glTranslated(20*i,20*j,20*z);
+					draw_gentil(2*(100-(int)time_%100)*.01,quality);
+				glPopMatrix();
+
+				glColor4d(0.9,0.9,0.9,1-z);
+				glPushMatrix();
+					glTranslated(0,0,-10);
+					glScaled(1,1,-1);
+					glTranslated(20*i,20*j,20*z);
+					draw_gentil(2*(100-(int)time_%100)*.01,quality);
+				glPopMatrix();
+
+			}
 		}
 	}
 

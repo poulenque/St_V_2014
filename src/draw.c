@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include "constants.h"
 #include "random.h"
+#include <math.h>
 
 double t=0;
 
@@ -290,6 +291,7 @@ void draw_gentil(double noise,int detail){
 }
 
 void draw_mechant(double noise,int detail){
+	detail ++;noise++;
 	//TODO
 }
 
@@ -427,7 +429,8 @@ void simple_cube(){
  
 }
 
-void draw_hand(double force){
+void draw_hand(double force,double distance, int side_view){
+	t++;
 	glPushMatrix();
 	glTranslated(0,force*.5,0);
 		glColor4d(.8,.6,.4,1);
@@ -440,6 +443,12 @@ void draw_hand(double force){
 			glRotated(-5+6*cos(2*PI*cos(t*0.008))+6*sin(2*PI*cos(t*0.007)),0,0,1);
 			// glRotated(1,0,0,1);
 			glTranslated(0,0,-.34);
+			
+			if(i==1)
+				glTranslated(-.1,0,0);
+
+			if(i==2)
+				glTranslated(-.05,0,0);
 			glBegin(GL_QUADS);
 			// glBegin(GL_LINE_STRIP);
 
@@ -493,6 +502,11 @@ void draw_hand(double force){
 
 
 			glEnd();
+			if(i==1)
+				glTranslated(.1,0,0);
+
+			if(i==2)
+				glTranslated(.05,0,0);
 		}
 		glPopMatrix();
 
@@ -501,10 +515,23 @@ void draw_hand(double force){
 			glRotated(45,1,0,0);
 			glRotated(-25,0,0,1);
 			glScaled(.4,.7,.4);
-		// glColor4d(0,1,0,1);
 			simple_cube();
-		// glColor4d(.8,.6,.4,1);
 		glPopMatrix();
+
+
+		if(side_view){
+			glPushMatrix();
+				glTranslated(.2,-0,.5);
+				glRotated(45,1,0,0);
+				glRotated(-30,0,0,1);
+				glTranslated(.4,-.4,-.2);
+				glScaled(.4,1.3,.5);
+			// glColor4d(0,1,0,1);
+				simple_cube();
+			// glColor4d(.8,.6,.4,1);
+			glPopMatrix();
+		}
+
 
 		glBegin(GL_QUADS);
 		// glBegin(GL_LINE_STRIP);
@@ -576,22 +603,22 @@ void draw_hand(double force){
 			glVertex3d(-.4,-1., .4);
 			glVertex3d(-.0,-.6, .7);
 			glVertex3d(.2,-1., .0-.1);
-			glVertex3d(.5,-1.-nb, .4-nb);
+			glVertex3d(.5-distance,-1.-nb, .4-nb);
 
 			glVertex3d(-.5,-1., .2);
 			glVertex3d(-.4,-1., .4);
-			glVertex3d(.5,-1.-nb, .4-nb);
-			glVertex3d(-.5,-1.-nb, .2-nb);
+			glVertex3d(.5-distance,-1.-nb, .4-nb);
+			glVertex3d(-.5-distance,-1.-nb, .2-nb);
 
 			glVertex3d(-.0,-.6,-.7);
 			glVertex3d(-.5,-.8,-.5);
-			glVertex3d(-.5,-nb,-nb+.5);
-			glVertex3d(-.0,-nb+1,-nb+.7);
+			glVertex3d(-.5-distance,-nb,-nb+.5);
+			glVertex3d(-.0-distance,-nb+1,-nb+.7);
 
 			glVertex3d(-.5,-1., .2);
 			glVertex3d(-.5,-.8,-.5);
-			glVertex3d(-.5,-nb,-nb+.5);
-			glVertex3d(-.5,-nb-1, -nb+.2);
+			glVertex3d(-.5-distance,-nb,-nb+.5);
+			glVertex3d(-.5-distance,-nb-1, -nb+.2);
 
 
 			double nb2=100;
@@ -602,20 +629,20 @@ void draw_hand(double force){
 			// glVertex3d(.2,-1., .0-.1);
 			// glVertex3d(.5,-1.-nb, .4-nb);
 
-			glVertex3d(.5,-1.-nb, .4-nb);
-			glVertex3d(-.5,-1.-nb, .2-nb);
-			glVertex3d(-.5,-1.-nb-nb2, .2-nb-nb2);
-			glVertex3d(.5,-1.-nb-nb2, .4-nb-nb2);
+			glVertex3d( .5-distance,-1.-nb, .4-nb);
+			glVertex3d(-.5-distance,-1.-nb, .2-nb);
+			glVertex3d(-.5-distance,-1.-nb-nb2, .2-nb-nb2);
+			glVertex3d( .5-distance,-1.-nb-nb2, .4-nb-nb2);
 
-			glVertex3d(-.5,-nb-nb2,-nb-nb2+.5);
-			glVertex3d(-.0,-nb-nb2+1,-nb-nb2+.7);
-			glVertex3d(-.0,-nb-nb2+1,-nb-nb2+.7);
-			glVertex3d(-.5,-nb-nb2,-nb-nb2+.5);
+			glVertex3d(-.5-distance,-nb,-nb+.5);
+			glVertex3d(-.0-distance,-nb+1,-nb+.7);
+			glVertex3d(-.0-distance,-nb-nb2+1,-nb-nb2+.7);
+			glVertex3d(-.5-distance,-nb-nb2,-nb-nb2+.5);
 
-			glVertex3d(-.5,-nb-nb2,-nb-nb2+.5);
-			glVertex3d(-.5,-nb-nb2-1, -nb-nb2+.2);
-			glVertex3d(-.5,-nb-nb2-1, -nb-nb2+.2);
-			glVertex3d(-.5,-nb-nb2,-nb-nb2+.5);
+			glVertex3d(-.5-distance,-nb,-nb+.5);
+			glVertex3d(-.5-distance,-nb-1, -nb+.2);
+			glVertex3d(-.5-distance,-nb-nb2-1, -nb-nb2+.2);
+			glVertex3d(-.5-distance,-nb-nb2,-nb-nb2+.5);
 
 
 
@@ -642,8 +669,12 @@ void draw_hand(double force){
 
 }
 void draw_bow_to_take(double noise,double force){
-		gluQuadricDrawStyle(quad, GLU_FILL);
-		glPushMatrix();
+	draw_bow(noise,force);
+}
+
+void draw_bow(double noise,double force){
+	gluQuadricDrawStyle(quad, GLU_FILL);
+	glPushMatrix();
 		glScaled(.25,.25,.25);
 			draw_half_bow(noise,force);
 			glPushMatrix();
@@ -662,13 +693,6 @@ void draw_bow_to_take(double noise,double force){
 			glPopMatrix();
 		glPopMatrix();
 	glPopMatrix();
-	
-}
-
-void draw_bow(double noise,double force){
-	t++;
-	draw_hand(force);
-	draw_bow_to_take(noise,force);
 }
 
 void draw_arrow(double noise){
@@ -697,15 +721,10 @@ void draw_arrow(double noise){
 		glTranslated(0,0,.5);
 		gluCylinder(quad,.2,.2,1,2,1);
 
-
-
-		// gluCylinder(quad,.4,0,1,3,1);
-
 	glPopMatrix();
 }
 
-
-void draw_wing(double time_,double noise,int detail){
+void draw_wing(double noise,int detail){
 	// glPushMatrix();
 	// 	glBegin(GL_LINES);
 	// 	for(int i=0;i<detail;i++){
@@ -720,7 +739,7 @@ void draw_wing(double time_,double noise,int detail){
 	// glPopMatrix();
 	glPushMatrix();
 		for(int i=0;i<detail;i++){
-			glRotated(time_,0,0,1);
+			glRotated(SDL_GetTicks()*0.05,0,0,1);
 			glBegin(GL_LINES);
 			glVertex3d(0,0,0);
 			glVertex3d(1,1,1);
@@ -729,16 +748,3 @@ void draw_wing(double time_,double noise,int detail){
 	glPopMatrix();
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

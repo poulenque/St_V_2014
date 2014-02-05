@@ -1,30 +1,35 @@
 #include "camera.h"
 #include <math.h>
 #include <GL/glew.h>
-// #include <GL/freeglut.h>
 #include "constants.h"
+#include "shader.h"
 
 double hyperbolicLimit(const double nb,const double limit){
 	return (nb*limit)/sqrt(limit*limit+nb*nb);
 }
 
-void camera_move (Camera* c,double dx ,double dy ,double dz ){
-	c->dx=dx*cos(-c->phi/360*2*PI)  +  dy*cos(-c->phi/360*2*PI+PI/2);
-	c->dy=dx*sin(-c->phi/360*2*PI)  +  dy*sin(-c->phi/360*2*PI+PI/2);
-	c->dz=dz;
-	c->dtheta+=dx/50.;
-	if(dx>0)
-		c->avance=1;
-	else if(dx<0)
-		c->avance=-1;
-	else
-		c->avance=0;
-}
+// void camera_move (Camera* c,double dx ,double dy ,double dz ){
+// 	c->dx=dx*cos(-c->phi/360*2*PI)  +  dy*cos(-c->phi/360*2*PI+PI/2);
+// 	c->dy=dx*sin(-c->phi/360*2*PI)  +  dy*sin(-c->phi/360*2*PI+PI/2);
+// 	c->dz=dz;
+// 	if(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(1) || SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(3)){
+
+// 	}else{
+// 		c->dtheta+=dx/50.;
+// 	}
+// 	if(dx>0)
+// 		c->avance=1;
+// 	else if(dx<0)
+// 		c->avance=-1;
+// 	else
+// 		c->avance=0;
+// }
 
 void camera_move_acc(Camera* c,double ddx,double ddy,double ddz){
 	c->ddx+=ddx*cos(-c->phi/360*2*PI)  +  ddy*cos(-c->phi/360*2*PI+PI/2);
 	c->ddy+=ddx*sin(-c->phi/360*2*PI)  +  ddy*sin(-c->phi/360*2*PI+PI/2);
 	c->ddz+=ddz;
+	if((!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(1))) && (!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(3))))
 	c->dtheta+=ddx/50.;
 	c->drho+=ddy/50.;
 	if(ddx>0)
@@ -50,7 +55,6 @@ void camera_rotate_acc(Camera* c,double ddtheta,double ddphi,double ddrho){
 Camera* new_Camera(){
 
 	Camera* c= malloc(sizeof(Camera));
-
 
 	c->theta=0;
 	c->phi=0;
@@ -86,15 +90,6 @@ Camera* new_Camera(){
 	c->mFarClippingDistance=1000.;
 
 	c->avance=0;
-
-	// c->interface_theta=0;
-	// c->interface_phi=0;
-	// c->interface_rho=0;
-	// c->interface_txt=new_string3d();
-	// string3d_setTxt(c->interface_txt,"");
-	// c->interface_txt->size=.02;
-	// c->interface_txt->phi=45;
-	// c->interface_txt->z=.2;
 
 	// glGenFramebuffers (1, &c->frame_buffer_id);
 	// c->depth_tex_id=lr_texture_depthmap (800,600);
@@ -159,7 +154,6 @@ void camera_look(Camera* c){
 								,2)
 							);
 
-	//THIS IS THE REAL THING
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(c->mFOV-hyperbolicLimit(.06*vitesse_avant,60), c->mAspectRatio, c->mNearClippingDistance, c->mFarClippingDistance);
@@ -282,29 +276,18 @@ void camera_render_stereo(Camera* c){
 }
 
 void camera_update(Camera* c,int dt){
-
 	for(int i=0;i<dt;i++){
-
-		double lambda=.2;
-
 		c->dx+=.001*c->ddx;
 		c->dy+=.001*c->ddy;
 		c->dz+=.001*c->ddz;
 
-		// c->dx+= -.05*.05*dt*dt*lambda*c->dx;
-		// c->dy+= -.05*.05*dt*dt*lambda*c->dy;
-		// c->dz+= -.05*.05*dt*dt*lambda*c->dz;
 		c->dx+= -.011*c->dx;
 		c->dy+= -.011*c->dy;
 		c->dz+= -.011*c->dz;
-		// c->dx/= .07*dt;
-		// c->dy/= .07*dt;
-		// c->dz/= .07*dt;
 
 		c->x+=.001*c->dx;
 		c->y+=.001*c->dy;
 		c->z+=.001*c->dz;
-
 
 		//================================================
 
@@ -312,46 +295,50 @@ void camera_update(Camera* c,int dt){
 		c->dphi  +=.001*c->ddphi;
 		c->drho  +=.001*c->ddrho;
 
-		// c->dtheta+= - .05*.05*dt*dt*lambda*c->dtheta;
-		// c->dphi+=   - .05*.05*dt*dt*lambda*c->dphi;
-		// c->drho+=   - .05*.05*dt*dt*lambda*c->drho;
 		c->dtheta+= - .013*c->dtheta;
 		c->dphi+=   - .013*c->dphi;
 		c->drho+=   - .013*c->drho;
-
-		// c->dtheta/= .07*dt;
-		// c->dphi  /= .07*dt;
-		// c->drho  /= .07*dt;
 
 		//===============================================
 		//DEBUG !!!
 		//===============================================
 		// c->theta+=.001*dt*c->dtheta -.01*(c->theta+90);
 		//===============================================
+		if(   SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(1)
+			||SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(3)){
 
-		c->theta+=.001*c->dtheta -.01*c->theta;
+			c->theta+=.001*c->dtheta;
+			c->mFOV+=-.02*(c->mFOV-80);
+
+			if(c->theta>30){
+				c->theta+=-.01*(c->theta-29);
+			}
+			else if(c->theta<-30){
+				c->theta+=-.01*(c->theta+29);
+			}else{
+				// c->theta+=-.005*(c->theta-0);
+			}
+		}else{
+			c->theta+=.001*c->dtheta -.01*c->theta;
+			c->mFOV+=-.02*(c->mFOV-100);
+		}
 		c->phi  +=.001*c->dphi ;
 		c->rho  +=.001*c->drho -.03*c->rho ;
+	}
 
-
-		// c->dtheta=0;
-		// c->dphi=0;
-		// c->drho=0;
-	}	
-
-	// while(c->theta>360)
-	// 	c->theta-=360;
-	while(c->phi>360)
+	while(c->theta>180)
+		c->theta-=360;
+	while(c->phi>180)
 		c->phi-=360;
-	// while(c->rho>360)
-	// 	c->rho-=360;
+	while(c->rho>180)
+		c->rho-=360;
 
-	// while(c->theta<=0)
-	// 	c->theta+=360;
-	while(c->phi<=0)
+	while(c->theta<=-180)
+		c->theta+=360;
+	while(c->phi<=-180)
 		c->phi+=360;
-	// while(c->rho<=0)
-	// 	c->rho+=360;
+	while(c->rho<=-180)
+		c->rho+=360;
 
 	c->ddx=0;
 	c->ddy=0;

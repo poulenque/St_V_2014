@@ -13,6 +13,12 @@
 #include "camera.h"
 #include "string3d.h"
 
+int SCREEN_WIDTH=800;
+int SCREEN_HEIGHT=600;
+int SCREEN_BPP=32;
+int STEREOSCOPY=0;
+
+
 //=====================================================
 // "💗💙💚💜💛💘♡ 💓♥💖💔💕❣ ❤💝💞💟❥"
 //=====================================================
@@ -49,26 +55,52 @@ void printCenter(int n,const char *s){
 //ultra smart arg parsing
 //============================
 int parseArgs(int argc, char *argv[]){
-	if(argc>1){
-		if(!strcmp(argv[1],"--help")||!strcmp(argv[1],"-h")){
-			printf("-h or --help    : help (prints this message)\n");
-			printf("-v or --version : version\n");
-			printf("-d or --duck    : duck ?\n");
-			printf("-c or --credits : credits\n");
-			printf("-s or --stereo  : stereoscopic mode (warning: really slow !)\n");
+	int ret=0;
+	int i=0;
+	while(--argc){
+		i++;
+		if(!strcmp(argv[i],"--help")||!strcmp(argv[i],"-h")){
+			printf("-h or --help       : help (prints this message)\n");
+			printf("-v or --version    : version\n");
+			printf("-d or --duck       : duck ?\n");
+			printf("-c or --credits    : credits\n");
+			printf("-s or --stereo     : stereoscopic mode (warning: really slow !)\n");
+			printf("-r or --resolution : resolution eg 1024 768\n");
+			printf("   example : --resolution 1024 768\n");
 			printf("wow that was helpful!\n");
-			return 1;
+			ret=1;
 		}
-		if(!strcmp(argv[1],"--stereo")||!strcmp(argv[1],"-s")){
+		else if(!strcmp(argv[i],"--stereo")||!strcmp(argv[i],"-s")){
 			printf("STEREOSCOPY !!!\n");
 			printf("dividing FPS per 2 !!!\n");
-			return 2;
+			STEREOSCOPY=1;
 		}
-		if(!strcmp(argv[1],"--version")||!strcmp(argv[1],"-v")){
+		else if(!strcmp(argv[i],"--resolution")||!strcmp(argv[i],"-r")){
+			//missing argument X and Y
+			if(!--argc){
+				printf("Must specify x and y resolution : example \'-r 1024 768\'\n");
+				ret=1;
+				break;
+			}
+			i++;
+			// printf("%s\n",argv[i]);
+			SCREEN_WIDTH=atoi(argv[i]);
+			//missing argument Y
+			if(!--argc){
+				printf("Must specify x AND y resolution : example \'-r 1024 768\'\n");
+				ret=1;
+				break;
+			}
+			i++;
+			// printf("%s\n",argv[i]);
+			SCREEN_HEIGHT=atoi(argv[i]);
+			printf("RESOLUTION is set to : %ix%i !!!\n",SCREEN_WIDTH,SCREEN_HEIGHT);
+		}
+		else if(!strcmp(argv[i],"--version")||!strcmp(argv[i],"-v")){
 			printf("it's over 9000.0.1\n");
-			return 1;
+			ret=1;
 		}
-		if(!strcmp(argv[1],"--duck")||!strcmp(argv[1],"-d")){
+		else if(!strcmp(argv[i],"--duck")||!strcmp(argv[i],"-d")){
 			printf("              ____           \n");
 			printf("             /    \\          \n");
 			printf("             | O o|____      \n");
@@ -80,9 +112,9 @@ int parseArgs(int argc, char *argv[]){
 			printf("       \\________/            \n");
 			printf("          |   |              \n");
 			printf("          |_  |_             \n");
-			return 1;
+			ret=1;
 		}
-		if(!strcmp(argv[1],"--credits")||!strcmp(argv[1],"-c")){
+		else if(!strcmp(argv[i],"--credits")||!strcmp(argv[i],"-c")){
 			printCenter(40,"__________");
 			printCenter(40,"");
 			printCenter(40,"CODE");
@@ -103,29 +135,26 @@ int parseArgs(int argc, char *argv[]){
 			printCenter(40,"");
 			printCenter(40,"__________");
 
+			ret=1;
+		}
+		else{
+			printf("wut ?? I didn't get that... try --help or -h instead...\n");
 			return 1;
 		}
-		printf("wut ?? I didn't get that... try --help or -h instead...\n");
-		return 1;
 	}
-	return 0;
+	return ret;
 }
 
 
 int main(int argc, char *argv[]) {
 	int parseReturn= parseArgs(argc, argv);
-	int stereo=0;
 	if(parseReturn==1) return 1;
-	if(parseReturn==2) stereo=1;
 
 	//RANDOM INIT
 	random_init();
 
 	//SDL INITIALIZATION
 	putenv("SDL_VIDEO_CENTERED=1");
-	int SCREEN_WIDTH=800;
-	int SCREEN_HEIGHT=600;
-	int SCREEN_BPP=32;
 	SDL_Init( SDL_INIT_EVERYTHING );
 	SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL );
 	glewInit ();
@@ -172,6 +201,9 @@ int main(int argc, char *argv[]) {
 		keystate = SDL_GetKeyState(NULL);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+		dt=SDL_GetTicks()-t_before;
+		t_before = SDL_GetTicks();
+		ULTRA_NECESSARY_TITLE_ANIMATION();
 
 		while( SDL_PollEvent( &event ) );
 
@@ -209,7 +241,7 @@ int main(int argc, char *argv[]) {
 		str->size=.1;
 
 		// string3d_setTxt(str,"===PRESS===\n=== q to===\n===QUIT !==");
-		string3d_setTxt(str,"===FRENCH==\n==KEYBOARD=\n===PRESS===\n===  F  ===");
+		string3d_setTxt(str,"===AZERTY==\n==KEYBOARD=\n===PRESS===\n===  F  ===");
 
 		glLineWidth(20.0);
 
@@ -239,7 +271,7 @@ int main(int argc, char *argv[]) {
 			string3d_draw(str);
 		glPopMatrix();
 
-		string3d_setTxt(str,"===OTHER===\n==KEYBOARD=\n===PRESS===\n===SPACE===");
+		string3d_setTxt(str,"===QWERTY==\n==KEYBOARD=\n===PRESS===\n===SPACE===");
 
 		glPushMatrix();
 			glTranslated(0,-.3,str->dist*1.2);
@@ -289,12 +321,12 @@ int main(int argc, char *argv[]) {
 
 
 
-
+	Uint32 mouse_buttons;
 	while(!quit){
 		dt=SDL_GetTicks()-t_before;
 		t_before = SDL_GetTicks();
 		keystate = SDL_GetKeyState(NULL);
-		SDL_GetMouseState( &mouse_x, &mouse_y );
+		mouse_buttons=SDL_GetMouseState( &mouse_x, &mouse_y );
 		// mouse_dx=mouse_x-SCREEN_WIDTH/2;
 		// mouse_dy=mouse_y-SCREEN_HEIGHT/2;
 
@@ -322,11 +354,16 @@ int main(int argc, char *argv[]) {
 						}
 					}
 					if(event.key.keysym.sym == SDLK_RETURN)
-						stereo=!stereo;
+						STEREOSCOPY=!STEREOSCOPY;
 					break;
 				case SDL_MOUSEMOTION:
-					if(MOUSE_ON)
-						camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
+					if(MOUSE_ON){
+						if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)){
+							camera_rotate(player,-.5*event.motion.yrel,.5*event.motion.xrel,0);
+						}else{
+							camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
+						}
+					}
 					// camera_rotate(player,0,2*event.motion.xrel,0);
 					break;
 			}
@@ -335,6 +372,17 @@ int main(int argc, char *argv[]) {
 		double speed=1000;
 
 		if(MOUSE_ON){
+			if(mouse_buttons&SDL_BUTTON(1)){
+				game->trigger(game,1);
+				game->fire(game);
+				speed=200;
+			}else{
+				game->trigger(game,0);
+			}
+			if(mouse_buttons&SDL_BUTTON(3)){
+				game->trigger(game,1);
+				speed=200;
+			}
 
 			if (keystate[A_KEY]){
 				camera_move_acc(player,0,-speed,0);
@@ -371,6 +419,7 @@ int main(int argc, char *argv[]) {
 			// }
 			// else{
 				speed=5000;
+
 				if (keystate[SDLK_LEFT]){
 					camera_rotate_acc(player,0,-speed,0);
 				}
@@ -390,10 +439,10 @@ int main(int argc, char *argv[]) {
 		ULTRA_NECESSARY_TITLE_ANIMATION();
 
 		if(MOUSE_ON){
-			game->update(game,dt);
+			game_update(game,dt);
 		}
 
-			if(stereo)
+			if(STEREOSCOPY)
 				camera_render_stereo(player);
 			else
 				camera_render(player);

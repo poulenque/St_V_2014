@@ -58,6 +58,9 @@ play (void * p)
             else if (player->flags & PLAYER_LOOP)
             {
                 sound_seekSample (player->s);
+                sound_nextSample (player->s);
+                alBufferData (buf, player->s->format, player->s->data, player->s->read_size, player->s->freq);
+                alSourceQueueBuffers (player->source_id, 1, &buf);
             }
         }
 
