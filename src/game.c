@@ -146,7 +146,7 @@ Game* initGame(Camera* player){
 	fire_value_MAX[2]   =200;
 
 	draw_init();
-	audio_init();
+	// audio_init();
 
 	for(int i=0;i<200;i++){
 		messages_x[i]=rand()*1./RAND_MAX;
@@ -200,8 +200,8 @@ Game* initGame(Camera* player){
 	game->weapon=0;
 
 
-	game->audio= audio_new (PLAYER_AMBIENT|PLAYER_LOOP);
-	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+	// game->audio= audio_new (PLAYER_AMBIENT|PLAYER_LOOP);
+	// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
 
 	//===========================
 	// 
@@ -571,7 +571,8 @@ void ingame_level1_render(Game* game){
 			while(alpha>360)
 				alpha-=360;
 
-			int angle=55;
+			int angle=game->player->mFOV*.5*game->player->mAspectRatio;
+			printf("%i\n",angle);
 
 			if(
 				 (alpha <angle||alpha>360-angle)

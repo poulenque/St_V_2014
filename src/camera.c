@@ -316,7 +316,7 @@ void camera_update(Camera* c,int dt){
 			||SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(3)){
 
 			c->theta+=.001*c->dtheta;
-			c->mFOV+=-.02*(c->mFOV-80);
+			c->mFOV+=-.01*(c->mFOV-80);
 
 			if(c->theta>30){
 				c->theta+=-.01*(c->theta-29);
@@ -328,7 +328,7 @@ void camera_update(Camera* c,int dt){
 			}
 		}else{
 			c->theta+=.001*c->dtheta -.01*c->theta;
-			c->mFOV+=-.02*(c->mFOV-100);
+			c->mFOV+=-.01*(c->mFOV-100);
 		}
 		c->phi  +=.001*c->dphi ;
 		c->rho  +=.001*c->drho -.03*c->rho ;
