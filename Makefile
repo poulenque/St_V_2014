@@ -22,7 +22,7 @@ OBJECTS = $(SOURCES:%.c=%.o)
 PROG = St_V_2014
 
 all:$(OBJECTS)
-	$(CC) $(LIBS) $(OBJECTS) -Wl,-rpath,engine -o $(PROG)
+	$(CC) $(LIBS) $(OBJECTS) -o $(PROG)
 	
 # To obtain object files
 %.o: %.c

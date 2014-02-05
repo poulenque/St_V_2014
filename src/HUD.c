@@ -82,9 +82,8 @@ void viseur(Game * game){
 	glPopMatrix();
 }
 
-//==========================================
-//==========================================
-//==========================================
+
+void weapon_HUD_ARM(Game* game){
 #define BOW_GL_MATRIX() \
 	fake_walking=\
 		 game->player->dx*game->player->dx\
@@ -106,11 +105,6 @@ void viseur(Game * game){
 	glRotated(real_HUD_drho_compensation,0,1,0);\
 	glTranslated(0,0,-1);\
 	glLineWidth(3.0)
-//==========================================
-//==========================================
-//==========================================
-
-void weapon_HUD_ARM(Game* game){
 
 	viseur(game);
 	double time_pos=game->trigger_value;

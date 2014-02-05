@@ -557,6 +557,9 @@ void ingame_level1_render(Game* game){
 
 	// double z=exp(-time_*.07);
 	double z=exp(-time_*.007);
+	int angle=game->player->mFOV*.5*game->player->mAspectRatio;
+	printf("%i\n",angle);
+	angle=60;
 
 	for(int i=-100;i<100;i++){
 		for(int j=-100;j<100;j++){
@@ -571,8 +574,6 @@ void ingame_level1_render(Game* game){
 			while(alpha>360)
 				alpha-=360;
 
-			int angle=game->player->mFOV*.5*game->player->mAspectRatio;
-			printf("%i\n",angle);
 
 			if(
 				 (alpha <angle||alpha>360-angle)
