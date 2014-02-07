@@ -31,6 +31,9 @@ all:$(OBJECTS)
 run:all
 	./St_V_2014
 
+run-softwae:all
+	LIBGL_DEBUG=verbose LIBGL_SHOW_FPS=1 LIBGL_ALWAYS_SOFTWARE=1 ./St_V_2014
+
 clean:
 	rm -f $(OBJECTS)
 

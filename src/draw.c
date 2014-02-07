@@ -13,6 +13,16 @@ void draw_init(){
 	quad=gluNewQuadric();
 }
 
+void draw_cheni(double size,double noise, int count){
+	while(count--){
+		glBegin( GL_LINES );
+			glVertex3d(random(0,size*noise), random(0,size*noise), random(0,size*noise) );
+			glVertex3d(random(0,size*noise), random(0,size*noise), random(0,size*noise) );
+		glEnd();
+	}
+}
+
+
 void draw_cube(double size,double noise){
 	glBegin( GL_LINES );
 		glVertex3d(-random(size,size*noise), -random(size,size*noise), -random(size,size*noise) );
@@ -54,6 +64,17 @@ void draw_face(double size,double noise){
 		glVertex3d(0,  random(size,size*noise), -random(size,size*noise) );
 		glVertex3d(0,  random(size,size*noise),  random(size,size*noise) );
 		glVertex3d(0, -random(size,size*noise),  random(size,size*noise) );
+	glEnd();
+}
+void draw_square(double size,double noise){
+	double a=random(size,size*noise);
+	double b=random(size,size*noise);
+	glBegin( GL_LINE_STRIP );
+		glVertex3d(0, -a, -b );
+		glVertex3d(0,  random(size,size*noise), -random(size,size*noise) );
+		glVertex3d(0,  random(size,size*noise),  random(size,size*noise) );
+		glVertex3d(0, -random(size,size*noise),  random(size,size*noise) );
+		glVertex3d(0, -a, -b );
 	glEnd();
 }
 
@@ -372,7 +393,7 @@ void draw_half_bow(double noise,double force){
 		force-=.5; //force entre 0 et 1		
 		// glRotated(180*(1-force*.3),180*(1-force*.3),0.,1.);
 		glRotated(180*(1-force*.3),1.,0,0.);
-		gluCylinder(quad,random(.05,noise*.1),random(.05,noise*.1),31,8,1);
+		gluCylinder(quad,random(.05,noise*.1),random(.05,noise*.1),30.0-2*force,8,1);
 
 		// t++;
 		// glTranslated(0.,0.,5.);
@@ -432,82 +453,65 @@ void simple_cube(){
 void draw_hand(double force,double distance, int side_view){
 	t++;
 	glPushMatrix();
+	glTranslated(0,-.2,0);
 	glTranslated(0,force*.5,0);
+
 		glColor4d(.8,.6,.4,1);
 		glPushMatrix();
-		glTranslated(0,.3,.8);
-		glRotated(24,1,0,0);
-		for(int i=0;i<4;i++){
-			glRotated(-12,1,0,0);
+				glTranslated(0,.3,.8);
+				glRotated(24,1,0,0);
+				for(int i=0;i<4;i++){
+					glRotated(-12,1,0,0);
 
-			glRotated(-5+6*cos(2*PI*cos(t*0.008))+6*sin(2*PI*cos(t*0.007)),0,0,1);
-			// glRotated(1,0,0,1);
-			glTranslated(0,0,-.34);
-			
-			if(i==1)
-				glTranslated(-.1,0,0);
+					glRotated(-5+6*cos(2*PI*cos(t*0.008))+6*sin(2*PI*cos(t*0.007)),0,0,1);
+					// glRotated(1,0,0,1);
+					glTranslated(0,0,-.34);
+					
+					if(i==1)
+						glTranslated(-.1,0,0);
 
-			if(i==2)
-				glTranslated(-.05,0,0);
-			glBegin(GL_QUADS);
-			// glBegin(GL_LINE_STRIP);
+					if(i==2)
+						glTranslated(-.05,0,0);
+					glBegin(GL_QUADS);
+					// glBegin(GL_LINE_STRIP);
 
-				// //index haut
-				// glVertex3d(-.5, .3, .7);
-				// glVertex3d(-.5, .3, .3);
-				// glVertex3d(-.5, .8, .3);
-				// glVertex3d(-.5, .8, .7);
+						//index haut
+						glVertex3d(-.5, .0, .19);
+						glVertex3d(-.5, .0,-.19);
+						glVertex3d(-.5, .3,-.16);
+						glVertex3d(-.5, .3, .16);
 
-				// //index droite
-				// glVertex3d(-.5, .3, .7);
-				// glVertex3d(-.5, .8, .7);
-				// glVertex3d( .5, 1., .7);
-				// glVertex3d( .5, .3, .7);
+						//index partie devant pour boucher les trous
+						glVertex3d(-.5, .0, .19);
+						glVertex3d(-.5, .0,-.19);
+						glVertex3d( .0, -.2, .19);
+						glVertex3d( .0, -.2,-.19);
 
-				// //index gauche
-				// glVertex3d(-.5, .3, .3);
-				// glVertex3d(-.5, .8, .3);
-				// glVertex3d( .5, 1., .3);
-				// glVertex3d( .5, .3, .3);
+						//index avant
+						glVertex3d(-.5, .3,-.16);
+						glVertex3d(-.5, .3, .16);
+						glVertex3d(.2, .5, .16);
+						glVertex3d(.2, .5,-.16);
 
-				//index haut
-				glVertex3d(-.5, .0, .19);
-				glVertex3d(-.5, .0,-.19);
-				glVertex3d(-.5, .3,-.16);
-				glVertex3d(-.5, .3, .16);
+						//index droite
+						glVertex3d(-.5, .0, .19);
+						glVertex3d(-.5, .3, .16);
+						glVertex3d( .2, .5, .16);
+						glVertex3d( .2, .0, .19);
 
-				//index partie devant pour boucher les trous
-				glVertex3d(-.5, .0, .19);
-				glVertex3d(-.5, .0,-.19);
-				glVertex3d( .0, -.2, .19);
-				glVertex3d( .0, -.2,-.19);
+						//index gauche
+						glVertex3d(-.5, .0,-.19);
+						glVertex3d(-.5, .3,-.16);
+						glVertex3d( .2, .5,-.16);
+						glVertex3d( .2, .0,-.19);
 
-				//index avant
-				glVertex3d(-.5, .3,-.16);
-				glVertex3d(-.5, .3, .16);
-				glVertex3d(.2, .5, .16);
-				glVertex3d(.2, .5,-.16);
+					glEnd();
+					if(i==1)
+						glTranslated(.1,0,0);
 
-				//index droite
-				glVertex3d(-.5, .0, .19);
-				glVertex3d(-.5, .3, .16);
-				glVertex3d( .2, .5, .16);
-				glVertex3d( .2, .0, .19);
-
-				//index gauche
-				glVertex3d(-.5, .0,-.19);
-				glVertex3d(-.5, .3,-.16);
-				glVertex3d( .2, .5,-.16);
-				glVertex3d( .2, .0,-.19);
-
-
-			glEnd();
-			if(i==1)
-				glTranslated(.1,0,0);
-
-			if(i==2)
-				glTranslated(.05,0,0);
-		}
+					if(i==2)
+						glTranslated(.05,0,0);
+				}
 		glPopMatrix();
 
 		glPushMatrix();
@@ -526,9 +530,7 @@ void draw_hand(double force,double distance, int side_view){
 				glRotated(-30,0,0,1);
 				glTranslated(.4,-.4,-.2);
 				glScaled(.4,1.3,.5);
-			// glColor4d(0,1,0,1);
 				simple_cube();
-			// glColor4d(.8,.6,.4,1);
 			glPopMatrix();
 		}
 
@@ -565,7 +567,9 @@ void draw_hand(double force,double distance, int side_view){
 			glVertex3d(-.5, .4, .6);
 			glVertex3d(-.5,-.6, .4);
 			glVertex3d(-.0,-.6, .7);
-			glVertex3d(-.0, .4, .7);
+		// glColor4d(0,1,0,1);
+			glVertex3d(.2, .4, 1.);
+		// glColor4d(.8,.6,.4,1);
 
 			//doigts dessous
 			glVertex3d(+.3,  .1,-.4);
@@ -644,28 +648,8 @@ void draw_hand(double force,double distance, int side_view){
 			glVertex3d(-.5-distance,-nb-nb2-1, -nb-nb2+.2);
 			glVertex3d(-.5-distance,-nb-nb2,-nb-nb2+.5);
 
-
-
-
-
-
-
-
-			//bras gauche
-
-
-
-		// 	glVertex3d(-.5,-.6, .6);
-		// 	glVertex3d(-.5,-.6,-.7);
-
-		// glColor4d(0,0,1,1);
-		// 	glVertex3d(-.3,-.8,-.7);
-		// 	glVertex3d(-.3,-.8, .4);
-
-			// glVertex3d(-.5, .4,-.7);
-			// glVertex3d(-.5,-.7,-.7);
-
 		glEnd();
+		glPopMatrix();
 
 }
 void draw_bow_to_take(double noise,double force){
@@ -676,52 +660,87 @@ void draw_bow(double noise,double force){
 	gluQuadricDrawStyle(quad, GLU_FILL);
 	glPushMatrix();
 		glScaled(.25,.25,.25);
-			draw_half_bow(noise,force);
-			glPushMatrix();
+		draw_half_bow(noise,force);
+		glPushMatrix();
 			glScaled(1,1,-1);
 			draw_half_bow(noise,force);
-			glPopMatrix();
 		glPopMatrix();
+	glPopMatrix();
 
 		gluQuadricDrawStyle(quad, GLU_LINE);
 		glPushMatrix();
-		glScaled(.25,.25,.25);
+			glScaled(.25,.25,.25);
 			draw_half_bow(noise,force);
 			glPushMatrix();
-			glScaled(1,1,-1);
-			draw_half_bow(noise,force);
+				glScaled(1,1,-1);
+				draw_half_bow(noise,force);
 			glPopMatrix();
 		glPopMatrix();
-	glPopMatrix();
+	// glPopMatrix();
 }
 
-void draw_arrow(double noise){
-	// t++;
-	glPushMatrix();
-		// glTranslated(-1,10,0);
-		// glRotated(t,1,0,0);
-		gluQuadricDrawStyle(quad, GLU_FILL);
+void draw_arrow(int detail){
+	if(detail){
+		// t++;
+		glPushMatrix();
+			// glTranslated(-1,10,0);
+			// glRotated(t,1,0,0);
+			gluQuadricDrawStyle(quad, GLU_FILL);
 
-		//fleche
-		gluCylinder(quad,.04,.2,1,3,1);
-		glTranslated(0,0,1);
+			//fleche
+			gluCylinder(quad,.04,.2,1,3,1);
+			glTranslated(0,0,1);
 
-		//tige
-		gluCylinder(quad,.04,.04,9,3,1);
+			//tige
+			gluCylinder(quad,.04,.04,9,3,1);
 
-		glTranslated(0,0,7);
-		gluCylinder(quad,.08,.2,.5,2,1);
-		glTranslated(0,0,.5);
-		gluCylinder(quad,.2,.2,1,2,1);
+			glTranslated(0,0,7);
+			gluCylinder(quad,.08,.2,.5,2,1);
+			glTranslated(0,0,.5);
+			gluCylinder(quad,.2,.2,1,2,1);
 
-		glTranslated(0,0,-.5);
-		glRotated(90,0,0,1);
+			glTranslated(0,0,-.5);
+			glRotated(90,0,0,1);
 
-		gluCylinder(quad,.08,.2,.5,2,1);
-		glTranslated(0,0,.5);
-		gluCylinder(quad,.2,.2,1,2,1);
+			gluCylinder(quad,.08,.2,.5,2,1);
+			glTranslated(0,0,.5);
+			gluCylinder(quad,.2,.2,1,2,1);
 
-	glPopMatrix();
+		glPopMatrix();
+	}else{
+		glLineWidth(3);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,0);
+			glVertex3d(0,0,1);
+		glEnd();
+
+		glLineWidth(1);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,1);
+			glVertex3d(0,0,10);
+		glEnd();
+
+		glLineWidth(3);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,8);
+			glVertex3d(0,0,9.5);
+		glEnd();
+			// //tige
+			// gluCylinder(quad,.04,.04,9,3,1);
+
+			// glTranslated(0,0,7);
+			// gluCylinder(quad,.08,.2,.5,2,1);
+			// glTranslated(0,0,.5);
+			// gluCylinder(quad,.2,.2,1,2,1);
+
+			// glTranslated(0,0,-.5);
+			// glRotated(90,0,0,1);
+
+			// gluCylinder(quad,.08,.2,.5,2,1);
+			// glTranslated(0,0,.5);
+			// gluCylinder(quad,.2,.2,1,2,1);
+
+	}
 }
 
 void draw_wing(double noise,int detail){

@@ -5,12 +5,13 @@
 #include <GL/glew.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <math.h>
 #include "string3d.h"
 #include "constants.h"
-#include <math.h>
 #include "shader.h"
 #include "draw.h"
 #include "HUD.h"
+#include "levels.h"
 
 //==========================================================
 //                                                      
@@ -24,27 +25,20 @@
 //http://patorjk.com/software/taag/#p=display&f=Block&t=FONT
 //==========================================================
 
-double time_=0;
+static double time_=0;
+double get_time_(){
+	return time_;
+}
+void set_time_(double t){
+	time_=t;
+}
 
-void intro_update(Game* game,int dt);
-void intro_render(Game* game);
 
-void intro_get_weapon_update(Game* game,int dt);
-void intro_get_weapon_render(Game* game);
-//friendly ennemies
-void ingame_level1_update(Game* game,int dt);
-void ingame_level1_render(Game* game);
-//ennemies are angry
-void ingame_level2_update(Game* game,int dt);
-void ingame_level2_render(Game* game);
-//swarm... you get "la sulphateuse"
-void ingame_level3_update(Game* game,int dt);
-void ingame_level3_render(Game* game);
-//boss finale !
-void ingame_level4_update(Game* game,int dt);
-void ingame_level4_render(Game* game);
 
 static String3d* str;
+String3d* get_str(){
+	return str;
+}
 
 static double trigger_value_MAX[3]={0,200,200};
 static double fire_value_MAX[3]   ={0,200,200};
@@ -62,13 +56,6 @@ void game_update(Game* game,int dt){
 	time_+=dt/15.;
 	camera_update(game->player,dt);
 	fake_walk_update(game,dt);
-
-	if(game->trigger_value==0){
-		// game->HUD_render=weapon_HUD;
-	}else{
-		// game->HUD_render=weapon_HUD_ARM;
-		// game->HUD_render=weapon_HUD_FIRE;
-	}
 
 	// if(game->trigger_state==0 && game->trigger_value==game->trigger_value_MAX){
 	// 	game->fire(game);
@@ -103,11 +90,86 @@ void game_update(Game* game,int dt){
 		}
 	}
 
+	//UPDATE ARROWS 
+	for(int i=0;i<game->arrow_count;i++){
+		if(game->arrows[i].z>-4){
+			game->arrows[i].dz -=.05;
 
+			game->arrows[i].x +=game->arrows[i].dx;
+			game->arrows[i].y +=game->arrows[i].dy;
+			game->arrows[i].z +=game->arrows[i].dz;
+
+		//TODO COLLISION
+		//TODO COLLISION
+		//TODO COLLISION
+		}else if(game->arrows[i].z<-6){
+			game->arrows[i].z=-6;
+		}
+
+	}
 
 	game->update(game,dt);
 }
 
+void game_render(Game* game){
+	game->render(game);
+	//RENDER AN INVISIBLE PLANE FOR GROUND DEPTH
+	glPushMatrix();
+		glTranslated(-game->player->x,-game->player->y,0);
+		glTranslated(0,0,-4);
+		glRotated(90,0,1,0);
+		glColor4d(0,0,0,0);
+		draw_face(200,0);
+	glPopMatrix();
+	//RENDER ARROWS
+	glColor4d(1,0,0,1);
+	for(int i=0;i<game->arrow_count;i++){
+		glPushMatrix();
+			glTranslated(game->arrows[i].x,game->arrows[i].y,game->arrows[i].z);
+			glScaled(.5,.5,.5);
+			double xx=game->arrows[i].x+game->player->x;
+			double yy=game->arrows[i].y+game->player->y;
+			double zz=game->arrows[i].z+game->player->z;
+			double dist=xx*xx+yy*yy+zz*zz;
+			if(dist<500){
+				// glColor4d(1,1,0,1);
+				draw_arrow(1);
+			}else{
+				// glColor4d(1,0,0,1);
+				draw_arrow(0);
+			}
+		glPopMatrix();
+	}
+}
+
+void fire(Game* game){
+	if(game->weapon==0)return;
+	if(game->trigger_value==1 & game->fire_value==1){
+		// printf("fire BENG BENG BENG BENG !!!\n");
+		//ALLOC MORE MEMORY IF NEEDED
+		if(game->arrow_count+1==game->arrow_limit){
+			game->arrow_limit*=2;
+			// printf("%i\n",sizeof(Arrow)*game->arrow_limit);
+			// printf("%i\n\n",game->arrow_limit);
+			game->arrows=realloc(game->arrows,sizeof(Arrow)*game->arrow_limit);
+		}
+		//PUT THAT THING
+		game->arrows[game->arrow_count].x=-game->player->x;
+		game->arrows[game->arrow_count].y=-game->player->y;
+		game->arrows[game->arrow_count].z=-game->player->z+1;
+
+
+		game->arrows[game->arrow_count].dx=30*cos(-game->player->phi/360*2*PI)*(1-1.5*fabs(sin(-game->player->theta/360*2*PI)));
+		game->arrows[game->arrow_count].dy=30*sin(-game->player->phi/360*2*PI)*(1-1.5*fabs(sin(-game->player->theta/360*2*PI)));
+		game->arrows[game->arrow_count].dz=-20*sin(-game->player->theta/360*2*PI);
+		// game->arrows[game->arrow_count].dz=0;
+
+		game->arrow_count+=1;
+		game->fire_value=0;
+	}else{
+		// printf("fire failed \n");
+	}
+}
 
 void game_pause(Game * game,int state){
 	if(state){
@@ -124,14 +186,6 @@ void trigger(Game* game,int state){
 	// else
 	// 	printf("trigger_OFF\n");
 }
-void fire(Game* game){
-	if(game->trigger_value==1 & game->fire_value==1){
-		// printf("fire BENG BENG BENG BENG !!!\n");
-		game->fire_value=0;
-	}else{
-		// printf("fire failed \n");
-	}
-}
 
 Game* initGame(Camera* player){
 
@@ -140,10 +194,11 @@ Game* initGame(Camera* player){
 	fire_value_MAX[0]   =0;
 	//bow
 	trigger_value_MAX[1]=200;
-	fire_value_MAX[1]   =200;
-	//la sulfateuse
+	fire_value_MAX[1]   =300;
+	// fire_value_MAX[1]   =1800;
+	// la sulfateuse
 	trigger_value_MAX[2]=200;
-	fire_value_MAX[2]   =200;
+	fire_value_MAX[2]   =10;
 
 	draw_init();
 	// audio_init();
@@ -199,7 +254,12 @@ Game* initGame(Camera* player){
 	game->fire_value=1;
 	game->weapon=0;
 
-
+	game->arrow_count=0;
+	game->mechant_count=0;
+	game->arrow_limit=1;
+	game->mechant_limit=1;
+	game->arrows=malloc(sizeof(Arrow)*game->arrow_limit);
+	game->mechants=malloc(sizeof(Mechant)*game->arrow_limit);
 	// game->audio= audio_new (PLAYER_AMBIENT|PLAYER_LOOP);
 	// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
 
@@ -214,7 +274,6 @@ Game* initGame(Camera* player){
 	//THIS IS FOR TESTING PURPOSE
 	//===========================
 	// glClearColor( 1., 1., 1., 1. );
-	game->weapon=1;
 	
 	// game->update=ingame_level1_update;
 	// game->render=ingame_level1_render;
@@ -227,390 +286,6 @@ Game* initGame(Camera* player){
 	return game;
 }
 
-//==================================================================
-//                                                                    
-//  _|_|_|  _|      _|  _|_|_|_|_|  _|_|_|      _|_|          _|_|    
-//    _|    _|_|    _|      _|      _|    _|  _|    _|      _|    _|  
-//    _|    _|  _|  _|      _|      _|_|_|    _|    _|      _|_|_|_|  
-//    _|    _|    _|_|      _|      _|    _|  _|    _|      _|    _|  
-//  _|_|_|  _|      _|      _|      _|    _|    _|_|        _|    _|  
-//                                                                    
-//==================================================================
-//==================================================================
-//==================================================================
-void intro_update(Game* game,int dt){
-
-	// if(!audio_isPlaying(game->audio)){
-	// 	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
-	// }
-	//distace player begin sphere
-	double x_temp=(game->player->x+20);
-	double y_temp=(game->player->y-0);
-	double z_temp=(game->player->z-0);
-
-	x_temp*=x_temp;//square
-	y_temp*=y_temp;//square
-	z_temp*=z_temp;//square
-
-	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//!!!!GET INTO START ZONE, LETS BEGIN !!!!!
-	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	if(x_temp+y_temp+z_temp<5*5){
-		game->player->x=200;
-		game->player->y=0;
-		game->player->z=0;
-		if(game->player->avance==-1)
-			game->player->phi  =0;
-		else
-			game->player->phi  =180;
-		game->player->theta=0;
-		game->player->rho  =0;
-
-		time_=0;
-
-		glClearColor( 1.f, 1.f, 1.f, 1.f );
-		game->update=intro_get_weapon_update;
-		game->render=intro_get_weapon_render;
-
-		glEnable(GL_FOG);
-
-		GLfloat fogColor[4]= {1,1, 1, 1};
-		glFogi(GL_FOG_MODE, GL_LINEAR);//GL_EXP, GL_EXP2, GL_LINEAR
-		glFogf(GL_FOG_START, 700);
-		glFogf(GL_FOG_END, 1000);
-
-		// glFogi(GL_FOG_MODE, GL_EXP);//GL_EXP, GL_EXP2, GL_LINEAR
-		// glFogi(GL_FOG_MODE, GL_EXP2);//GL_EXP, GL_EXP2, GL_LINEAR
-		// glFogf(GL_FOG_START, 2000);
-		// glFogf(GL_FOG_END, 3000);
-
-		glFogfv(GL_FOG_COLOR, fogColor);
-		glFogf(GL_FOG_DENSITY, 0.35f);
-		glHint(GL_FOG_HINT, GL_DONT_CARE);
-
-	}
-	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-}
-
-void intro_render(Game* game){
-
-	glMatrixMode(GL_MODELVIEW);
-
-	// glPushMatrix();
-	// glTranslated(40,-40,0);
-	// glScaled(4,4,4);
-	// draw_hand(0,0,0);
-	// draw_bow(.4,0);
-	// glPopMatrix();
-
-	glPushMatrix();
-	glTranslated(20,0,0);
-
-		glColor4d(1,1,1,1);
-
-		draw_sphere2(5,SDL_GetTicks()*.05,0);
-
-		//====================================================
-		string3d_setTxt(str,"     a game by    \n\nLaurent Rohrbasser");
-
-		glRotated(53,0,0,1);
-
-		glColor4d(1,1,1,1);
-		str->size=1;
-		str->dist=15;
-		str->z=15;
-		string3d_draw(str);
-
-		for(int i=1;i<50;i++){
-			str->dist=15+i;
-			str->size=1+i/15.;
-			str->z=15+i*.5;
-			double k=exp(-i/5.)/1.5;
-			glColor4d(k,k,k,1);
-			string3d_draw(str);
-		}
-		//====================================================
-
-		string3d_setTxt(str,"  ENTER to begin  \n");
-
-
-		glColor4d(1,1,1,1);
-		str->size=1;
-		str->dist=15;
-		str->z=-15;
-		string3d_draw(str);
-
-		for(int i=1;i<50;i++){
-			str->dist=15+i;
-			str->size=1+i/15.;
-			str->z=-15-i*.5;
-			double k=exp(-i/5.)/1.5;
-			glColor4d(k,k,k,1);
-			string3d_draw(str);
-		}
-
-		//====================================================
-
-		double k=rand()*1./RAND_MAX;
-		k*=0.5;
-		glScaled(-1,1,1);
-		glColor4d(k,k,k,1);
-		string3d_setTxt(str,"music > gopho by goto80 >>>>> music > gopho by goto80 >>>>> ");
-		str->size=.5;
-		str->dist=7.15;
-		str->z=-.25;
-		str->phi=SDL_GetTicks()*0.05*.75;
-		string3d_draw(str);
-		str->phi=0;
-
-	glPopMatrix();
-}
-//==================================================================
-//                                                                    
-//  _|_|_|  _|      _|  _|_|_|_|_|  _|_|_|      _|_|        _|_|_|    
-//    _|    _|_|    _|      _|      _|    _|  _|    _|      _|    _|  
-//    _|    _|  _|  _|      _|      _|_|_|    _|    _|      _|_|_|    
-//    _|    _|    _|_|      _|      _|    _|  _|    _|      _|    _|  
-//  _|_|_|  _|      _|      _|      _|    _|    _|_|        _|_|_|    
-//                                                                    
-//==================================================================
-//==================================================================
-//==================================================================
-void intro_get_weapon_update(Game* game,int dt){
-
-	// if(!audio_isPlaying(game->audio)){
-	// 	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
-	// }
-
-	//distace player begin square
-	double x_temp=(game->player->x+200);
-	double y_temp=(game->player->y-0);
-	double z_temp=(game->player->z-0);
-
-	x_temp*=x_temp;//square
-	y_temp*=y_temp;//square
-	z_temp*=z_temp;//square
-
-	double d= (sqrt(x_temp+y_temp+z_temp));
-
-	game->shared_var1=d;
-
-	if(d<5){
-		// MUSIC QUIT LOOP
-		// GOTO LEVEL 1 !
-		game->player->x=0;
-		game->player->y=0;
-		game->player->z=0;
-		game->player->theta=0;
-		game->player->phi  =0;
-		game->player->rho  =0;
-		game->update=ingame_level1_update;
-		game->render=ingame_level1_render;
-		game->weapon=1;
-
-		time_=0;
-
-		glEnable(GL_FOG);
-
-		GLfloat fogColor[4]= {1,1, 1, 1};
-		glFogi(GL_FOG_MODE, GL_LINEAR);//GL_EXP, GL_EXP2, GL_LINEAR
-		glFogf(GL_FOG_START, 20);
-		glFogf(GL_FOG_END, 300);
-
-		// glFogi(GL_FOG_MODE, GL_EXP);//GL_EXP, GL_EXP2, GL_LINEAR
-		// glFogi(GL_FOG_MODE, GL_EXP2);//GL_EXP, GL_EXP2, GL_LINEAR
-		// glFogf(GL_FOG_START, 2000);
-		// glFogf(GL_FOG_END, 3000);
-
-		glFogfv(GL_FOG_COLOR, fogColor);
-		glFogf(GL_FOG_DENSITY, 0.35f);
-		glHint(GL_FOG_HINT, GL_DONT_CARE);
-
-	}
-}
-void intro_get_weapon_render(Game* game){
-
-
-
-	double d= game->shared_var1;
-	// glClearColor(d*.01,d*.01,d*.01,1);
-
-	glColor4d(0,0,0,1);
-	double size=10;
-
-	glPushMatrix();
-		glColor4d(
-			1-exp(2.5-time_*0.05),
-			1-exp(2.5-time_*0.05),
-			1-exp(2.5-time_*0.05),
-			1);
-		glTranslated(-210-exp(time_*0.05),0,0);
-		// draw_face(100*(1-exp(-time_*0.05)),.1);
-		draw_face(30,.1);
-	glPopMatrix();
-
-	// glColor4d(0,0,0,exp(-time_/50.));
-	// glPushMatrix();
-	// 	glTranslated(200,0,size*2-exp(6-time_/50.));
-	// 	// glRotated(-45,0,0,1);
-	// 	draw_cube(size,.1);
-	// glPopMatrix();
-
-	// glColor4d(0,0,0,1);
-	double dd=d;
-	if (d>1/0.02) dd=1/.02;
-	glColor4d(0,0,0,(1-exp(-time_/100.))*dd*.02);
-	glPushMatrix();
-		glTranslated(200,0,-size*2+exp(6+1-time_/50.));
-		// glRotated(-45,0,0,1);
-		draw_cube(size,.1);
-
-		glTranslated(0,0,size*2);
-		glPushMatrix();
-		glRotated(time_,0,0,1);
-		glRotated(45,45,0,1);
-		glColor4d(1,0,0,1);
-		draw_bow_to_take(.4,0);
-		glPopMatrix();
-
-	glPopMatrix();
-
-	// glColor4d(1,0,0,1);
-	// draw_bow(0,.5+.5*cos(PI*cos(time_*.1)));
-
-	for(int i=1;i<50;i++){
-		// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
-		double v= (2-d/200.) ;
-		if(v<.2)
-			v=.2;
-		glColor4d(0,0,0,v*(1-exp(-time_/400.)) * (1-i/50.) *(d/200.) );
-		glPushMatrix();
-			glTranslated(200,0,-size*i*1.1*(1+exp(-time_/50.))-200*exp(-time_/50.) - size);
-			glRotated((i-1)*(time_*.1),0,0,1);
-			draw_cube(size*i,.1/i);
-		glPopMatrix();
-	}
-
-	// glPushMatrix();
-	// glScaled(1,-1,1);
-	// for(int i=0;i<50;i++){
-	// 	string3d_setTxt(str,"go accomplish your mission");
-	// 	str->size=2;
-	// 	str->dist=15;
-
-	// 	str->x=100+200.*messages_x[i];
-	// 	str->y=100-200.*messages_y[i];
-	// 	str->z=15-30.*messages_z[i]+exp(6+1.*messages_z_exp_offset[i]-time_/50.*messages_z_exp_speed[i]);
-	// 	str->phi=time_*.75+360.*messages_dephasage[i];
-
-	// 	glColor4d(0,0,0,.5*exp(6-time_/50.*messages_z_exp_speed[i]));
-	// 	string3d_draw(str);
-	// }
-	// glPopMatrix();
-
-	glPushMatrix();
-	glScaled(1,-1,1);
-	// glColor4d(0,0,0,1-exp(-time_/100.));
-	glColor4d(0,0,0,(1-exp(-time_/100.))*dd*.02);
-	for(int i=0;i<10;i++){
-		string3d_setTxt(str,"go accomplish your mission");
-		str->size=1.12 + .15*(1+cos (time_*.1+i));
-		str->dist=7.15 + 1+cos (time_*.1+i);
-		str->x=200;
-		str->y=0;
-		str->z=-.5+exp(6+1-time_/50.)+i*2 -30+1;
-		str->phi=time_*.75+i*40;
-		string3d_draw(str);
-	}
-	glPopMatrix();
-
-	// glScaled(-1,-1,1);
-	// glColor4d(0,1,0,1);
-	// string3d_setTxt(str,"abcdefghijklmnopqrstuvwxyz1234567890");
-	// str->size=1;
-	// str->dist=10;
-	// str->z=-.5;
-	// str->phi=0;
-	// string3d_draw(str);
-
-}
-//==================================================================
-//                                                                
-//  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|              _|  
-//  _|        _|        _|      _|  _|        _|            _|_|  
-//  _|        _|_|_|    _|      _|  _|_|_|    _|              _|  
-//  _|        _|          _|  _|    _|        _|              _|  
-//  _|_|_|_|  _|_|_|_|      _|      _|_|_|_|  _|_|_|_|        _|  
-//                                                                
-//==================================================================
-//==================================================================
-//==================================================================
-void ingame_level1_update(Game* game,int dt){
-
-	// if(!audio_isPlaying(game->audio)){
-	// 	audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
-	// }
-}
-void ingame_level1_render(Game* game){
-
-	// double z=exp(-time_*.07);
-	double z=exp(-time_*.007);
-	int angle=game->player->mFOV*.5*game->player->mAspectRatio;
-	printf("%i\n",angle);
-	angle=60;
-
-	for(int i=-100;i<100;i++){
-		for(int j=-100;j<100;j++){
-			double x_guy=20*i;
-			double y_guy=20*j;
-			// double alpha = atan((x_guy+game->player->x)/(y_guy+game->player->y))*180./PI;
-			double alpha = atan2((y_guy+game->player->y),(x_guy+game->player->x))*180./PI;
-
-			alpha = alpha+game->player->phi;
-			while(alpha<=0)
-				alpha+=360;
-			while(alpha>360)
-				alpha-=360;
-
-
-			if(
-				 (alpha <angle||alpha>360-angle)
-				){
-				double dist=(x_guy+game->player->x)*(x_guy+game->player->x)+(y_guy+game->player->y)*(y_guy+game->player->y);
-
-				int quality=0;
-				if(dist<20*20*20){
-					quality=2;
-				}else if(dist<50*20*20){
-					quality=1;
-				}else if(dist<300*20*20){
-					quality=0;
-				}else{
-					continue;
-				}
-
-				glColor4d(z,z,z,1);
-				glPushMatrix();
-					glTranslated(20*i,20*j,20*z);
-					draw_gentil(2*(100-(int)time_%100)*.01,quality);
-				glPopMatrix();
-
-				glColor4d(0.9,0.9,0.9,1-z);
-				glPushMatrix();
-					glTranslated(0,0,-10);
-					glScaled(1,1,-1);
-					glTranslated(20*i,20*j,20*z);
-					draw_gentil(2*(100-(int)time_%100)*.01,quality);
-				glPopMatrix();
-
-			}
-		}
-	}
-
-
-}
 //==================================================================
 //                                                                    
 //  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|              _|_|    

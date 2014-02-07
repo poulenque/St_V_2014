@@ -322,6 +322,8 @@ int main(int argc, char *argv[]) {
 
 
 	Uint32 mouse_buttons;
+	int jump_count=0;
+	int jump_max=3;
 	while(!quit){
 		dt=SDL_GetTicks()-t_before;
 		t_before = SDL_GetTicks();
@@ -356,7 +358,16 @@ int main(int argc, char *argv[]) {
 					if(event.key.keysym.sym == SDLK_RETURN)
 						STEREOSCOPY=!STEREOSCOPY;
 					if(event.key.keysym.sym ==SDLK_SPACE){
-						player->dz=-400;
+						// if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)){
+						// }else{
+							if(game->player->z==0){
+								jump_count=0;
+							}
+							jump_count++;
+							if(jump_count<=jump_max){
+								player->dz=-300;
+							}
+						// }
 					}
 					break;
 				case SDL_MOUSEMOTION:
@@ -374,15 +385,25 @@ int main(int argc, char *argv[]) {
 		//========================
 		double speed=1000;
 
+		if(keystate[SDLK_1]){
+			game->weapon=0;
+		}
+		if(keystate[SDLK_2]){
+			game->weapon=1;
+		}
+		if(keystate[SDLK_3]){
+			game->weapon=2;
+		}
+
 		if(MOUSE_ON){
-			if(mouse_buttons&SDL_BUTTON(1)){
+			if(mouse_buttons&SDL_BUTTON(1)||keystate[SDLK_LCTRL]){
 				game->trigger(game,1);
 				game->fire(game);
 				speed=200;
 			}else{
 				game->trigger(game,0);
 			}
-			if(mouse_buttons&SDL_BUTTON(3)){
+			if(mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LALT]){
 				game->trigger(game,1);
 				speed=200;
 			}

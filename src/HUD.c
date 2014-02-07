@@ -54,7 +54,7 @@ void bow_HUD(Game* game){
 	}
 }
 
-void viseur(Game * game){
+void viseur(Game * game,double precision){
 	fake_walking=
 		 game->player->dx*game->player->dx
 		+game->player->dy*game->player->dy
@@ -67,7 +67,7 @@ void viseur(Game * game){
 		glPointSize(2.);
 
 		glRotated(game->player->rho*(-2),1,0,0);
-		glRotated(game->player->theta*.5, 0.0, 1.0, 0.0);
+		glRotated(game->player->theta*(.5-precision*.8), 0.0, 1.0, 0.0);
 
 		glEnable(GL_POINT_SMOOTH);
 		glPointSize(6.);
@@ -106,8 +106,8 @@ void weapon_HUD_ARM(Game* game){
 	glTranslated(0,0,-1);\
 	glLineWidth(3.0)
 
-	viseur(game);
 	double time_pos=game->trigger_value;
+	viseur(game,time_pos);
 
 	double oscill_force=.5*sin(SDL_GetTicks()*.001)+.5*sin(SDL_GetTicks()*.00085);
 
@@ -136,7 +136,7 @@ void weapon_HUD_ARM(Game* game){
 					);
 
 				glScaled(1,1,1+.2*time_pos);
-				draw_arrow(.2);
+				draw_arrow(1);
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 			glPopMatrix();
@@ -162,70 +162,80 @@ void weapon_HUD_ARM(Game* game){
 
 
 void weapon_HUD_FIRE(Game* game){
-	viseur(game);
+	viseur(game,1);
 
 
 	glPushMatrix();
 	BOW_GL_MATRIX();
 
 	double time_pos=game->fire_value;
-	double force=	time_pos*.5+.5;
+
+	// time_pos=1;
 
 	//FIRE
-	if(force<.55){
+	if(time_pos<.1){
 	// else {
 
-		//force entre 0 et 1
-		force=(force-.5)/.05;
-		//force exp entre 0 et 1
-		force=(exp( 1-force )-1)/(exp(1)-1);
+		//time_pos entre 0 et 1
+		time_pos=(time_pos)/.1;
+		//time_pos exp entre 0 et 1
+		time_pos=(exp( 1-time_pos )-1)/(exp(1)-1);
 
-		// double force=.5*((int)(time_/.15)%152)/152.;
+		// double time_pos=.5*((int)(time_/.15)%152)/152.;
 
-		glTranslated(1*force, 1.5-1+1*force, 2.5);
+		glTranslated(1*time_pos, 1.5-1+1*time_pos, 2.5);
 		glRotated(-130*.5, 0, 1, 0);
 		glRotated(-30*.5, 0, 0, 1);
 		glRotated(10, 0, 1, 0);
 
-		draw_hand(.5*force,2.+2-2*force,TRUE);
-		draw_bow(.2,.5*force);
-
 		//ARROW
-		glRotated(90, 0, 1, 0);
-		glRotated(90, 1, 0, 0);
-		glRotated(3, 1, 0, 0);
-		glTranslated(0,.3,-8+5*force);
+		glPushMatrix();
+			glRotated(90, 0, 1, 0);
+			glRotated(90, 1, 0, 0);
+			glRotated(3, 1, 0, 0);
+			glTranslated(0,.3,-8+5*time_pos);
 
-		draw_arrow(.2);
+			glTranslated(0,0,-1*(1-time_pos));
+
+			draw_arrow(1);
+		glPopMatrix();
+
+		//BOW + HAND
+		draw_hand(.5*time_pos,2.+2-2*time_pos,TRUE);
+		draw_bow(.2,.5*time_pos);
 
 
-	}else if(force<.65){
-		//force entre 0 et 1
-		force=(force-.55)/.1;
 
-		// double force=.5*((int)(time_/.15)%152)/152.;
+	}else if(time_pos<.3){
+		//time_pos entre 0 et 1
+		time_pos=(time_pos-.1)/.2;
+
+		// double time_pos=.5*((int)(time_/.15)%152)/152.;
 
 		glTranslated(0, 1.5-1, 2.5);
 		glRotated(-130*.5, 0, 1, 0);
 		glRotated(-30*.5, 0, 0, 1);
 		glRotated(10, 0, 1, 0);
 
-		glRotated(-40*force, 1, 0, 0);
-		// glRotated(-40*force, 0, 0, 1);
+		glRotated(-40*time_pos, 1, 0, 0);
+		// glRotated(-40*time_pos, 0, 0, 1);
 
 
-		glTranslated(0, 0, -3*force);
+		glTranslated(0, 0, -3*time_pos);
 
 		draw_hand(0,2.+2,TRUE);
 		draw_bow(.2,0);
 
 
-	}else{
+	}else if(time_pos<.6){
 
-		//force entre 0 et 1
-		force=(force-.65)/.25;
+		//time_pos entre 0 et 1
+		time_pos=(time_pos-.3)/.3;
+		// time_pos =1;
 
-		// double force=.5*((int)(time_/.15)%152)/152.;
+		// double time_pos=.5*((int)(time_/.15)%152)/152.;
+
+				// glTranslated(-2*time_pos, 2*time_pos,3*time_pos);
 
 		glTranslated(0, 1.5-1, 2.5);
 		glRotated(-130*.5, 0, 1, 0);
@@ -234,27 +244,69 @@ void weapon_HUD_FIRE(Game* game){
 
 		glRotated(-40, 1, 0, 0);
 
-		glTranslated(0, 0, -3*force);
-		glRotated(20*force, 0, 1, 0);
+		glTranslated(0, 0, -3*time_pos);
+		glRotated(20*time_pos, 0, 1, 0);
 
-		// glTranslated(-2*force, 0, 2*force);
+		// glTranslated(-2*time_pos, 0, 2*time_pos);
 
-		// glRotated(-20*force, 0, 1, 1);
+		// glRotated(-20*time_pos, 0, 1, 1);
 
-		glRotated(40*force, 1, 1, 0);
+		glRotated(20*time_pos, 1, 1, 0);
+
+				// glRotated(30*time_pos, 0, 0, 1);
 
 		glTranslated(0, 0, -3);
 
-		draw_hand(0,2.+2-2*force,TRUE);
+		draw_hand(0,2.+2-2*time_pos,TRUE);
 		draw_bow(.2,0);
 
-		//ARROW
-		// glRotated(90, 0, 1, 0);
-		// glRotated(90, 1, 0, 0);
-		// glRotated(3, 1, 0, 0);
-		// glTranslated(0,.3,-8);
+	}else{
 
-		// draw_arrow(.2);
+		double oscill_force=.5*sin(SDL_GetTicks()*.001)+.5*sin(SDL_GetTicks()*.00085);
+	
+		//time_pos entre 0 et 1
+		time_pos=(time_pos-.6)/.4;
+
+		time_pos=1-time_pos;
+
+
+		glTranslated(2*time_pos, 0, 0);
+		glRotated(30*(time_pos), 0, 1, 0);
+		glRotated(-0, 0, 0, 1);
+
+
+		glPushMatrix();
+			//ARROW
+			glRotated(60, 0, 1, 0);
+			glRotated(60, 1, 0, 0);
+			// glTranslated(
+			// 	-.3+.1*sin(SDL_GetTicks()*.0017*(1-time_pos)),
+			// 	1-.7*time_pos,
+			// 	-5+1*oscill_force*(1-time_pos)+2*time_pos
+			// 	);
+			glTranslated(
+				-.3+.1*sin(SDL_GetTicks()*.0017),
+				1,
+				-5+1*oscill_force
+				);
+
+			glTranslated(5*time_pos,5*time_pos,0);
+
+			glTranslated(-10*time_pos,0,0);
+			// glRotated(-20+20*cos(SDL_GetTicks()*0.01), 1,-.3,0);
+			glRotated(-40*time_pos, 1,0,0);
+			glTranslated(10*time_pos,0,0);
+
+			glTranslated(0,2*time_pos,2*time_pos);
+
+			glTranslated(-3*time_pos,0,0);
+
+			draw_arrow(1);
+		glPopMatrix();
+
+		draw_hand(  .3+.1*oscill_force,0,FALSE);
+		draw_bow(.2,.2+.1*oscill_force);
+
 
 	}
 

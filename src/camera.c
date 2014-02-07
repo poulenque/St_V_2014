@@ -29,8 +29,12 @@ void camera_move_acc(Camera* c,double ddx,double ddy,double ddz){
 	c->ddx+=ddx*cos(-c->phi/360*2*PI)  +  ddy*cos(-c->phi/360*2*PI+PI/2);
 	c->ddy+=ddx*sin(-c->phi/360*2*PI)  +  ddy*sin(-c->phi/360*2*PI+PI/2);
 	c->ddz+=ddz;
-	if((!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(1))) && (!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(3))))
+	if((!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(1)))
+		&& (!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(3)))
+		&& (!SDL_GetKeyState(NULL)[SDLK_LCTRL])
+		&& (!SDL_GetKeyState(NULL)[SDLK_LALT])){
 	c->dtheta+=ddx/50.;
+	}
 	c->drho+=ddy/50.;
 	if(ddx>0)
 		c->avance=1;
@@ -184,7 +188,8 @@ void camera_render(Camera* c){
 	glRotated(c->phi, 0.0, 0.0, 1.0);
 	glTranslated(c->x, c->y, c->z);
 
-	c->game->render(c->game);
+	game_render(c->game);
+	// c->game->render(c->game);
 
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -277,15 +282,17 @@ void camera_render_stereo(Camera* c){
 
 void camera_update(Camera* c,int dt){
 	for(int i=0;i<dt;i++){
+		if(c->z<0){
+			c->dz-=-0.5;
+		}
 		c->dx+=.001*c->ddx;
 		c->dy+=.001*c->ddy;
 		c->dz+=.001*c->ddz;
 
-		c->dz-=-1;
 
 		c->dx+= -.011*c->dx;
 		c->dy+= -.011*c->dy;
-		c->dz+= -.011*c->dz;
+		c->dz+= -.003*c->dz;
 
 		c->x+=.001*c->dx;
 		c->y+=.001*c->dy;
@@ -294,7 +301,10 @@ void camera_update(Camera* c,int dt){
 		if(c->z>0){
 			c->z=0;
 			c->dz=0;
-		}
+			c->theta+=-20-30.*(double)rand()/RAND_MAX;
+			c->rho+=10-20*(double)rand()/RAND_MAX;
+			// printf("%lf\n",c->rho);
+		}else
 
 
 		//================================================
@@ -313,7 +323,9 @@ void camera_update(Camera* c,int dt){
 		// c->theta+=.001*dt*c->dtheta -.01*(c->theta+90);
 		//===============================================
 		if(   SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(1)
-			||SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(3)){
+			||SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(3)
+			||SDL_GetKeyState(NULL)[SDLK_LCTRL]
+			||SDL_GetKeyState(NULL)[SDLK_LALT]){
 
 			c->theta+=.001*c->dtheta;
 			c->mFOV+=-.01*(c->mFOV-80);
