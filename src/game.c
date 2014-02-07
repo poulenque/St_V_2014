@@ -136,17 +136,13 @@ void game_render(Game* game){
 		double alpha=180+acos(game->arrows[i].dz/rayon)*180/PI;
 		double beta=180./PI*atan2(game->arrows[i].dy,game->arrows[i].dx);
 
-		double angle_=-90+acos(game->arrows[i].dz/rayon)*180/PI;
-		angle_=angle_/90;
-
 		//reflexion
-		// glDepthFunc(GL_ALWAYS);//debug
 	glColor4d(1,0,0,.3);
+		// glDepthFunc(GL_ALWAYS);//debug
 		glDepthFunc(GL_GREATER);
 		glDepthMask(GL_FALSE);
 		glPushMatrix();
-			glTranslated(game->arrows[i].x,game->arrows[i].y,-game->arrows[i].z);
-			glTranslated(0,0,4*angle_);
+			glTranslated(game->arrows[i].x,game->arrows[i].y,-(game->arrows[i].z+8));
 			glScaled(.5,.5,-.5);
 			if(!(game->arrows[i].z<=-4)){
 				glLineWidth(2);
