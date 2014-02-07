@@ -22,7 +22,7 @@ double random_simple(){
 
 double random(double around,double noise){
 	// return around*(1+noise*rand()/RAND_MAX-noise/2);
-	return around+noise*(random_simple()-.5);
+	return around+noise*((double)random_simple()-.5);
 }
 
 

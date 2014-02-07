@@ -248,7 +248,7 @@ void camera_render_stereo(Camera* c){
 	glTranslated(c->x, c->y, c->z);
 
 	camera_ApplyLeftFrustum(c);
-	c->game->render(c->game);
+	game_render(c->game);
 
 	//clear buffer
 	glClear(GL_DEPTH_BUFFER_BIT) ;
@@ -268,7 +268,7 @@ void camera_render_stereo(Camera* c){
 	glTranslated(c->x, c->y, c->z);
 
 	camera_ApplyRightFrustum(c);
-	c->game->render(c->game);
+	game_render(c->game);
 
 	//
 	glColorMask(1, 1, 1, 1);

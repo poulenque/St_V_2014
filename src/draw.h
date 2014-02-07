@@ -11,6 +11,7 @@ typedef struct Ennemy{
 void draw_cheni(double size,double noise, int count);
 
 void draw_cube(double size,double noise);
+void draw_cube_simple(double size);
 void draw_face(double size,double noise);
 void draw_square(double size,double noise);
 void draw_sphere(double size,double time,int detail);

@@ -6,6 +6,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <math.h>
+#include "random.h"
 #include "string3d.h"
 #include "constants.h"
 #include "shader.h"
@@ -92,8 +93,12 @@ void game_update(Game* game,int dt){
 
 	//UPDATE ARROWS 
 	for(int i=0;i<game->arrow_count;i++){
+
+		double rayon=sqrt(game->arrows[i].dx*game->arrows[i].dx + game->arrows[i].dy*game->arrows[i].dy + game->arrows[i].dz*game->arrows[i].dz);
+		double angle_=-90+acos(game->arrows[i].dz/rayon)*180/PI;
+		angle_=angle_/90;
 		if(game->arrows[i].z>-4){
-			game->arrows[i].dz -=.05;
+			game->arrows[i].dz -=.1;
 
 			game->arrows[i].x +=game->arrows[i].dx;
 			game->arrows[i].y +=game->arrows[i].dy;
@@ -102,8 +107,8 @@ void game_update(Game* game,int dt){
 		//TODO COLLISION
 		//TODO COLLISION
 		//TODO COLLISION
-		}else if(game->arrows[i].z<-6){
-			game->arrows[i].z=-6;
+		}else if(game->arrows[i].z<-4-angle_*2){
+			game->arrows[i].z=-4-angle_*2;
 		}
 
 	}
@@ -122,23 +127,122 @@ void game_render(Game* game){
 		draw_face(200,0);
 	glPopMatrix();
 	//RENDER ARROWS
-	glColor4d(1,0,0,1);
 	for(int i=0;i<game->arrow_count;i++){
+		double xx=game->arrows[i].x+game->player->x;
+		double yy=game->arrows[i].y+game->player->y;
+		double zz=game->arrows[i].z+game->player->z;
+		double dist=xx*xx+yy*yy+zz*zz;
+		double rayon=sqrt(game->arrows[i].dx*game->arrows[i].dx + game->arrows[i].dy*game->arrows[i].dy + game->arrows[i].dz*game->arrows[i].dz);
+		double alpha=180+acos(game->arrows[i].dz/rayon)*180/PI;
+		double beta=180./PI*atan2(game->arrows[i].dy,game->arrows[i].dx);
+
+		double angle_=-90+acos(game->arrows[i].dz/rayon)*180/PI;
+		angle_=angle_/90;
+
+		//reflexion
+		// glDepthFunc(GL_ALWAYS);//debug
+	glColor4d(1,0,0,.3);
+		glDepthFunc(GL_GREATER);
+		glDepthMask(GL_FALSE);
 		glPushMatrix();
 			glTranslated(game->arrows[i].x,game->arrows[i].y,game->arrows[i].z);
-			glScaled(.5,.5,.5);
-			double xx=game->arrows[i].x+game->player->x;
-			double yy=game->arrows[i].y+game->player->y;
-			double zz=game->arrows[i].z+game->player->z;
-			double dist=xx*xx+yy*yy+zz*zz;
+			glTranslated(0,0,4*angle_);
+			glScaled(.5,.5,-.5);
+			if(!(game->arrows[i].z<=-4)){
+				glLineWidth(2);
+				glPointSize(2);
+				glBegin(GL_LINES);
+					glVertex3d(
+						+2*game->arrows[i].dx,
+						+2*game->arrows[i].dy,
+						+2*game->arrows[i].dz
+						);
+					glVertex3d(
+						-2*game->arrows[i].dx,
+						-2*game->arrows[i].dy,
+						-2*game->arrows[i].dz
+						);
+				glEnd();
+				glBegin(GL_POINTS);
+					glVertex3d(
+						+2*game->arrows[i].dx,
+						+2*game->arrows[i].dy,
+						+2*game->arrows[i].dz
+						);
+					glVertex3d(
+						-2*game->arrows[i].dx,
+						-2*game->arrows[i].dy,
+						-2*game->arrows[i].dz
+						);
+				glEnd();
+
+			}
+			glRotated(beta,0,0,1);
+			glRotated(alpha,0,1,0);
 			if(dist<500){
-				// glColor4d(1,1,0,1);
+				if(!(game->arrows[i].z<=-4)){
+					glScaled(2,2,2);
+				}
 				draw_arrow(1);
 			}else{
-				// glColor4d(1,0,0,1);
+				if(!(game->arrows[i].z<=-4)){
+					glScaled(2,2,2);
+				}
 				draw_arrow(0);
 			}
 		glPopMatrix();
+		glDepthFunc(GL_LESS);
+		glDepthMask(GL_TRUE);
+
+	glColor4d(1,0,0,1);
+		//REAL OBJECT
+		glPushMatrix();
+			glTranslated(game->arrows[i].x,game->arrows[i].y,game->arrows[i].z);
+			glScaled(.5,.5,.5);
+			if(!(game->arrows[i].z<=-4)){
+				glLineWidth(2);
+				glPointSize(2);
+				glBegin(GL_LINES);
+					glVertex3d(
+						+2*game->arrows[i].dx,
+						+2*game->arrows[i].dy,
+						+2*game->arrows[i].dz
+						);
+					glVertex3d(
+						-2*game->arrows[i].dx,
+						-2*game->arrows[i].dy,
+						-2*game->arrows[i].dz
+						);
+				glEnd();
+				glBegin(GL_POINTS);
+					glVertex3d(
+						+2*game->arrows[i].dx,
+						+2*game->arrows[i].dy,
+						+2*game->arrows[i].dz
+						);
+					glVertex3d(
+						-2*game->arrows[i].dx,
+						-2*game->arrows[i].dy,
+						-2*game->arrows[i].dz
+						);
+				glEnd();
+
+			}
+			glRotated(beta,0,0,1);
+			glRotated(alpha,0,1,0);
+			if(dist<500){
+				if(!(game->arrows[i].z<=-4)){
+					glScaled(2,2,2);
+				}
+				draw_arrow(1);
+			}else{
+				if(!(game->arrows[i].z<=-4)){
+					glScaled(2,2,2);
+				}
+				draw_arrow(0);
+			}
+		glPopMatrix();
+
 	}
 }
 
@@ -154,15 +258,24 @@ void fire(Game* game){
 			game->arrows=realloc(game->arrows,sizeof(Arrow)*game->arrow_limit);
 		}
 		//PUT THAT THING
-		game->arrows[game->arrow_count].x=-game->player->x;
-		game->arrows[game->arrow_count].y=-game->player->y;
-		game->arrows[game->arrow_count].z=-game->player->z+1;
+		//TODO PRENDRE EN COMPTE L'ORIENTATION DE LA CAMERA
+		//TODO PRENDRE EN COMPTE L'ORIENTATION DE LA CAMERA
+		//TODO PRENDRE EN COMPTE L'ORIENTATION DE LA CAMERA
+		double y_offset=-.5  + 2./180.*game->player->theta;
+		double z_offset=-1.5 - 5./180.*game->player->theta;
+		game->arrows[game->arrow_count].x=-game->player->x + y_offset*sin(game->player->phi/360*2*PI);
+		game->arrows[game->arrow_count].y=-game->player->y + y_offset*cos(game->player->phi/360*2*PI);
+		game->arrows[game->arrow_count].z=-game->player->z + z_offset;
 
+		// printf("%lf\n",game->player->theta);
+		// printf("%lf\n",random(0,1));
 
-		game->arrows[game->arrow_count].dx=30*cos(-game->player->phi/360*2*PI)*(1-1.5*fabs(sin(-game->player->theta/360*2*PI)));
-		game->arrows[game->arrow_count].dy=30*sin(-game->player->phi/360*2*PI)*(1-1.5*fabs(sin(-game->player->theta/360*2*PI)));
-		game->arrows[game->arrow_count].dz=-20*sin(-game->player->theta/360*2*PI);
-		// game->arrows[game->arrow_count].dz=0;
+		// game->arrows[game->arrow_count].dx=30*cos(-game->player->phi/360*2*PI)*(1-1.6*fabs(sin(-game->player->theta/360*2*PI)))*random(.8,.4) + 30*sin(game->player->phi/360*2*PI)*random(.8,.4);
+		// game->arrows[game->arrow_count].dy=30*sin(-game->player->phi/360*2*PI)*(1-1.6*fabs(sin(-game->player->theta/360*2*PI)))*random(.8,.4) + 30*cos(game->player->phi/360*2*PI)*random(.8,.4);
+		game->arrows[game->arrow_count].dx=30*cos(-game->player->phi/360*2*PI)*(1-1.6*fabs(sin(-game->player->theta/360*2*PI)))*random(.85,.3) + 30*sin(game->player->phi/360*2*PI-180)*random(-.015,.1);
+		game->arrows[game->arrow_count].dy=30*sin(-game->player->phi/360*2*PI)*(1-1.6*fabs(sin(-game->player->theta/360*2*PI)))*random(.85,.3) + 30*cos(game->player->phi/360*2*PI-180)*random(-.015,.1);
+		game->arrows[game->arrow_count].dz=-20*sin(-game->player->theta/180*PI);
+		// game->arrows[game->arrow_count].dz=10;
 
 		game->arrow_count+=1;
 		game->fire_value=0;
@@ -228,7 +341,7 @@ Game* initGame(Camera* player){
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS);//GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL, GL_ALWAYS, GL_LESS
 
-	glDisable(GL_POINT_SMOOTH);
+	glEnable(GL_POINT_SMOOTH);
 	glDisable( GL_LINE_SMOOTH );
 	glDisable( GL_POLYGON_SMOOTH ); // THIS MAKES A NICE ARTEFACT :¬D
 

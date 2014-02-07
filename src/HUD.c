@@ -69,7 +69,7 @@ void viseur(Game * game,double precision){
 		glRotated(game->player->rho*(-2),1,0,0);
 		glRotated(game->player->theta*(.5-precision*.8), 0.0, 1.0, 0.0);
 
-		glEnable(GL_POINT_SMOOTH);
+		// glEnable(GL_POINT_SMOOTH);
 		glPointSize(6.);
 
 		glBegin(GL_POINTS);
@@ -77,7 +77,7 @@ void viseur(Game * game,double precision){
 			glVertex3d(.05,-.003,0);	glVertex3d(.05,0,0);	glVertex3d(.05,0,.003);
 			glVertex3d(.05,0,-.003);
 		glEnd();
-		glDisable(GL_POINT_SMOOTH);
+		// glDisable(GL_POINT_SMOOTH);
 
 	glPopMatrix();
 }

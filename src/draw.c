@@ -57,6 +57,37 @@ void draw_cube(double size,double noise){
 	glEnd();
 
 }
+void draw_cube_simple(double size){
+	glBegin( GL_LINES );
+		glVertex3d(-size, -size, -size );
+		glVertex3d(-size,  size, -size );
+		glVertex3d(-size,  size,  size );
+		glVertex3d(-size, -size,  size );
+		glVertex3d( size, -size, -size );
+		glVertex3d( size,  size, -size );
+		glVertex3d( size,  size,  size );
+		glVertex3d( size, -size,  size );
+
+		glVertex3d(-size, -size, -size );
+		glVertex3d( size, -size, -size );
+		glVertex3d(-size,  size, -size );
+		glVertex3d( size,  size, -size );
+		glVertex3d(-size,  size,  size );
+		glVertex3d( size,  size,  size );
+		glVertex3d(-size, -size,  size );
+		glVertex3d( size, -size,  size );
+
+
+		glVertex3d(-size,  size, -size );
+		glVertex3d(-size,  size,  size );
+		glVertex3d(-size, -size,  size );
+		glVertex3d(-size, -size, -size );
+		glVertex3d( size,  size, -size );
+		glVertex3d( size,  size,  size );
+		glVertex3d( size, -size,  size );
+		glVertex3d( size, -size, -size );
+	glEnd();
+}
 
 void draw_face(double size,double noise){
 	glBegin( GL_QUADS );

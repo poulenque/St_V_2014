@@ -399,13 +399,17 @@ int main(int argc, char *argv[]) {
 			if(mouse_buttons&SDL_BUTTON(1)||keystate[SDLK_LCTRL]){
 				game->trigger(game,1);
 				game->fire(game);
-				speed=200;
+				//walk slowly if on ground
+				if(game->player->z==0)
+					speed=200;
 			}else{
 				game->trigger(game,0);
 			}
 			if(mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LALT]){
 				game->trigger(game,1);
-				speed=200;
+				//walk slowly if on ground
+				if(game->player->z==0)
+					speed=200;
 			}
 
 			if (keystate[A_KEY]){

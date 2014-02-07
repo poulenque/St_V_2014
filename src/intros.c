@@ -322,7 +322,7 @@ void intro_get_weapon_render(Game* game){
 		}
 	glPopMatrix();
 
-	int i_MAX=300;
+	int i_MAX=200;
 	for(int i=0;i<i_MAX;i++){
 		double pipi=1./i_MAX;
 		// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
@@ -340,14 +340,15 @@ void intro_get_weapon_render(Game* game){
 				- size;
 		double ttt=180*cos(i*pipi*4*PI+(get_time_()*.01));
 		double www=size*i*pipi*100*(1.2+.2*cos(get_time_()*0.02))+size;
-		double uuu=.1/(i*pipi*200.);
+		// double uuu=.1/(i*pipi*200.);
 		
 		glPushMatrix();
 			glTranslated(0,0,-10 - i*pipi*500 );
 			glTranslated(xxx,yyy,zzz);
 			// glRotated(i*(get_time_()*.1),0,0,1);
 			glRotated(ttt,0,0,1);
-			draw_cube(www,uuu);
+			// draw_cube(www,uuu);
+			draw_cube_simple(www);
 
 			// glTranslated(0,0,30 + i*pipi*500 );
 			// glTranslated(0,0,30 + i*pipi*500 );
@@ -361,7 +362,8 @@ void intro_get_weapon_render(Game* game){
 			glTranslated(xxx,-yyy,-zzz);
 			// glRotated(i*(get_time_()*.1),0,0,1);
 			glRotated(ttt,0,0,1);
-			draw_cube(www,uuu);
+			// draw_cube(www,uuu);
+			draw_cube_simple(www);
 		glPopMatrix();
 	}
 
@@ -479,7 +481,10 @@ void intro_get_weapon_render(Game* game){
 				glPopMatrix();
 	glPopMatrix();
 
-	glColor4d(0,0,0,1);
+	double dddd=d;
+	dddd=dddd/200-.2;
+	// printf("%lf\n",dddd);
+	glColor4d(0,0,0,dddd);
 		str->x=0;
 		str->y=0;
 		str->z=0;

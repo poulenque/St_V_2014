@@ -10,10 +10,6 @@ typedef struct Arrow{
 	double dy;
 	double dz;
 
-	double phi;
-	double theta;
-	double rho;
-
 	// int to_update;
 	
 }Arrow;
