@@ -145,7 +145,7 @@ void game_render(Game* game){
 		glDepthFunc(GL_GREATER);
 		glDepthMask(GL_FALSE);
 		glPushMatrix();
-			glTranslated(game->arrows[i].x,game->arrows[i].y,game->arrows[i].z);
+			glTranslated(game->arrows[i].x,game->arrows[i].y,-game->arrows[i].z);
 			glTranslated(0,0,4*angle_);
 			glScaled(.5,.5,-.5);
 			if(!(game->arrows[i].z<=-4)){
