@@ -339,11 +339,12 @@ void game_render(Game* game){
 				if(!(arrow->z<=-4)){
 					glScaled(2,2,2);
 					draw_arrow_low_quality();
-				}else if(dist<1500){
+				}else
+				// if(dist<1500){
 					draw_arrow_very_low_quality();
-				}else {
-					draw_arrow_ultra_low_quality();
-				}
+				// }else {
+					// draw_arrow_ultra_low_quality();
+				// }
 			}
 		glPopMatrix();
 		glDepthFunc(GL_LESS);
@@ -398,11 +399,12 @@ void game_render(Game* game){
 				if(!(arrow->z<=-4)){
 					glScaled(2,2,2);
 					draw_arrow_low_quality();
-				}else if(dist<1500){
+				}else
+				// if(dist<1500){
 					draw_arrow_very_low_quality();
-				}else {
-					draw_arrow_ultra_low_quality();
-				}
+				// }else {
+					// draw_arrow_ultra_low_quality();
+				// }
 			}
 		glPopMatrix();
 		arrow=arrow->next;
