@@ -10,8 +10,11 @@ void HUD(Game* game){
 	if(game->weapon==0){
 
 	}
-	if(game->weapon==1){
+	else if(game->weapon==1){
 		bow_HUD(game);
+	}
+	else if(game->weapon==2){
+		sulfateuse_HUD(game);
 	}
 }
 
@@ -47,14 +50,24 @@ void fake_walk_update(Game* game,int dt){
 
 void bow_HUD(Game* game){
 	//TODO
-	if(game->fire_value==1){
+	if(game->fire_value<=0){
 		weapon_HUD_ARM(game);
 	}else{
 		weapon_HUD_FIRE(game);
 	}
 }
 
-void viseur(Game * game,double precision){
+static double precision=0;
+void viseur(Game * game){
+	if(SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(1)
+		||SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(3)
+		||SDL_GetKeyState(NULL)[SDLK_LALT]
+		||SDL_GetKeyState(NULL)[SDLK_LCTRL]){
+		precision=1;
+	}else{
+		precision=0;
+	}
+
 	fake_walking=
 		 game->player->dx*game->player->dx
 		+game->player->dy*game->player->dy
@@ -107,7 +120,9 @@ void weapon_HUD_ARM(Game* game){
 	glLineWidth(3.0)
 
 	double time_pos=game->trigger_value;
-	viseur(game,time_pos);
+
+
+	viseur(game);
 
 	double oscill_force=.5*sin(SDL_GetTicks()*.001)+.5*sin(SDL_GetTicks()*.00085);
 
@@ -136,7 +151,7 @@ void weapon_HUD_ARM(Game* game){
 					);
 
 				glScaled(1,1,1+.2*time_pos);
-				draw_arrow(1);
+				draw_arrow_high_quality();
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 			glPopMatrix();
@@ -162,13 +177,14 @@ void weapon_HUD_ARM(Game* game){
 
 
 void weapon_HUD_FIRE(Game* game){
-	viseur(game,1);
+	viseur(game);
 
 
 	glPushMatrix();
 	BOW_GL_MATRIX();
 
 	double time_pos=game->fire_value;
+	time_pos=1-time_pos;
 
 	// time_pos=1;
 
@@ -197,7 +213,7 @@ void weapon_HUD_FIRE(Game* game){
 
 			glTranslated(0,0,-1*(1-time_pos));
 
-			draw_arrow(1);
+			draw_arrow_high_quality();
 		glPopMatrix();
 
 		//BOW + HAND
@@ -301,7 +317,7 @@ void weapon_HUD_FIRE(Game* game){
 
 			glTranslated(-3*time_pos,0,0);
 
-			draw_arrow(1);
+			draw_arrow_high_quality();
 		glPopMatrix();
 
 		draw_hand(  .3+.1*oscill_force,0,FALSE);
@@ -332,12 +348,42 @@ void weapon_HUD_FIRE(Game* game){
 
 
 
+void sulfateuse_HUD(Game* game){
+	double time_pos=game->trigger_value;
+
+	viseur(game);
+
+	double oscill_force=.5*sin(SDL_GetTicks()*.001)+.5*sin(SDL_GetTicks()*.00085);
+
+	glPushMatrix();
+			fake_walking=
+				 game->player->dx*game->player->dx
+				+game->player->dy*game->player->dy
+				+game->player->dz*game->player->dz;
+			fake_walking=sqrt(fake_walking);
+			fake_walking*=0.007;
+			double real_rho=game->player->rho    +fake_rho;
+			double real_theta=game->player->theta+fake_theta;
+			glRotated(real_rho*(-4),1,0,0);
+			glRotated(real_theta*.5, 0.0, 1.0, 0.0);
+			double real_HUD_drho_compensation=HUD_drho_compensation+fake_HUD_drho_compensation;
+			glTranslated(0,0,-real_HUD_drho_compensation*real_HUD_drho_compensation*0.0007);
+			glTranslated(5,0,-3);
+			glTranslated(real_theta*(.05),0,0);
+			glRotated(80, 0, 1, 0);
+			glRotated(70, 1, 0, 0);
+			glRotated(real_theta*(1),0,0,1);
+			glRotated(real_HUD_drho_compensation,0,1,0);
+			glTranslated(0,0,-1);
+			glLineWidth(3.0);
+
+			draw_hand(  .3+.1*oscill_force,0,FALSE);
 
 
+	// glTranslated(                               0, 1, -5+1*oscill_force);
+	// glTranslated(-.3+.1*sin(SDL_GetTicks()*.0017), 0, 0);
 
-
-
-
-
-
+	// draw_arrow(.2);
+	glPopMatrix();
+}
 

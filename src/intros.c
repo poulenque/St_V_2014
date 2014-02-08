@@ -67,7 +67,7 @@ void intro_update(Game* game,int dt){
 		glFogfv(GL_FOG_COLOR, fogColor);
 		glFogf(GL_FOG_DENSITY, 0.35f);
 		glHint(GL_FOG_HINT, GL_DONT_CARE);
-
+		clear_arrow(game);
 	}
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -98,7 +98,7 @@ void intro_render(Game* game){
 	glScaled(3,1,3);\
 	glTranslated(0,3.2-4*cos(PI*cos(get_time_()*.1)),0);\
 	glRotated(90,1,0,0);\
-	draw_arrow(1);
+	draw_arrow_high_quality();
 
 	glPushMatrix();
 	DRAW_ONE_BOW
@@ -322,7 +322,7 @@ void intro_get_weapon_render(Game* game){
 		}
 	glPopMatrix();
 
-	int i_MAX=200;
+	int i_MAX=300;
 	for(int i=0;i<i_MAX;i++){
 		double pipi=1./i_MAX;
 		// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );

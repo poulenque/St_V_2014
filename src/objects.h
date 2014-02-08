@@ -10,8 +10,12 @@ typedef struct Arrow{
 	double dy;
 	double dz;
 
-	// int to_update;
-	
+	//chained list
+	struct Arrow * next;
+	struct Arrow * next_update;
+
+	double v;
+
 }Arrow;
 
 typedef struct Mechant{
@@ -23,6 +27,8 @@ typedef struct Mechant{
 	double phi;
 	double theta;
 	double rho;
+
+	struct Mechant * next;
 
 }Mechant;
 

@@ -5,7 +5,7 @@ C_FLAGS += -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual
 C_FLAGS += -Wpointer-arith -Wformat=2 -Wlogical-op
 #CFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-unused
 
-C_FLAGS += -O3
+C_FLAGS += -O2
 C_FLAGS += -std=c99
 C_FLAGS += -march=native
 

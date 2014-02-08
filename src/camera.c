@@ -301,8 +301,13 @@ void camera_update(Camera* c,int dt){
 		if(c->z>0){
 			c->z=0;
 			c->dz=0;
-			c->theta+=-20-30.*(double)rand()/RAND_MAX;
-			c->rho+=10-20*(double)rand()/RAND_MAX;
+			// c->theta+=-20-30.*(double)rand()/RAND_MAX;
+			// c->rho+=10-20*(double)rand()/RAND_MAX;
+			if((double)rand()/RAND_MAX<.5){
+				c->rho+=10+10*(double)rand()/RAND_MAX;
+			}else{
+				c->rho-=10+10*(double)rand()/RAND_MAX;
+			}
 			// printf("%lf\n",c->rho);
 		}else
 

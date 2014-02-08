@@ -372,7 +372,7 @@ int main(int argc, char *argv[]) {
 					break;
 				case SDL_MOUSEMOTION:
 					if(MOUSE_ON){
-						if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)){
+						if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LCTRL]||keystate[SDLK_LALT]){
 							camera_rotate(player,-.5*event.motion.yrel,.5*event.motion.xrel,0);
 						}else{
 							camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
@@ -382,9 +382,10 @@ int main(int argc, char *argv[]) {
 					break;
 			}
 		}
-		//========================
-		double speed=1000;
 
+		//========================
+		//========TESTING=========
+		//========================
 		if(keystate[SDLK_1]){
 			game->weapon=0;
 		}
@@ -394,16 +395,20 @@ int main(int argc, char *argv[]) {
 		if(keystate[SDLK_3]){
 			game->weapon=2;
 		}
+		//========================
+		//========================
+		//========================
 
+		double speed=1000;
 		if(MOUSE_ON){
+			game->fire(game,0);
+			game->trigger(game,0);
 			if(mouse_buttons&SDL_BUTTON(1)||keystate[SDLK_LCTRL]){
 				game->trigger(game,1);
-				game->fire(game);
+				game->fire(game,1);
 				//walk slowly if on ground
 				if(game->player->z==0)
 					speed=200;
-			}else{
-				game->trigger(game,0);
 			}
 			if(mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LALT]){
 				game->trigger(game,1);
@@ -447,7 +452,8 @@ int main(int argc, char *argv[]) {
 			// }
 			// else{
 				speed=5000;
-
+				if(keystate[SDLK_LCTRL]||keystate[SDLK_LALT])
+					speed=1000;
 				if (keystate[SDLK_LEFT]){
 					camera_rotate_acc(player,0,-speed,0);
 				}

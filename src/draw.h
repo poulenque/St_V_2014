@@ -21,7 +21,12 @@ void draw_init();
 void draw_bow(double noise,double force);
 void draw_hand(double force,double distance,int side_view);
 void draw_bow_to_take(double noise,double force);
-void draw_arrow();
+void draw_arrow_high_quality();
+void draw_arrow_low_quality();
+void draw_arrow_ultra_quality();
+
+void draw_sulfateuse(double noise,double angle);
+
 
 void draw_gentil(double noise,int detail);
 void draw_mechant(double noise,int detail);

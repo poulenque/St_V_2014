@@ -18,16 +18,15 @@ String3d* get_str();
 
 
 
+
 typedef struct Game{
 	Camera* player;
 
 	Arrow* arrows;
-	int arrow_count;
-	int arrow_limit;
+	Arrow* arrows_to_update;//chained list
+
 
 	Mechant* mechants;
-	int mechant_count;
-	int mechant_limit;
 
 	// AudioPlayer* audio;
 
@@ -35,18 +34,25 @@ typedef struct Game{
 	void (*render)(struct Game* game);
 	void (*HUD_render)(struct Game* game);
 
-	double fire_value;//if [0,1[ : firing ; if =1 , not firing
+	// fire_value = 0 -> loaded
+	// fire_value = 1 -> fired once
+	// fire_value = 2 -> fired twice
+	double fire_value;
+	int fire_state;
 	double trigger_value;
 	int trigger_state;
+
 	int weapon;
 	void (*trigger)(struct Game* game,int state);
-	void (*fire)(struct Game* game);
+	void (*fire)(struct Game* game,int state);
 }Game;
 
 Game* initGame(Camera* player);
 void game_pause(Game * game,int state);
 void game_update(Game* game,int dt);
 void game_render(Game* game);
+void clear_arrow(Game* game);
+void clear_mechant(Game* game);
 
 
 #endif

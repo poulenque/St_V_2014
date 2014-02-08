@@ -285,61 +285,6 @@ void draw_gentil(double noise,int detail){
 
 	glPopMatrix();
 
-
-
-
-
-
-	// //REFLEXION
-	// glPushMatrix();
-
-	// 	// glTranslated(0,0,1);
-	// 	glColor4d(.9,.9,.9,1);
-	// 	glScaled(1,1,-1);
-	// 	glTranslated(0,0,11);
-
-	// 	//HEAD
-	// 	glTranslated(0,0,-1.);
-	// 	glPushMatrix();
-	// 		glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-	// 		gluCylinder(quad,random(.5,noise), random(1,noise), 1.,cylinder_subivision,1);
-	// 	glPopMatrix();
-
-
-	// 	glTranslated(0,0,-1.);
-	// 	glPushMatrix();
-	// 		glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-	// 		gluCylinder(quad,0.,random(.5,noise),1.,cylinder_subivision,1);
-	// 	glPopMatrix();
-
-	// 	//BODY
-	// 	glTranslated(0,0,-2.);
-	// 	glPushMatrix();
-
-	// 		if(detail>=2){
-	// 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-	// 			gluCylinder(quad,random(1-.5,noise),random(1+.5,noise),2.,cylinder_subivision,1);
-	// 		}
-	// 		glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-	// 		gluCylinder(quad,1-.5,1+.5,2.,cylinder_subivision,1);
-	// 	glPopMatrix();
-
-	// 	glTranslated(0,0,-2.);
-	// 	glPushMatrix();
-
-	// 		if(detail>=2){
-	// 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-	// 			gluCylinder(quad,random(1+.5,noise),random(1-.5,noise),2.,cylinder_subivision,1);
-	// 		}
-	// 		glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-	// 		gluCylinder(quad,1+.5,1-.5,2,cylinder_subivision,1);
-	// 	glPopMatrix();
-
-	// glPopMatrix();
-
-
-
-
 }
 
 void draw_mechant(double noise,int detail){
@@ -425,19 +370,6 @@ void draw_half_bow(double noise,double force){
 		// glRotated(180*(1-force*.3),180*(1-force*.3),0.,1.);
 		glRotated(180*(1-force*.3),1.,0,0.);
 		gluCylinder(quad,random(.05,noise*.1),random(.05,noise*.1),30.0-2*force,8,1);
-
-		// t++;
-		// glTranslated(0.,0.,5.);
-		// glRotated(t,t,0.,1.);
-		// gluCylinder(quad,.7,.7,5,8,1);
-
-		// glTranslated(0.,0.,5.);
-		// glRotated(-20,-20,0.,1.);
-		// gluCylinder(quad,.7,.7,5,8,1);
-
-		// glTranslated(0.,0.,5.);
-		// glRotated(-20,-20,0.,1.);
-		// gluCylinder(quad,.7,.7,5,8,1);
 
 	glPopMatrix();
 }
@@ -710,9 +642,7 @@ void draw_bow(double noise,double force){
 	// glPopMatrix();
 }
 
-void draw_arrow(int detail){
-	if(detail){
-		// t++;
+void draw_arrow_high_quality(){
 		glPushMatrix();
 			// glTranslated(-1,10,0);
 			// glRotated(t,1,0,0);
@@ -738,7 +668,8 @@ void draw_arrow(int detail){
 			gluCylinder(quad,.2,.2,1,2,1);
 
 		glPopMatrix();
-	}else{
+}
+void draw_arrow_low_quality(){
 		glLineWidth(3);
 		glBegin(GL_LINES);
 			glVertex3d(0,0,0);
@@ -751,28 +682,109 @@ void draw_arrow(int detail){
 			glVertex3d(0,0,10);
 		glEnd();
 
-		glLineWidth(3);
+		glLineWidth(4);
 		glBegin(GL_LINES);
 			glVertex3d(0,0,8);
 			glVertex3d(0,0,9.5);
 		glEnd();
-			// //tige
-			// gluCylinder(quad,.04,.04,9,3,1);
-
-			// glTranslated(0,0,7);
-			// gluCylinder(quad,.08,.2,.5,2,1);
-			// glTranslated(0,0,.5);
-			// gluCylinder(quad,.2,.2,1,2,1);
-
-			// glTranslated(0,0,-.5);
-			// glRotated(90,0,0,1);
-
-			// gluCylinder(quad,.08,.2,.5,2,1);
-			// glTranslated(0,0,.5);
-			// gluCylinder(quad,.2,.2,1,2,1);
-
-	}
 }
+
+void draw_arrow_very_low_quality(){
+		glLineWidth(1);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,1);
+			glVertex3d(0,0,10);
+		glEnd();
+
+		glLineWidth(4);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,8);
+			glVertex3d(0,0,9.5);
+		glEnd();
+}
+
+void draw_arrow_ultra_low_quality(){
+		glLineWidth(1);
+		glBegin(GL_LINES);
+			glVertex3d(0,0,1);
+			glVertex3d(0,0,10);
+		glEnd();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void draw_sulfateuse(double noise,double angle){
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void draw_wing(double noise,int detail){
 	// glPushMatrix();

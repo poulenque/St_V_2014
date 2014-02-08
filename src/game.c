@@ -34,6 +34,28 @@ void set_time_(double t){
 	time_=t;
 }
 
+void clear_arrow(Game* game){
+	Arrow* arrow = game->arrows;
+	Arrow* a;
+	while(arrow!=NULL){
+		a=arrow->next;	
+		free(arrow);
+		arrow=a;
+	}
+	game->arrows=NULL;
+	game->arrows_to_update=NULL;
+}
+
+void clear_mechant(Game* game){
+	Mechant* mechant = game->mechants;
+	Mechant* m;
+	while(mechant!=NULL){
+		m=mechant->next;	
+		free(mechant);
+		mechant=m;
+	}
+	game->mechants=NULL;
+}
 
 
 static String3d* str;
@@ -51,8 +73,149 @@ static double messages_z_exp_offset[200];
 static double messages_z_exp_speed[200];
 static double messages_dephasage[200];
 
+int ttt=0;
+static void update_arrow(Game* game){
+		Arrow* arrow_before=NULL;
+		Arrow* arrow=game->arrows_to_update;
+		ttt+=1;
+		while(arrow!=NULL){
+			arrow->v=sqrt(arrow->dx*arrow->dx + arrow->dy*arrow->dy + arrow->dz*arrow->dz);
+			double angle_=-1+acos(arrow->dz/arrow->v)*2./PI;
+			if(arrow->z>-4){
+
+				// ACCELERATION g
+				arrow->dz -=.0002;
+
+				arrow->x += arrow->dx;
+				arrow->y += arrow->dy;
+				arrow->z += arrow->dz;
+
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+
+			}else{
+				// double k=(-4-angle_*2)/(game->arrows[i].dz);
+				// game->arrows[i].x=k*game->arrows[i].dx+x_before;
+				// game->arrows[i].y=k*game->arrows[i].dy+y_before;
+				// game->arrows[i].z=-4-angle_*2 = k*dz+z_before
+				double factor = -arrow->dz*10;
+				if(factor>1)
+					factor=1;
+				arrow->z=-4-angle_*2*factor - random(.1,angle_);
+				// arrow->z=-4-angle_*2*factor ;
+				//RETIRER DES UPDATABLE
+				if(arrow_before != NULL){
+					arrow_before->next_update = arrow->next_update;
+				}
+				if( arrow==game->arrows_to_update){
+					game->arrows_to_update=arrow->next_update;
+				}
+				arrow->next_update=NULL;
+			}
+			arrow_before=arrow;
+			arrow=arrow->next_update;
+		}
+}
+
+static void fire_arrow_with_bow(Game* game){
+	Arrow* to_add= malloc(sizeof(Arrow));
+
+	double y_offset=-.5  + 2./180.*game->player->theta;
+	double z_offset=-1.5 - 5./180.*game->player->theta;
+
+	to_add->x=-game->player->x + y_offset*sin(game->player->phi/360.*2.*PI);
+	to_add->y=-game->player->y + y_offset*cos(game->player->phi/360.*2.*PI);
+	to_add->z=-game->player->z + z_offset;
+
+	to_add->dx= .6*cos(-game->player->phi/360.*2.*PI)*(1-1.6*fabs(sin(-game->player->theta/360.*2.*PI)))*random(.85,.3) + .6*sin(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
+	to_add->dy= .6*sin(-game->player->phi/360.*2.*PI)*(1-1.6*fabs(sin(-game->player->theta/360.*2.*PI)))*random(.85,.3) + .6*cos(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
+	double dz;
+	if(game->player->theta>0){
+		//look up
+		dz=-.4*sin(-game->player->theta/180.*PI);
+	}else{
+		//look down
+		dz=-.1*sin(-game->player->theta/180.*PI);
+		// if(dz>.0001)dz=.001;
+		if(dz>0.0001)dz=0.0001;
+	}
+	to_add->dz=dz;
+
+	//======================
+	//UPDATE THE UPDATE_LIST 
+	//======================
+
+	to_add->next_update=game->arrows_to_update;
+	game->arrows_to_update = to_add;
+
+	to_add->next=game->arrows;
+	game->arrows = to_add;
+}
+
+//UPDATE PART THAT IS COMMON TO ALL GAMES
 void game_update(Game* game,int dt){
-	//UPDATE PART THAT IS COMMON TO ALL GAMES
+
+	//=======================================================
+	//=======================================================
+	//=======================================================
+	//======================FIRE UPDATE======================
+	//=======================================================
+	//=======================================================
+	//=======================================================
+	if(game->weapon!=0){
+			for(int i=0;i<dt;i++){
+
+				if(game->trigger_state){
+					//augmente jusqu'a trigger_value_MAX
+					game->trigger_value+=1./trigger_value_MAX[game->weapon];
+					if(game->trigger_value>1){
+						// printf("trigger MAX\n");
+						game->trigger_value=1;
+					}
+				}else{
+					//diminue jusqu'a 0
+					//!! VITESSE DIMINUTION PLUS GRANDE 
+					game->trigger_value-=1.5/trigger_value_MAX[game->weapon];
+					if(game->trigger_value<0){
+						game->trigger_value=0;
+					}
+				}
+
+				if(game->fire_value>0){
+					game->fire_value-=1./fire_value_MAX[game->weapon];
+					if(game->fire_value<=0){
+						game->trigger_value=0;
+					}
+				}
+
+				if(game->fire_state && game->trigger_value==1){
+					if(game->fire_value<=0){
+						game->fire_value+=1;
+						fire_arrow_with_bow(game);
+					}
+				}
+
+				//UPDATE ARROWS 
+				update_arrow(game);
+
+			}
+	}
+	//=======================================================
+	//=======================================================
+	//=======================================================
 
 	time_+=dt/15.;
 	camera_update(game->player,dt);
@@ -66,55 +229,40 @@ void game_update(Game* game,int dt){
 	// 	//TO CHECK
 	// }
 
-	if(game->trigger_state){
-		//augmente jusqu'a trigger_value_MAX
-		game->trigger_value+=dt/trigger_value_MAX[game->weapon];
-		if(game->trigger_value>1){
-			// printf("trigger MAX\n");
-			game->trigger_value=1;
-		}
-	}else{
-		//diminue jusqu'a 0
-		//!! VITESSE DIMINUTION PLUS GRANDE 
-		game->trigger_value-=1.5*dt/trigger_value_MAX[game->weapon];
-		if(game->trigger_value<0){
-			game->trigger_value=0;
-		}
-	}
 
-	if(game->fire_value>=1){
-		game->fire_value=1;
-	}else{
-		game->fire_value+=dt/fire_value_MAX[game->weapon];
-		if(game->fire_value>=1){
-			game->trigger_value=0;
-		}
-	}
-
-	//UPDATE ARROWS 
-	for(int i=0;i<game->arrow_count;i++){
-
-		double rayon=sqrt(game->arrows[i].dx*game->arrows[i].dx + game->arrows[i].dy*game->arrows[i].dy + game->arrows[i].dz*game->arrows[i].dz);
-		double angle_=-90+acos(game->arrows[i].dz/rayon)*180/PI;
-		angle_=angle_/90;
-		if(game->arrows[i].z>-4){
-			game->arrows[i].dz -=.1;
-
-			game->arrows[i].x +=game->arrows[i].dx;
-			game->arrows[i].y +=game->arrows[i].dy;
-			game->arrows[i].z +=game->arrows[i].dz;
-
-		//TODO COLLISION
-		//TODO COLLISION
-		//TODO COLLISION
-		}else if(game->arrows[i].z<-4-angle_*2){
-			game->arrows[i].z=-4-angle_*2;
-		}
-
-	}
 
 	game->update(game,dt);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void game_render(Game* game){
 	game->render(game);
@@ -127,64 +275,75 @@ void game_render(Game* game){
 		draw_face(200,0);
 	glPopMatrix();
 	//RENDER ARROWS
-	for(int i=0;i<game->arrow_count;i++){
-		double xx=game->arrows[i].x+game->player->x;
-		double yy=game->arrows[i].y+game->player->y;
-		double zz=game->arrows[i].z+game->player->z;
+	Arrow* arrow=game->arrows;
+	while(arrow!=NULL){
+		double xx=arrow->x+game->player->x;
+		double yy=arrow->y+game->player->y;
+		double zz=arrow->z+game->player->z;
 		double dist=xx*xx+yy*yy+zz*zz;
-		double rayon=sqrt(game->arrows[i].dx*game->arrows[i].dx + game->arrows[i].dy*game->arrows[i].dy + game->arrows[i].dz*game->arrows[i].dz);
-		double alpha=180+acos(game->arrows[i].dz/rayon)*180/PI;
-		double beta=180./PI*atan2(game->arrows[i].dy,game->arrows[i].dx);
+		double alpha=180+acos(arrow->dz/arrow->v)*180/PI;
+		double beta=180./PI*atan2(arrow->dy,arrow->dx);
 
+
+		double linewidth=3;
+		double pointsize=1;
 		//reflexion
+
 	glColor4d(1,0,0,.3);
 		// glDepthFunc(GL_ALWAYS);//debug
 		glDepthFunc(GL_GREATER);
 		glDepthMask(GL_FALSE);
 		glPushMatrix();
-			glTranslated(game->arrows[i].x,game->arrows[i].y,-(game->arrows[i].z+8));
+			glTranslated(arrow->x,arrow->y,-(arrow->z+8));
 			glScaled(.5,.5,-.5);
-			if(!(game->arrows[i].z<=-4)){
-				glLineWidth(2);
-				glPointSize(2);
-				glBegin(GL_LINES);
-					glVertex3d(
-						+2*game->arrows[i].dx,
-						+2*game->arrows[i].dy,
-						+2*game->arrows[i].dz
-						);
-					glVertex3d(
-						-2*game->arrows[i].dx,
-						-2*game->arrows[i].dy,
-						-2*game->arrows[i].dz
-						);
-				glEnd();
-				glBegin(GL_POINTS);
-					glVertex3d(
-						+2*game->arrows[i].dx,
-						+2*game->arrows[i].dy,
-						+2*game->arrows[i].dz
-						);
-					glVertex3d(
-						-2*game->arrows[i].dx,
-						-2*game->arrows[i].dy,
-						-2*game->arrows[i].dz
-						);
-				glEnd();
-
-			}
 			glRotated(beta,0,0,1);
 			glRotated(alpha,0,1,0);
+
+			glLineWidth(linewidth);
+			glPointSize(pointsize);
+
+			// if(!(arrow->z<=-4)){
+			// 	glBegin(GL_LINES);
+			// 		glVertex3d(
+			// 			+2*arrow->dx,
+			// 			+2*arrow->dy,
+			// 			+2*arrow->dz
+			// 			);
+			// 		glVertex3d(
+			// 			-2*arrow->dx,
+			// 			-2*arrow->dy,
+			// 			-2*arrow->dz
+			// 			);
+			// 	glEnd();
+			// 	glBegin(GL_POINTS);
+			// 		glVertex3d(
+			// 			+2*arrow->dx,
+			// 			+2*arrow->dy,
+			// 			+2*arrow->dz
+			// 			);
+			// 		glVertex3d(
+			// 			-2*arrow->dx,
+			// 			-2*arrow->dy,
+			// 			-2*arrow->dz
+			// 			);
+			// 	glEnd();
+			// }
 			if(dist<500){
-				if(!(game->arrows[i].z<=-4)){
+				// glColor4d(1,0,0,1);
+				if(!(arrow->z<=-4)){
 					glScaled(2,2,2);
 				}
-				draw_arrow(1);
+				draw_arrow_high_quality();
 			}else{
-				if(!(game->arrows[i].z<=-4)){
+				// glColor4d(0,0,1,1);
+				if(!(arrow->z<=-4)){
 					glScaled(2,2,2);
+					draw_arrow_low_quality();
+				}else if(dist<1500){
+					draw_arrow_very_low_quality();
+				}else {
+					draw_arrow_ultra_low_quality();
 				}
-				draw_arrow(0);
 			}
 		glPopMatrix();
 		glDepthFunc(GL_LESS);
@@ -193,91 +352,73 @@ void game_render(Game* game){
 	glColor4d(1,0,0,1);
 		//REAL OBJECT
 		glPushMatrix();
-			glTranslated(game->arrows[i].x,game->arrows[i].y,game->arrows[i].z);
+			glTranslated(arrow->x,arrow->y,arrow->z);
 			glScaled(.5,.5,.5);
-			if(!(game->arrows[i].z<=-4)){
-				glLineWidth(2);
-				glPointSize(2);
-				glBegin(GL_LINES);
-					glVertex3d(
-						+2*game->arrows[i].dx,
-						+2*game->arrows[i].dy,
-						+2*game->arrows[i].dz
-						);
-					glVertex3d(
-						-2*game->arrows[i].dx,
-						-2*game->arrows[i].dy,
-						-2*game->arrows[i].dz
-						);
-				glEnd();
-				glBegin(GL_POINTS);
-					glVertex3d(
-						+2*game->arrows[i].dx,
-						+2*game->arrows[i].dy,
-						+2*game->arrows[i].dz
-						);
-					glVertex3d(
-						-2*game->arrows[i].dx,
-						-2*game->arrows[i].dy,
-						-2*game->arrows[i].dz
-						);
-				glEnd();
-
-			}
 			glRotated(beta,0,0,1);
 			glRotated(alpha,0,1,0);
+
+			glLineWidth(linewidth);
+			glPointSize(pointsize);
+
+			// if(!(arrow->z<=-4)){
+			// 	glBegin(GL_LINES);
+			// 		glVertex3d(
+			// 			+2*arrow->dx,
+			// 			+2*arrow->dy,
+			// 			+2*arrow->dz
+			// 			);
+			// 		glVertex3d(
+			// 			-2*arrow->dx,
+			// 			-2*arrow->dy,
+			// 			-2*arrow->dz
+			// 			);
+			// 	glEnd();
+			// 	glBegin(GL_POINTS);
+			// 		glVertex3d(
+			// 			+2*arrow->dx,
+			// 			+2*arrow->dy,
+			// 			+2*arrow->dz
+			// 			);
+			// 		glVertex3d(
+			// 			-2*arrow->dx,
+			// 			-2*arrow->dy,
+			// 			-2*arrow->dz
+			// 			);
+			// 	glEnd();
+
+			// }
 			if(dist<500){
-				if(!(game->arrows[i].z<=-4)){
+				// glColor4d(1,0,0,1);
+				if(!(arrow->z<=-4)){
 					glScaled(2,2,2);
 				}
-				draw_arrow(1);
+				draw_arrow_high_quality();
 			}else{
-				if(!(game->arrows[i].z<=-4)){
+				// glColor4d(0,0,1,1);
+				if(!(arrow->z<=-4)){
 					glScaled(2,2,2);
+					draw_arrow_low_quality();
+				}else if(dist<1500){
+					draw_arrow_very_low_quality();
+				}else {
+					draw_arrow_ultra_low_quality();
 				}
-				draw_arrow(0);
 			}
 		glPopMatrix();
-
+		arrow=arrow->next;
 	}
 }
 
-void fire(Game* game){
-	if(game->weapon==0)return;
-	if(game->trigger_value==1 & game->fire_value==1){
-		// printf("fire BENG BENG BENG BENG !!!\n");
-		//ALLOC MORE MEMORY IF NEEDED
-		if(game->arrow_count+1==game->arrow_limit){
-			game->arrow_limit*=2;
-			// printf("%i\n",sizeof(Arrow)*game->arrow_limit);
-			// printf("%i\n\n",game->arrow_limit);
-			game->arrows=realloc(game->arrows,sizeof(Arrow)*game->arrow_limit);
-		}
-		//PUT THAT THING
-		//TODO PRENDRE EN COMPTE L'ORIENTATION DE LA CAMERA
-		//TODO PRENDRE EN COMPTE L'ORIENTATION DE LA CAMERA
-		//TODO PRENDRE EN COMPTE L'ORIENTATION DE LA CAMERA
-		double y_offset=-.5  + 2./180.*game->player->theta;
-		double z_offset=-1.5 - 5./180.*game->player->theta;
-		game->arrows[game->arrow_count].x=-game->player->x + y_offset*sin(game->player->phi/360*2*PI);
-		game->arrows[game->arrow_count].y=-game->player->y + y_offset*cos(game->player->phi/360*2*PI);
-		game->arrows[game->arrow_count].z=-game->player->z + z_offset;
+void fire(Game* game,int state){
+	game->fire_state=state;
+}
 
-		// printf("%lf\n",game->player->theta);
-		// printf("%lf\n",random(0,1));
-
-		// game->arrows[game->arrow_count].dx=30*cos(-game->player->phi/360*2*PI)*(1-1.6*fabs(sin(-game->player->theta/360*2*PI)))*random(.8,.4) + 30*sin(game->player->phi/360*2*PI)*random(.8,.4);
-		// game->arrows[game->arrow_count].dy=30*sin(-game->player->phi/360*2*PI)*(1-1.6*fabs(sin(-game->player->theta/360*2*PI)))*random(.8,.4) + 30*cos(game->player->phi/360*2*PI)*random(.8,.4);
-		game->arrows[game->arrow_count].dx=30*cos(-game->player->phi/360*2*PI)*(1-1.6*fabs(sin(-game->player->theta/360*2*PI)))*random(.85,.3) + 30*sin(game->player->phi/360*2*PI-180)*random(-.015,.1);
-		game->arrows[game->arrow_count].dy=30*sin(-game->player->phi/360*2*PI)*(1-1.6*fabs(sin(-game->player->theta/360*2*PI)))*random(.85,.3) + 30*cos(game->player->phi/360*2*PI-180)*random(-.015,.1);
-		game->arrows[game->arrow_count].dz=-20*sin(-game->player->theta/180*PI);
-		// game->arrows[game->arrow_count].dz=10;
-
-		game->arrow_count+=1;
-		game->fire_value=0;
-	}else{
-		// printf("fire failed \n");
-	}
+void trigger(Game* game,int state){
+	game->trigger_state=state;
+	// if(state)
+	// 	printf("trigger_ON\n");
+	// else
+	// 	printf("trigger_OFF\n");
 }
 
 void game_pause(Game * game,int state){
@@ -288,13 +429,40 @@ void game_pause(Game * game,int state){
 	}
 }
 
-void trigger(Game* game,int state){
-	game->trigger_state=state;
-	// if(state)
-	// 	printf("trigger_ON\n");
-	// else
-	// 	printf("trigger_OFF\n");
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Game* initGame(Camera* player){
 
@@ -306,8 +474,8 @@ Game* initGame(Camera* player){
 	fire_value_MAX[1]   =300;
 	// fire_value_MAX[1]   =1800;
 	// la sulfateuse
-	trigger_value_MAX[2]=200;
-	fire_value_MAX[2]   =10;
+	trigger_value_MAX[2]=20;
+	fire_value_MAX[2]   =.1;
 
 	draw_init();
 	// audio_init();
@@ -360,15 +528,13 @@ Game* initGame(Camera* player){
 	game->trigger=trigger;
 	game->trigger_value=0;
 	game->fire=fire;
-	game->fire_value=1;
+	game->fire_value=0;
 	game->weapon=0;
 
-	game->arrow_count=0;
-	game->mechant_count=0;
-	game->arrow_limit=1;
-	game->mechant_limit=1;
-	game->arrows=malloc(sizeof(Arrow)*game->arrow_limit);
-	game->mechants=malloc(sizeof(Mechant)*game->arrow_limit);
+	game->mechants=NULL;
+
+	game->arrows=NULL;
+	game->arrows_to_update=NULL;
 	// game->audio= audio_new (PLAYER_AMBIENT|PLAYER_LOOP);
 	// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
 
@@ -394,43 +560,3 @@ Game* initGame(Camera* player){
 
 	return game;
 }
-
-//==================================================================
-//                                                                    
-//  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|              _|_|    
-//  _|        _|        _|      _|  _|        _|            _|    _|  
-//  _|        _|_|_|    _|      _|  _|_|_|    _|                _|    
-//  _|        _|          _|  _|    _|        _|              _|      
-//  _|_|_|_|  _|_|_|_|      _|      _|_|_|_|  _|_|_|_|      _|_|_|_|  
-//                                                                    
-//==================================================================
-//==================================================================
-//==================================================================
-void ingame_level2_update(Game* game,int dt);
-void ingame_level2_render(Game* game);
-//==================================================================
-//                                                                    
-//  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|            _|_|_|    
-//  _|        _|        _|      _|  _|        _|                  _|  
-//  _|        _|_|_|    _|      _|  _|_|_|    _|              _|_|    
-//  _|        _|          _|  _|    _|        _|                  _|  
-//  _|_|_|_|  _|_|_|_|      _|      _|_|_|_|  _|_|_|_|      _|_|_|    
-//                                                                    
-//==================================================================
-//==================================================================
-//==================================================================
-void ingame_level3_update(Game* game,int dt);
-void ingame_level3_render(Game* game);
-//==================================================================
-//                                                                    
-//  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|            _|  _|    
-//  _|        _|        _|      _|  _|        _|            _|  _|    
-//  _|        _|_|_|    _|      _|  _|_|_|    _|            _|_|_|_|  
-//  _|        _|          _|  _|    _|        _|                _|    
-//  _|_|_|_|  _|_|_|_|      _|      _|_|_|_|  _|_|_|_|          _|    
-//                                                                    
-//==================================================================
-//==================================================================
-//==================================================================
-void ingame_level4_update(Game* game,int dt);
-void ingame_level4_render(Game* game);
