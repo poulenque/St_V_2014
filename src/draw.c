@@ -849,7 +849,7 @@ void draw_sulfateuse(double noise,double angle, int color){
 		glScaled(.25,.25,.25);
 
 		if(color)
-			glColor4d(.3,0,0,1);
+			glColor4d(.6,0,0,1);
 		else
 			glColor4d(1,0,0,1);
 		glTranslated(0,0,-4);
@@ -872,9 +872,10 @@ void draw_sulfateuse(double noise,double angle, int color){
 
 	glPushMatrix();
 		if(color){
-			glScaled(1.5,1.5,1.5);
-			glTranslated(.5,0,0);
+			glScaled(1.7,1,1.7);
+			glTranslated(.5,0,-1);
 		}
+
 		//a droite
 		glTranslated(0,0,3);
 		//en bas
@@ -933,10 +934,20 @@ void draw_sulfateuse(double noise,double angle, int color){
 				double cylinder_diameter=.3;
 				double cycle_diameter=1;
 
+				// count=3;
+				// cylinder_diameter=.5;
+				// cycle_diameter=.8;
+
 				if(color)
 					glColor4d(.8,0,0,1);
 				else
 					glColor4d(.9,0,0,1);
+
+				if(color){
+					count=6;
+					cylinder_diameter=.3;
+					cycle_diameter=1;
+				}
 
 				for (int i=0;i<count;i++){
 					glPushMatrix();
@@ -947,7 +958,7 @@ void draw_sulfateuse(double noise,double angle, int color){
 					glPopMatrix();
 				}
 				if(color)
-					glColor4d(.3,0,0,1);
+					glColor4d(.6,0,0,1);
 				else
 					glColor4d(1,0,0,1);
 

@@ -39,10 +39,12 @@ void intro_update(Game* game,int dt){
 		game->player->x=200;
 		game->player->y=0;
 		game->player->z=0;
-		if(game->player->avance==-1)
+
+		// if(game->player->avance==-1)
 			game->player->phi  =0;
-		else
-			game->player->phi  =180;
+		// else
+		// 	game->player->phi  =180;
+
 		// game->player->theta=0;
 		// game->player->rho  =0;
 
@@ -305,6 +307,7 @@ void intro_get_weapon_render(Game* game){
 
 	glPopMatrix();
 
+	glLineWidth(3);
 	glColor4d(1,0,0,(1-exp(-get_time_()/100.))*dd*.01);
 	glPushMatrix();
 	glRotated(90,0,1,0);
@@ -321,6 +324,7 @@ void intro_get_weapon_render(Game* game){
 		}
 	glPopMatrix();
 
+	glDepthFunc(GL_ALWAYS);
 	int i_MAX=300;
 	for(int i=0;i<i_MAX;i++){
 		double pipi=1./i_MAX;
@@ -426,79 +430,79 @@ void intro_get_weapon_render(Game* game){
 				glDepthFunc(GL_NOTEQUAL);
 
 				glPushMatrix();
-							glLineWidth(1);
-							for(int i=0;i<i_MAX;i++){
-								for(int j=-10;j<10;j++){
-									double pipi=1./i_MAX;
-									// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
-									double v= (2-d/200.) ;
-									if(v<.2)
-										v=.2;
-									double e=exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1)));
-									double k=(1-i*pipi)*3.;
-									if(k>1)k=1;
-									double ddd=d/15.;
-									if(ddd>1)ddd=1;
-									double transparency=v*(1-exp(1-get_time_()/100.)) * (i*pipi) *ddd *3 *  k  *.3;
-									if(transparency>0.1)transparency=0.1;
-									glColor4d(
-										1,
-										1 - e,
-										1 - e,
-										transparency);
+						glLineWidth(1);
+						for(int i=0;i<i_MAX;i++){
+							for(int j=-10;j<10;j++){
+								double pipi=1./i_MAX;
+								// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
+								double v= (2-d/200.) ;
+								if(v<.2)
+									v=.2;
+								double e=exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1)));
+								double k=(1-i*pipi)*3.;
+								if(k>1)k=1;
+								double ddd=d/15.;
+								if(ddd>1)ddd=1;
+								double transparency=v*(1-exp(1-get_time_()/100.)) * (i*pipi) *ddd *3 *  k  *.3;
+								if(transparency>0.1)transparency=0.1;
+								glColor4d(
+									1,
+									1 - e,
+									1 - e,
+									transparency);
 
-									double xxx=-200+400*(1-i*pipi);
-									double yyy=-3*sin(24*PI*(i+1.2*j)*pipi+get_time_()*.1) + j*10 + (i-40)*(j)*.2;
-									double zzz=8-10*exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1))) + 20*cos(j/30.*2*PI);
+								double xxx=-200+400*(1-i*pipi);
+								double yyy=-3*sin(24*PI*(i+1.2*j)*pipi+get_time_()*.1) + j*10 + (i-40)*(j)*.2;
+								double zzz=8-10*exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1))) + 20*cos(j/30.*2*PI);
 
-									// glPointSize(20);
-									// glPointSize(d/600. * 20 * i*pipi);
-									glPointSize(7);
-									glEnable(GL_POINT_SMOOTH);
-									glPushMatrix();
-										glTranslated(xxx,yyy,zzz);
-										// glRotated((j+i+1)*(time_*.1),0,0,1);
-										// glScaled(1,1,2);
+								// glPointSize(20);
+								// glPointSize(d/600. * 20 * i*pipi);
+								glPointSize(7);
+								glEnable(GL_POINT_SMOOTH);
+								glPushMatrix();
+									glTranslated(xxx,yyy,zzz);
+									// glRotated((j+i+1)*(time_*.1),0,0,1);
+									// glScaled(1,1,2);
 
-										glBegin(GL_POINTS);
-											glVertex3d(0,0,0);
-										glEnd();
+									glBegin(GL_POINTS);
+										glVertex3d(0,0,0);
+									glEnd();
 
-										glTranslated(0,-2*yyy,-2*zzz);
-										glBegin(GL_POINTS);
-											glVertex3d(0,0,0);
-										glEnd();
+									glTranslated(0,-2*yyy,-2*zzz);
+									glBegin(GL_POINTS);
+										glVertex3d(0,0,0);
+									glEnd();
 
-										// draw_face(1,4);
+									// draw_face(1,4);
 
-										// draw_cheni(1,4,3);
-										// draw_cube(1,4);
+									// draw_cheni(1,4,3);
+									// draw_cube(1,4);
 
-									glPopMatrix();
-								}
+								glPopMatrix();
 							}
+						}
 				glPopMatrix();
 	glPopMatrix();
 
-	double dddd=d;
-	dddd=dddd/200-.2;
-	// printf("%lf\n",dddd);
-	glColor4d(0,0,0,dddd);
-		str->x=0;
-		str->y=0;
-		str->z=0;
-		string3d_setTxt(str,"<== look behind you ==>");
-		str->size=.3;
-		str->dist=7.15;
-		str->z=-.25;
-		// str->phi=225;
-		str->phi=225;
-		glPushMatrix();
-			// glTranslated(game->player->x,game->player->y,game->player->z);
-			glTranslated(-game->player->x,-game->player->y,-game->player->z);
-			glRotated(-90-atan2(-game->player->x-200,-game->player->y)*180/PI,0,0,1);
-			string3d_draw(str);
-		glPopMatrix();
+	// double dddd=d;
+	// dddd=dddd/200-.2;
+	// // printf("%lf\n",dddd);
+	// glColor4d(0,0,0,dddd);
+	// 	str->x=0;
+	// 	str->y=0;
+	// 	str->z=0;
+	// 	string3d_setTxt(str,"<== look behind you ==>");
+	// 	str->size=.3;
+	// 	str->dist=7.15;
+	// 	str->z=-.25;
+	// 	// str->phi=225;
+	// 	str->phi=225;
+	// 	glPushMatrix();
+	// 		// glTranslated(game->player->x,game->player->y,game->player->z);
+	// 		glTranslated(-game->player->x,-game->player->y,-game->player->z);
+	// 		glRotated(-90-atan2(-game->player->x-200,-game->player->y)*180/PI,0,0,1);
+	// 		string3d_draw(str);
+	// 	glPopMatrix();
 
 	glDepthFunc(GL_LESS);
 }

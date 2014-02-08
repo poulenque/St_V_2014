@@ -90,6 +90,9 @@ static void update_arrow(Game* game){
 				arrow->y += arrow->dy;
 				arrow->z += arrow->dz;
 
+				arrow->alpha=180+acos(arrow->dz/arrow->v)*180/PI;
+				arrow->beta=180./PI*atan2(arrow->dy,arrow->dx);
+
 			//TODO COLLISION
 			//TODO COLLISION
 			//TODO COLLISION
@@ -305,8 +308,29 @@ void game_update(Game* game,int dt){
 
 
 
+void game_render_one_arrow(Arrow * arrow){
+	glRotated(arrow->beta,0,0,1);
+	glRotated(arrow->alpha,0,1,0);
+	if(arrow->dist<500){
+		if(!(arrow->z<=-4)){
+			glScaled(2,2,2);
+		}
+		draw_arrow_high_quality();
+	}else{
+		if(!(arrow->z<=-4)){
+			glScaled(2,2,2);
+			draw_arrow_low_quality();
+		}else if(arrow->dist<30000){
+			draw_arrow_very_low_quality();
+		}else {
+			draw_arrow_ultra_low_quality();
+		}
+	}
+}
 
+void game_render_one_mechant(Mechant * mechant){
 
+}
 
 void game_render(Game* game){
 	game->render(game);
@@ -317,113 +341,80 @@ void game_render(Game* game){
 		glTranslated(0,0,-4);
 		glRotated(90,0,1,0);
 		glColor4d(0,0,0,0);
-		draw_face(200,0);
+		draw_face(600,0);
 	glPopMatrix();
 	GLfloat bkColor[3];
 	glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
 
 
 
-	Arrow* arrow=game->arrows;
+	Arrow* arrow;
+	Mechant* mechant;
+
 	//REFLEXIONS
+	glDepthFunc(GL_GREATER);
+	glDepthMask(GL_FALSE);
 	glPushMatrix();
-	//TO THE GROUND
-	glTranslated(0,0,-8);
-	while(arrow!=NULL){
-		double xx=arrow->x+game->player->x;
-		double yy=arrow->y+game->player->y;
-		double zz=arrow->z+game->player->z;
-		double dist=xx*xx+yy*yy+zz*zz;
-		double alpha=180+acos(arrow->dz/arrow->v)*180/PI;
-		double beta=180./PI*atan2(arrow->dy,arrow->dx);
+		//TO THE GROUND
+		glTranslated(0,0,-8);
 
 
-		//reflexion
-
+		//=======================ARROWS=======================
+		//=======================ARROWS=======================
+		//=======================ARROWS=======================
 		glColor4d(.5+.5*bkColor[0],0+.5*bkColor[1],0+.5*bkColor[2],1);
-			// glDepthFunc(GL_ALWAYS);//debug
-			glDepthFunc(GL_GREATER);
-			glDepthMask(GL_FALSE);
-			glPushMatrix();
-				glTranslated(arrow->x,arrow->y,-arrow->z);
-				glRotated(beta,0,0,1);
-				glRotated(-alpha,0,1,0);
-				glScaled(.5,.5,-.5);
+		arrow=game->arrows;
+		while(arrow!=NULL){
+			double xx=arrow->x+game->player->x;
+			double yy=arrow->y+game->player->y;
+			double zz=arrow->z+game->player->z;
+			arrow->dist=xx*xx+yy*yy+zz*zz;
 
-
-				// double linewidth=3;
-				// double pointsize=1;
-				// glLineWidth(linewidth);
-				// glPointSize(pointsize);
-				// 	glBegin(GL_LINES);
-				// 		glVertex3d(+2*arrow->dx,+2*arrow->dy,+2*arrow->dz);
-				// 		glVertex3d(-2*arrow->dx,-2*arrow->dy,-2*arrow->dz);
-				// 	glEnd();
-				if(dist<500){
-					// glColor4d(1,0,0,1);
-					if(!(arrow->z<=-4)){
-						glScaled(2,2,2);
-					}
-					draw_arrow_high_quality();
-				}else{
-					// glColor4d(0,0,1,1);
-					if(!(arrow->z<=-4)){
-						glScaled(2,2,2);
-						draw_arrow_low_quality();
-					}else
-					// if(dist<1500){
-						draw_arrow_very_low_quality();
-					// }else {
-						// draw_arrow_ultra_low_quality();
-					// }
-				}
-			glPopMatrix();
-			glDepthMask(GL_TRUE);
-			glDepthFunc(GL_LESS);
-
+			if(arrow->dist<90000){
+				// glDepthFunc(GL_ALWAYS);//debug
+				glPushMatrix();
+					glTranslated(arrow->x,arrow->y,-arrow->z);
+					glScaled(.5,.5,-.5);
+					game_render_one_arrow(arrow);
+				glPopMatrix();
+			}
 			arrow=arrow->next;
-	}
+		}
+		//======================MECHANTS======================
+		//======================MECHANTS======================
+		//======================MECHANTS======================
+		mechant=game->mechants;
+		while(mechant!=NULL){
+			double xx=mechant->x+game->player->x;
+			double yy=mechant->y+game->player->y;
+			double zz=mechant->z+game->player->z;
+			mechant->dist=xx*xx+yy*yy+zz*zz;
+
+			mechant=mechant->next;
+		}
+
 	glPopMatrix();
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+
+
+
+
+
 	//REAL WORLD
+	glColor4d(1,0,0,1);
 	arrow=game->arrows;
 	while(arrow!=NULL){
-		double xx=arrow->x+game->player->x;
-		double yy=arrow->y+game->player->y;
-		double zz=arrow->z+game->player->z;
-		double dist=xx*xx+yy*yy+zz*zz;
-		double alpha=180+acos(arrow->dz/arrow->v)*180/PI;
-		double beta=180./PI*atan2(arrow->dy,arrow->dx);
-
-
-		glColor4d(1,0,0,1);
-			//REAL OBJECT
+		if(arrow->dist<90000){
 			glPushMatrix();
 				glTranslated(arrow->x,arrow->y,arrow->z);
-				glRotated(beta,0,0,1);
-				glRotated(alpha,0,1,0);
 				glScaled(.5,.5,.5);
-
-				if(dist<500){
-					// glColor4d(1,0,0,1);
-					if(!(arrow->z<=-4)){
-						glScaled(2,2,2);
-					}
-					draw_arrow_high_quality();
-				}else{
-					// glColor4d(0,0,1,1);
-					if(!(arrow->z<=-4)){
-						glScaled(2,2,2);
-						draw_arrow_low_quality();
-					}else
-					// if(dist<1500){
-						draw_arrow_very_low_quality();
-					// }else {
-						// draw_arrow_ultra_low_quality();
-					// }
-				}
+				game_render_one_arrow(arrow);
 			glPopMatrix();
-			arrow=arrow->next;
+		}
+		arrow=arrow->next;
 	}
+
 }
 
 void fire(Game* game,int state){

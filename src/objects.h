@@ -15,7 +15,9 @@ typedef struct Arrow{
 	struct Arrow * next_update;
 
 	double v;
-
+	double dist;
+	double alpha;
+	double beta;
 }Arrow;
 
 typedef struct Mechant{
@@ -29,6 +31,8 @@ typedef struct Mechant{
 	double rho;
 
 	struct Mechant * next;
+
+	double dist;
 
 }Mechant;
 
