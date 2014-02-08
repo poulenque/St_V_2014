@@ -285,8 +285,8 @@ void game_render(Game* game){
 		double beta=180./PI*atan2(arrow->dy,arrow->dx);
 
 
-		double linewidth=3;
-		double pointsize=1;
+		// double linewidth=3;
+		// double pointsize=1;
 		//reflexion
 
 	glColor4d(1,0,0,.3);
@@ -295,12 +295,12 @@ void game_render(Game* game){
 		glDepthMask(GL_FALSE);
 		glPushMatrix();
 			glTranslated(arrow->x,arrow->y,-(arrow->z+8));
-			glScaled(.5,.5,-.5);
 			glRotated(beta,0,0,1);
-			glRotated(alpha,0,1,0);
+			glRotated(-alpha,0,1,0);
+			glScaled(.5,.5,-.5);
 
-			glLineWidth(linewidth);
-			glPointSize(pointsize);
+			// glLineWidth(linewidth);
+			// glPointSize(pointsize);
 
 			// if(!(arrow->z<=-4)){
 			// 	glBegin(GL_LINES);
@@ -354,12 +354,12 @@ void game_render(Game* game){
 		//REAL OBJECT
 		glPushMatrix();
 			glTranslated(arrow->x,arrow->y,arrow->z);
-			glScaled(.5,.5,.5);
 			glRotated(beta,0,0,1);
 			glRotated(alpha,0,1,0);
+			glScaled(.5,.5,.5);
 
-			glLineWidth(linewidth);
-			glPointSize(pointsize);
+			// glLineWidth(linewidth);
+			// glPointSize(pointsize);
 
 			// if(!(arrow->z<=-4)){
 			// 	glBegin(GL_LINES);
@@ -477,7 +477,7 @@ Game* initGame(Camera* player){
 	// fire_value_MAX[1]   =1800;
 	// la sulfateuse
 	trigger_value_MAX[2]=20;
-	fire_value_MAX[2]   =.1;
+	fire_value_MAX[2]   =100;
 
 	draw_init();
 	// audio_init();
