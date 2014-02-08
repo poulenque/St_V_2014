@@ -386,14 +386,21 @@ int main(int argc, char *argv[]) {
 		//========================
 		//========TESTING=========
 		//========================
-		if(keystate[SDLK_1]){
+		if(keystate[SDLK_F1]){
 			game->weapon=0;
 		}
-		if(keystate[SDLK_2]){
+		if(keystate[SDLK_F2]){
 			game->weapon=1;
 		}
-		if(keystate[SDLK_3]){
+		if(keystate[SDLK_F3]){
 			game->weapon=2;
+		}
+		if(keystate[SDLK_F4]){
+			game->weapon=3;
+		}
+
+		if(keystate[SDLK_F5]){
+			clear_arrow(game);
 		}
 		//========================
 		//========================

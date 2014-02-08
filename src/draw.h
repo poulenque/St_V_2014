@@ -25,7 +25,7 @@ void draw_arrow_high_quality();
 void draw_arrow_low_quality();
 void draw_arrow_ultra_quality();
 
-void draw_sulfateuse(double noise,double angle);
+void draw_sulfateuse(double noise,double angle, int color);
 
 
 void draw_gentil(double noise,int detail);

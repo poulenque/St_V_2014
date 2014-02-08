@@ -14,7 +14,9 @@ void HUD(Game* game){
 		bow_HUD(game);
 	}
 	else if(game->weapon==2){
-		sulfateuse_HUD(game);
+		sulfateuse_HUD(game,0);
+	}else if(game->weapon==3){
+		sulfateuse_HUD(game,1);
 	}
 }
 
@@ -348,7 +350,7 @@ void weapon_HUD_FIRE(Game* game){
 
 
 
-void sulfateuse_HUD(Game* game){
+void sulfateuse_HUD(Game* game, int color){
 	double time_pos=game->trigger_value;
 
 	viseur(game);
@@ -378,7 +380,7 @@ void sulfateuse_HUD(Game* game){
 			glLineWidth(3.0);
 
 			draw_hand(  .3+.1*oscill_force,0,FALSE);
-			draw_sulfateuse(0,0);
+			draw_sulfateuse(0,0,color);
 
 
 	// glTranslated(                               0, 1, -5+1*oscill_force);

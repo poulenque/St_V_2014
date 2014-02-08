@@ -838,100 +838,143 @@ void draw_arrow_ultra_low_quality(){
 
 
 
-void draw_sulfateuse(double noise,double angle){
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	double force=.5;
-	glPushMatrix();
-		glScaled(.5,.5,.5);
+void draw_sulfateuse(double noise,double angle, int color){
 
-		glColor4d(1,0,0,1);
-		gluCylinder(quad,random(1,noise),random(1,noise),3,8,1);
-		glTranslated(0,0,3);
-		glRotated(force*2,1,0.,0.);
+	angle=SDL_GetTicks()*0.5;
+	gluQuadricDrawStyle(quad, GLU_FILL);
+	// gluQuadricDrawStyle(quad, GLU_LINE);
+
+	//POIGNEE
+	glPushMatrix();
+		glScaled(.25,.25,.25);
+
+		if(color)
+			glColor4d(.3,0,0,1);
+		else
+			glColor4d(1,0,0,1);
+		glTranslated(0,0,-4);
+		gluCylinder(quad,random(1,noise),0,0,8,1);
+		gluCylinder(quad,random(1,noise),random(1,noise),7,8,1);
+		// glTranslated(0,0,1);
+		glTranslated(0,0,7);
 		gluCylinder(quad,random(1,noise),random(1.5,noise),1,8,1);
 		glTranslated(0,0,1);
-		glRotated(force*2,1,0.,0.);
 		gluCylinder(quad,random(1.5,noise),random(1.5,noise),1,8,1);
 		glTranslated(0,0,1);
 		gluCylinder(quad,random(1.5,noise),random(.8,noise),0,8,1);
-		// glTranslated(0,0,0);
-		// glColor4d(1,.6,.6,1);
-		glRotated(force*10,1,0.,0.);
-		gluCylinder(quad,random(.8,noise),random(.7,noise),5,8,1);
-
-		glTranslated(0.,0.,5);
-
-		double length=3.;
-		glRotated(force*5,1,0.,0.);
-		gluCylinder(quad,random(.7,noise),random(.7,noise),length,8,1);
-		glTranslated(0.,0.,length);
+		glRotated(30,0,1,0);
+		gluCylinder(quad,random(.8,noise),random(.7,noise),3,8,1);
+		glTranslated(0,0,3);
+		glRotated(60-30,0,1,0);
+		gluCylinder(quad,random(.8,noise),random(.7,noise),15,8,1);
+	glPopMatrix();
 
 
-		glRotated(force*10,1,0.,0.);
-		gluCylinder(quad,random(.7,noise),random(.7,noise),length,8,1);
-		glTranslated(0.,0.,length);
+	glPushMatrix();
+		if(color){
+			glScaled(1.5,1.5,1.5);
+			glTranslated(.5,0,0);
+		}
+		//a droite
+		glTranslated(0,0,3);
+		//en bas
+		glTranslated(3,0,0);
+		// glRotated(90+10*cos(SDL_GetTicks()*0.005),1,0,0);
+		glRotated(100,1,0,0);
+
+		glTranslated(0,0,-10);
+
+		double width;
+		double diameter;
+
+		//PARTIE ROTATIVE
+		glPushMatrix();
+		glRotated(angle,0,0,1);
+				width =2;
+				diameter=2;
+				glPushMatrix();
+					glTranslated(0,0,1.4);
+					gluCylinder(quad,0,diameter ,0  ,8,1);
+					gluCylinder(quad,diameter,diameter ,width,8,1);
+					glTranslated(0,0,width);
+					gluCylinder(quad,0,diameter ,0  ,8,1);
+				glPopMatrix();
 
 
-		glRotated(force*20,1,0.,0.);
-		gluCylinder(quad,random(.7,noise),random(.6,noise),length,8,1);
-		glTranslated(0.,0.,length);
+				width =.5;
+				// glPushMatrix();
+				// 	glTranslated(0,0,1);
+				// 	gluCylinder(quad,0,diameter ,0  ,8,1);
+				// 	gluCylinder(quad,diameter,diameter ,width,8,1);
+				// 	glTranslated(0,0,width);
+				// 	gluCylinder(quad,0,diameter ,0  ,8,1);
+				// glPopMatrix();
 
-		glRotated(force*10,1,0.,0.);
-		gluCylinder(quad,random(.6,noise),random(.5,noise),length,8,1);
-		glTranslated(0.,0.,length);
+				diameter = 1.5;
+				glPushMatrix();
+					glTranslated(0,0,6);
+					gluCylinder(quad,0,diameter ,0  ,8,1);
+					gluCylinder(quad,diameter,diameter ,width,8,1);
+					glTranslated(0,0,width);
+					gluCylinder(quad,0,diameter ,0  ,8,1);
+				glPopMatrix();
 
-		force = force +1;
-		glRotated(360-10/force,1,0.,0.);
-		gluCylinder(quad,random(.5,noise),random(.4,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-		glRotated(360-20/force,1,0.,0.);
-		gluCylinder(quad,random(.4,noise),random(.3,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-
-		glRotated(360-5/force,1.,0.,0.);
-		gluCylinder(quad,random(.3,noise),random(.2,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-
-		//le fil
-		// glRotated(360-5/force,360-5/force,0.,1.);
-		gluCylinder(quad,random(.2,noise),random(.05,noise),0,8,1);
-		// glTranslated(0.,0.,0);
+				glPushMatrix();
+					glTranslated(0,0,7);
+					gluCylinder(quad,0,diameter ,0  ,8,1);
+					gluCylinder(quad,diameter,diameter ,width,8,1);
+					glTranslated(0,0,width);
+					gluCylinder(quad,0,diameter ,0  ,8,1);
+				glPopMatrix();
 
 
+				//partie qui tourne
+				double count=6;
+				double cylinder_diameter=.3;
+				double cycle_diameter=1;
 
-		glRotated(05/force,05/force,0.,1.);
-		glRotated(20/force,20/force,0.,1.);
-		glRotated(10/force,10/force,0.,1.);
-		force = force -1;
-		glRotated(360-force*10,360-force*10,0.,1.);
-		glRotated(360-force*20,360-force*20,0.,1.);
-		glRotated(360-force*10,360-force*10,0.,1.);
-		glRotated(360-force*05,360-force*05,0.,1.);
-		glRotated(360-force*10,360-force*10,0.,1.);
-		glRotated(360-force*02,360-force*02,0.,1.);
-		glRotated(360-force*02,360-force*02,0.,1.);
+				if(color)
+					glColor4d(.8,0,0,1);
+				else
+					glColor4d(.9,0,0,1);
+
+				for (int i=0;i<count;i++){
+					glPushMatrix();
+						// glColor4d(i/count,0,0,1);
+						glRotated(i*360./count,0,0,1);
+						glTranslated(0,cycle_diameter,0);
+						gluCylinder(quad,cylinder_diameter,cylinder_diameter ,10,8,1);
+					glPopMatrix();
+				}
+				if(color)
+					glColor4d(.3,0,0,1);
+				else
+					glColor4d(1,0,0,1);
 
 
-		force-=.5; //force entre 0 et 1		
-		// glRotated(180*(1-force*.3),180*(1-force*.3),0.,1.);
-		glRotated(180*(1-force*.3),1.,0,0.);
-		gluCylinder(quad,random(.05,noise*.1),random(.05,noise*.1),30.0-2*force,8,1);
+		glPopMatrix();
+
+		width =5;
+		diameter = 2;
+		glPushMatrix();
+			glTranslated(.5,0,9.5);
+			gluCylinder(quad,0,diameter ,0  ,7,1);
+			gluCylinder(quad,diameter,diameter ,width,7,1);
+			glTranslated(0,0,width);
+			gluCylinder(quad,0,diameter ,0  ,7,1);
+		glPopMatrix();
+
+		width =4;
+		diameter = 1;
+		// glColor4d(.9,0,0,1);
+		glPushMatrix();
+			glTranslated(-1,1,11);
+			gluCylinder(quad,0,diameter ,0  ,8,1);
+			gluCylinder(quad,diameter,diameter ,width,8,1);
+			glTranslated(0,0,width);
+			gluCylinder(quad,0,diameter ,0  ,8,1);
+		glPopMatrix();
+
 
 	glPopMatrix();
 }

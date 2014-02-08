@@ -63,8 +63,8 @@ String3d* get_str(){
 	return str;
 }
 
-static double trigger_value_MAX[3]={0,200,200};
-static double fire_value_MAX[3]   ={0,200,200};
+static double trigger_value_MAX[4];
+static double fire_value_MAX[4]   ;
 
 static double messages_x[200];
 static double messages_y[200];
@@ -165,6 +165,48 @@ static void fire_arrow_with_bow(Game* game){
 	game->arrows = to_add;
 }
 
+static void fire_arrow_with_sulfateuse(Game* game){
+	Arrow* to_add= malloc(sizeof(Arrow));
+
+	double x_offset=1;
+	double y_offset=-.5  + 2./180.*game->player->theta;
+	double z_offset;
+	if(game->player->theta<0){
+		x_offset=0;
+		z_offset=-1.5 + 5./180.*game->player->theta;
+	}else{
+		z_offset=-1.5 - 10./180.*game->player->theta;
+	}
+
+	to_add->x=-game->player->x + y_offset*sin(game->player->phi/360.*2.*PI) + x_offset*cos(game->player->phi/360.*2.*PI);
+	to_add->y=-game->player->y + y_offset*cos(game->player->phi/360.*2.*PI) - x_offset*sin(game->player->phi/360.*2.*PI);
+	to_add->z=-game->player->z + z_offset;
+
+	to_add->dx= .6*cos(-game->player->phi/360.*2.*PI)*(1-1.6*fabs(sin(-game->player->theta/360.*2.*PI)))*random(.85,.3) + .6*sin(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
+	to_add->dy= .6*sin(-game->player->phi/360.*2.*PI)*(1-1.6*fabs(sin(-game->player->theta/360.*2.*PI)))*random(.85,.3) + .6*cos(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
+	double dz;
+	if(game->player->theta>0){
+		//look up
+		dz=-.4*sin(-game->player->theta/180.*PI);
+	}else{
+		//look down
+		dz=-.05*sin(-game->player->theta/180.*PI);
+		// if(dz>.0001)dz=.001;
+		if(dz>0.0001)dz=0.0001;
+	}
+	to_add->dz=dz;
+
+	//======================
+	//UPDATE THE UPDATE_LIST 
+	//======================
+
+	to_add->next_update=game->arrows_to_update;
+	game->arrows_to_update = to_add;
+
+	to_add->next=game->arrows;
+	game->arrows = to_add;
+}
+
 //UPDATE PART THAT IS COMMON TO ALL GAMES
 void game_update(Game* game,int dt){
 
@@ -175,44 +217,46 @@ void game_update(Game* game,int dt){
 	//=======================================================
 	//=======================================================
 	//=======================================================
-	if(game->weapon!=0){
-			for(int i=0;i<dt;i++){
+		for(int i=0;i<dt;i++){
 
-				if(game->trigger_state){
-					//augmente jusqu'a trigger_value_MAX
-					game->trigger_value+=1./trigger_value_MAX[game->weapon];
-					if(game->trigger_value>1){
-						// printf("trigger MAX\n");
-						game->trigger_value=1;
-					}
-				}else{
-					//diminue jusqu'a 0
-					//!! VITESSE DIMINUTION PLUS GRANDE 
-					game->trigger_value-=1.5/trigger_value_MAX[game->weapon];
-					if(game->trigger_value<0){
-						game->trigger_value=0;
-					}
+			if(game->trigger_state){
+				//augmente jusqu'a trigger_value_MAX
+				game->trigger_value+=1./trigger_value_MAX[game->weapon];
+				if(game->trigger_value>1){
+					// printf("trigger MAX\n");
+					game->trigger_value=1;
 				}
-
-				if(game->fire_value>0){
-					game->fire_value-=1./fire_value_MAX[game->weapon];
-					if(game->fire_value<=0){
-						game->trigger_value=0;
-					}
+			}else{
+				//diminue jusqu'a 0
+				//!! VITESSE DIMINUTION PLUS GRANDE 
+				game->trigger_value-=1.5/trigger_value_MAX[game->weapon];
+				if(game->trigger_value<0){
+					game->trigger_value=0;
 				}
-
-				if(game->fire_state && game->trigger_value==1){
-					if(game->fire_value<=0){
-						game->fire_value+=1;
-						fire_arrow_with_bow(game);
-					}
-				}
-
-				//UPDATE ARROWS 
-				update_arrow(game);
-
 			}
-	}
+
+			if(game->fire_value>0){
+				game->fire_value-=1./fire_value_MAX[game->weapon];
+				if(game->weapon==1 && game->fire_value<=0){
+					game->trigger_value=0;
+				}
+			}
+
+			if(game->fire_state && game->trigger_value==1){
+				if(game->fire_value<=0){
+					game->fire_value+=1;
+					if(game->weapon==1){
+						fire_arrow_with_bow(game);
+					}else if(game->weapon>=2){
+						fire_arrow_with_sulfateuse(game);
+					}
+				}
+			}
+
+			//UPDATE ARROWS 
+			update_arrow(game);
+
+		}
 	//=======================================================
 	//=======================================================
 	//=======================================================
@@ -266,6 +310,7 @@ void game_update(Game* game,int dt){
 
 void game_render(Game* game){
 	game->render(game);
+
 	//RENDER AN INVISIBLE PLANE FOR GROUND DEPTH
 	glPushMatrix();
 		glTranslated(-game->player->x,-game->player->y,0);
@@ -274,8 +319,16 @@ void game_render(Game* game){
 		glColor4d(0,0,0,0);
 		draw_face(200,0);
 	glPopMatrix();
-	//RENDER ARROWS
+	GLfloat bkColor[3];
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
+
+
+
 	Arrow* arrow=game->arrows;
+	//REFLEXIONS
+	glPushMatrix();
+	//TO THE GROUND
+	glTranslated(0,0,-8);
 	while(arrow!=NULL){
 		double xx=arrow->x+game->player->x;
 		double yy=arrow->y+game->player->y;
@@ -287,12 +340,12 @@ void game_render(Game* game){
 
 		//reflexion
 
-		glColor4d(1,0,0,.3);
+		glColor4d(.5+.5*bkColor[0],0+.5*bkColor[1],0+.5*bkColor[2],1);
 			// glDepthFunc(GL_ALWAYS);//debug
 			glDepthFunc(GL_GREATER);
 			glDepthMask(GL_FALSE);
 			glPushMatrix();
-				glTranslated(arrow->x,arrow->y,-(arrow->z+8));
+				glTranslated(arrow->x,arrow->y,-arrow->z);
 				glRotated(beta,0,0,1);
 				glRotated(-alpha,0,1,0);
 				glScaled(.5,.5,-.5);
@@ -325,8 +378,22 @@ void game_render(Game* game){
 					// }
 				}
 			glPopMatrix();
-			glDepthFunc(GL_LESS);
 			glDepthMask(GL_TRUE);
+			glDepthFunc(GL_LESS);
+
+			arrow=arrow->next;
+	}
+	glPopMatrix();
+	//REAL WORLD
+	arrow=game->arrows;
+	while(arrow!=NULL){
+		double xx=arrow->x+game->player->x;
+		double yy=arrow->y+game->player->y;
+		double zz=arrow->z+game->player->z;
+		double dist=xx*xx+yy*yy+zz*zz;
+		double alpha=180+acos(arrow->dz/arrow->v)*180/PI;
+		double beta=180./PI*atan2(arrow->dy,arrow->dx);
+
 
 		glColor4d(1,0,0,1);
 			//REAL OBJECT
@@ -417,15 +484,18 @@ void game_pause(Game * game,int state){
 Game* initGame(Camera* player){
 
 	//no weapon
-	trigger_value_MAX[0]=0;
-	fire_value_MAX[0]   =0;
+	trigger_value_MAX[0]=1;//avoid 1./0.
+	fire_value_MAX[0]   =1;//avoid 1./0.
 	//bow
 	trigger_value_MAX[1]=200;
 	fire_value_MAX[1]   =300;
 	// fire_value_MAX[1]   =1800;
 	// la sulfateuse
-	trigger_value_MAX[2]=20;
+	trigger_value_MAX[2]=400;
 	fire_value_MAX[2]   =100;
+	// la sulfateuse BOURRIN
+	trigger_value_MAX[3]=400;
+	fire_value_MAX[3]   =10;
 
 	draw_init();
 	// audio_init();

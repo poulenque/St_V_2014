@@ -78,13 +78,12 @@ void intro_render(Game* game){
 
 	glMatrixMode(GL_MODELVIEW);
 
-	//TEST HAND + BOW
+	//TEST SULFATEUSE
 
 	// glPushMatrix();
-	// glTranslated(40,-40,0);
+	// glTranslated(60,-60,-10);
 	// glScaled(4,4,4);
-	// draw_hand(0,0,0);
-	// draw_bow(.4,0);
+	// draw_sulfateuse(0,0);
 	// glPopMatrix();
 
 	//TEST BOW 
