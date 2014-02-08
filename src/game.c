@@ -285,129 +285,77 @@ void game_render(Game* game){
 		double beta=180./PI*atan2(arrow->dy,arrow->dx);
 
 
-		// double linewidth=3;
-		// double pointsize=1;
 		//reflexion
 
-	glColor4d(1,0,0,.3);
-		// glDepthFunc(GL_ALWAYS);//debug
-		glDepthFunc(GL_GREATER);
-		glDepthMask(GL_FALSE);
-		glPushMatrix();
-			glTranslated(arrow->x,arrow->y,-(arrow->z+8));
-			glRotated(beta,0,0,1);
-			glRotated(-alpha,0,1,0);
-			glScaled(.5,.5,-.5);
+		glColor4d(1,0,0,.3);
+			// glDepthFunc(GL_ALWAYS);//debug
+			glDepthFunc(GL_GREATER);
+			glDepthMask(GL_FALSE);
+			glPushMatrix();
+				glTranslated(arrow->x,arrow->y,-(arrow->z+8));
+				glRotated(beta,0,0,1);
+				glRotated(-alpha,0,1,0);
+				glScaled(.5,.5,-.5);
 
-			// glLineWidth(linewidth);
-			// glPointSize(pointsize);
 
-			// if(!(arrow->z<=-4)){
-			// 	glBegin(GL_LINES);
-			// 		glVertex3d(
-			// 			+2*arrow->dx,
-			// 			+2*arrow->dy,
-			// 			+2*arrow->dz
-			// 			);
-			// 		glVertex3d(
-			// 			-2*arrow->dx,
-			// 			-2*arrow->dy,
-			// 			-2*arrow->dz
-			// 			);
-			// 	glEnd();
-			// 	glBegin(GL_POINTS);
-			// 		glVertex3d(
-			// 			+2*arrow->dx,
-			// 			+2*arrow->dy,
-			// 			+2*arrow->dz
-			// 			);
-			// 		glVertex3d(
-			// 			-2*arrow->dx,
-			// 			-2*arrow->dy,
-			// 			-2*arrow->dz
-			// 			);
-			// 	glEnd();
-			// }
-			if(dist<500){
-				// glColor4d(1,0,0,1);
-				if(!(arrow->z<=-4)){
-					glScaled(2,2,2);
+				// double linewidth=3;
+				// double pointsize=1;
+				// glLineWidth(linewidth);
+				// glPointSize(pointsize);
+				// 	glBegin(GL_LINES);
+				// 		glVertex3d(+2*arrow->dx,+2*arrow->dy,+2*arrow->dz);
+				// 		glVertex3d(-2*arrow->dx,-2*arrow->dy,-2*arrow->dz);
+				// 	glEnd();
+				if(dist<500){
+					// glColor4d(1,0,0,1);
+					if(!(arrow->z<=-4)){
+						glScaled(2,2,2);
+					}
+					draw_arrow_high_quality();
+				}else{
+					// glColor4d(0,0,1,1);
+					if(!(arrow->z<=-4)){
+						glScaled(2,2,2);
+						draw_arrow_low_quality();
+					}else
+					// if(dist<1500){
+						draw_arrow_very_low_quality();
+					// }else {
+						// draw_arrow_ultra_low_quality();
+					// }
 				}
-				draw_arrow_high_quality();
-			}else{
-				// glColor4d(0,0,1,1);
-				if(!(arrow->z<=-4)){
-					glScaled(2,2,2);
-					draw_arrow_low_quality();
-				}else
-				// if(dist<1500){
-					draw_arrow_very_low_quality();
-				// }else {
-					// draw_arrow_ultra_low_quality();
-				// }
-			}
-		glPopMatrix();
-		glDepthFunc(GL_LESS);
-		glDepthMask(GL_TRUE);
+			glPopMatrix();
+			glDepthFunc(GL_LESS);
+			glDepthMask(GL_TRUE);
 
-	glColor4d(1,0,0,1);
-		//REAL OBJECT
-		glPushMatrix();
-			glTranslated(arrow->x,arrow->y,arrow->z);
-			glRotated(beta,0,0,1);
-			glRotated(alpha,0,1,0);
-			glScaled(.5,.5,.5);
+		glColor4d(1,0,0,1);
+			//REAL OBJECT
+			glPushMatrix();
+				glTranslated(arrow->x,arrow->y,arrow->z);
+				glRotated(beta,0,0,1);
+				glRotated(alpha,0,1,0);
+				glScaled(.5,.5,.5);
 
-			// glLineWidth(linewidth);
-			// glPointSize(pointsize);
-
-			// if(!(arrow->z<=-4)){
-			// 	glBegin(GL_LINES);
-			// 		glVertex3d(
-			// 			+2*arrow->dx,
-			// 			+2*arrow->dy,
-			// 			+2*arrow->dz
-			// 			);
-			// 		glVertex3d(
-			// 			-2*arrow->dx,
-			// 			-2*arrow->dy,
-			// 			-2*arrow->dz
-			// 			);
-			// 	glEnd();
-			// 	glBegin(GL_POINTS);
-			// 		glVertex3d(
-			// 			+2*arrow->dx,
-			// 			+2*arrow->dy,
-			// 			+2*arrow->dz
-			// 			);
-			// 		glVertex3d(
-			// 			-2*arrow->dx,
-			// 			-2*arrow->dy,
-			// 			-2*arrow->dz
-			// 			);
-			// 	glEnd();
-
-			// }
-			if(dist<500){
-				// glColor4d(1,0,0,1);
-				if(!(arrow->z<=-4)){
-					glScaled(2,2,2);
+				if(dist<500){
+					// glColor4d(1,0,0,1);
+					if(!(arrow->z<=-4)){
+						glScaled(2,2,2);
+					}
+					draw_arrow_high_quality();
+				}else{
+					// glColor4d(0,0,1,1);
+					if(!(arrow->z<=-4)){
+						glScaled(2,2,2);
+						draw_arrow_low_quality();
+					}else
+					// if(dist<1500){
+						draw_arrow_very_low_quality();
+					// }else {
+						// draw_arrow_ultra_low_quality();
+					// }
 				}
-				draw_arrow_high_quality();
-			}else{
-				// glColor4d(0,0,1,1);
-				if(!(arrow->z<=-4)){
-					glScaled(2,2,2);
-					draw_arrow_low_quality();
-				}else
-				// if(dist<1500){
-					draw_arrow_very_low_quality();
-				// }else {
-					// draw_arrow_ultra_low_quality();
-				// }
-			}
-		glPopMatrix();
-		arrow=arrow->next;
+			glPopMatrix();
+			arrow=arrow->next;
 	}
 }
 

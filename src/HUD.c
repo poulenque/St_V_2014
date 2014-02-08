@@ -378,6 +378,7 @@ void sulfateuse_HUD(Game* game){
 			glLineWidth(3.0);
 
 			draw_hand(  .3+.1*oscill_force,0,FALSE);
+			draw_sulfateuse(0,0);
 
 
 	// glTranslated(                               0, 1, -5+1*oscill_force);

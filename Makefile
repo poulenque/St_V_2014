@@ -23,7 +23,8 @@ C_FLAGS += -march=native
 LIBS += -pg -g
 
 LIBS += -lm
-LIBS += -lSDL -lSDL_image
+LIBS += -lSDL
+# LIBS += -lSDL_image
 LIBS += -lvorbisfile -lopenal
 LIBS += -lpthread
 LIBS += -lGL -lGLU -lGLEW

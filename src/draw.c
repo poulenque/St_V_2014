@@ -13,6 +13,18 @@ void draw_init(){
 	quad=gluNewQuadric();
 }
 
+//===============================================
+//                                                 
+// _|_|_|      _|_|      _|_|_|  _|_|_|    _|_|_|  
+// _|    _|  _|    _|  _|          _|    _|        
+// _|_|_|    _|_|_|_|    _|_|      _|    _|        
+// _|    _|  _|    _|        _|    _|    _|        
+// _|_|_|    _|    _|  _|_|_|    _|_|_|    _|_|_|  
+//                                                 
+//===============================================
+//===============================================
+//===============================================
+
 void draw_cheni(double size,double noise, int count){
 	while(count--){
 		glBegin( GL_LINES );
@@ -21,7 +33,6 @@ void draw_cheni(double size,double noise, int count){
 		glEnd();
 	}
 }
-
 
 void draw_cube(double size,double noise){
 	glBegin( GL_LINES );
@@ -87,6 +98,43 @@ void draw_cube_simple(double size){
 		glVertex3d( size, -size,  size );
 		glVertex3d( size, -size, -size );
 	glEnd();
+}
+void simple_cube(){
+	glBegin(GL_POLYGON);
+	glVertex3f(  0.5, -0.5, 0.5 );
+	glVertex3f(  0.5,  0.5, 0.5 );
+	glVertex3f( -0.5,  0.5, 0.5 );
+	glVertex3f( -0.5, -0.5, 0.5 );
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glVertex3f( 0.5, -0.5, -0.5 );
+	glVertex3f( 0.5,  0.5, -0.5 );
+	glVertex3f( 0.5,  0.5,  0.5 );
+	glVertex3f( 0.5, -0.5,  0.5 );
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glVertex3f( -0.5, -0.5,  0.5 );
+	glVertex3f( -0.5,  0.5,  0.5 );
+	glVertex3f( -0.5,  0.5, -0.5 );
+	glVertex3f( -0.5, -0.5, -0.5 );
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glVertex3f(  0.5,  0.5,  0.5 );
+	glVertex3f(  0.5,  0.5, -0.5 );
+	glVertex3f( -0.5,  0.5, -0.5 );
+	glVertex3f( -0.5,  0.5,  0.5 );
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glVertex3f(  0.5, -0.5, -0.5 );
+	glVertex3f(  0.5, -0.5,  0.5 );
+	glVertex3f( -0.5, -0.5,  0.5 );
+	glVertex3f( -0.5, -0.5, -0.5 );
+	glEnd();
+ 
 }
 
 void draw_face(double size,double noise){
@@ -183,6 +231,30 @@ void draw_sphere2(double size,double time_,double noise){
 		// gluDeleteQuadric(quad);
 }
 
+//=========================================================================
+//                                                                           
+//   _|_|_|    _|_|    _|      _|  _|_|_|    _|        _|_|_|_|  _|      _|  
+// _|        _|    _|  _|_|  _|_|  _|    _|  _|        _|          _|  _|    
+// _|        _|    _|  _|  _|  _|  _|_|_|    _|        _|_|_|        _|      
+// _|        _|    _|  _|      _|  _|        _|        _|          _|  _|    
+//   _|_|_|    _|_|    _|      _|  _|        _|_|_|_|  _|_|_|_|  _|      _|  
+//                                                                           
+//=========================================================================
+//=========================================================================
+//=========================================================================
+
+
+//==========================================
+//                                           
+//   _|_|_|  _|    _|  _|      _|    _|_|_|  
+// _|        _|    _|    _|  _|    _|        
+// _|  _|_|  _|    _|      _|        _|_|    
+// _|    _|  _|    _|      _|            _|  
+//   _|_|_|    _|_|        _|      _|_|_|    
+//                                           
+//==========================================
+//==========================================
+//==========================================
 
 void draw_gentil(double noise,int detail){
 	if (detail==0){
@@ -292,126 +364,58 @@ void draw_mechant(double noise,int detail){
 	//TODO
 }
 
-void draw_half_bow(double noise,double force){
-	force+=.5;
+
+
+void draw_wing(double noise,int detail){
+	// glPushMatrix();
+	// 	glBegin(GL_LINES);
+	// 	for(int i=0;i<detail;i++){
+	// 		glVertex3d(0,0,0);
+	// 		// glRotated(time_,0,0,1);
+	// 		glVertex3d(
+	// 			(pow(1.15,i)*cos(5./4.*PI+(1.9*PI-5./4.*PI)*i/(double)detail) )+sin(pow(cos(time_*.05),2)*5.*i/detail),
+	// 			(pow(1.15,i)*cos(5./4.*PI+(1.9*PI-5./4.*PI)*i/(double)detail) )+cos(pow(cos(time_*.05),2)*5.*i/detail),
+	// 			(pow(1.15,i)*sin(5./4.*PI+(1.9*PI-5./4.*PI)*i/(double)detail) ) );
+	// 	}
+	// 	glEnd();
+	// glPopMatrix();
 	glPushMatrix();
-		glColor4d(1,0,0,1);
-		gluCylinder(quad,random(1,noise),random(1,noise),3,8,1);
-		glTranslated(0,0,3);
-		glRotated(force*2,1,0.,0.);
-		gluCylinder(quad,random(1,noise),random(1.5,noise),1,8,1);
-		glTranslated(0,0,1);
-		glRotated(force*2,1,0.,0.);
-		gluCylinder(quad,random(1.5,noise),random(1.5,noise),1,8,1);
-		glTranslated(0,0,1);
-		gluCylinder(quad,random(1.5,noise),random(.8,noise),0,8,1);
-		// glTranslated(0,0,0);
-		// glColor4d(1,.6,.6,1);
-		glRotated(force*10,1,0.,0.);
-		gluCylinder(quad,random(.8,noise),random(.7,noise),5,8,1);
-
-		glTranslated(0.,0.,5);
-
-		double length=3.;
-		glRotated(force*5,1,0.,0.);
-		gluCylinder(quad,random(.7,noise),random(.7,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-
-		glRotated(force*10,1,0.,0.);
-		gluCylinder(quad,random(.7,noise),random(.7,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-
-		glRotated(force*20,1,0.,0.);
-		gluCylinder(quad,random(.7,noise),random(.6,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-		glRotated(force*10,1,0.,0.);
-		gluCylinder(quad,random(.6,noise),random(.5,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-		force = force +1;
-		glRotated(360-10/force,1,0.,0.);
-		gluCylinder(quad,random(.5,noise),random(.4,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-		glRotated(360-20/force,1,0.,0.);
-		gluCylinder(quad,random(.4,noise),random(.3,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-
-		glRotated(360-5/force,1.,0.,0.);
-		gluCylinder(quad,random(.3,noise),random(.2,noise),length,8,1);
-		glTranslated(0.,0.,length);
-
-
-		//le fil
-		// glRotated(360-5/force,360-5/force,0.,1.);
-		gluCylinder(quad,random(.2,noise),random(.05,noise),0,8,1);
-		// glTranslated(0.,0.,0);
-
-
-
-		glRotated(05/force,05/force,0.,1.);
-		glRotated(20/force,20/force,0.,1.);
-		glRotated(10/force,10/force,0.,1.);
-		force = force -1;
-		glRotated(360-force*10,360-force*10,0.,1.);
-		glRotated(360-force*20,360-force*20,0.,1.);
-		glRotated(360-force*10,360-force*10,0.,1.);
-		glRotated(360-force*05,360-force*05,0.,1.);
-		glRotated(360-force*10,360-force*10,0.,1.);
-		glRotated(360-force*02,360-force*02,0.,1.);
-		glRotated(360-force*02,360-force*02,0.,1.);
-
-
-		force-=.5; //force entre 0 et 1		
-		// glRotated(180*(1-force*.3),180*(1-force*.3),0.,1.);
-		glRotated(180*(1-force*.3),1.,0,0.);
-		gluCylinder(quad,random(.05,noise*.1),random(.05,noise*.1),30.0-2*force,8,1);
-
+		for(int i=0;i<detail;i++){
+			glRotated(SDL_GetTicks()*0.05,0,0,1);
+			glBegin(GL_LINES);
+			glVertex3d(0,0,0);
+			glVertex3d(1,1,1);
+			glEnd();
+		}
 	glPopMatrix();
+
 }
 
 
-void simple_cube(){
-	glBegin(GL_POLYGON);
-	glVertex3f(  0.5, -0.5, 0.5 );
-	glVertex3f(  0.5,  0.5, 0.5 );
-	glVertex3f( -0.5,  0.5, 0.5 );
-	glVertex3f( -0.5, -0.5, 0.5 );
-	glEnd();
 
-	glBegin(GL_POLYGON);
-	glVertex3f( 0.5, -0.5, -0.5 );
-	glVertex3f( 0.5,  0.5, -0.5 );
-	glVertex3f( 0.5,  0.5,  0.5 );
-	glVertex3f( 0.5, -0.5,  0.5 );
-	glEnd();
+//==============================
+//                               
+// _|    _|  _|    _|  _|_|_|    
+// _|    _|  _|    _|  _|    _|  
+// _|_|_|_|  _|    _|  _|    _|  
+// _|    _|  _|    _|  _|    _|  
+// _|    _|    _|_|    _|_|_|    
+//                               
+//==============================
+//==============================
+//==============================
 
-	glBegin(GL_POLYGON);
-	glVertex3f( -0.5, -0.5,  0.5 );
-	glVertex3f( -0.5,  0.5,  0.5 );
-	glVertex3f( -0.5,  0.5, -0.5 );
-	glVertex3f( -0.5, -0.5, -0.5 );
-	glEnd();
-
-	glBegin(GL_POLYGON);
-	glVertex3f(  0.5,  0.5,  0.5 );
-	glVertex3f(  0.5,  0.5, -0.5 );
-	glVertex3f( -0.5,  0.5, -0.5 );
-	glVertex3f( -0.5,  0.5,  0.5 );
-	glEnd();
-
-	glBegin(GL_POLYGON);
-	glVertex3f(  0.5, -0.5, -0.5 );
-	glVertex3f(  0.5, -0.5,  0.5 );
-	glVertex3f( -0.5, -0.5,  0.5 );
-	glVertex3f( -0.5, -0.5, -0.5 );
-	glEnd();
- 
-}
+//=========================================
+//                                           
+// _|    _|    _|_|    _|      _|  _|_|_|    
+// _|    _|  _|    _|  _|_|    _|  _|    _|  
+// _|_|_|_|  _|_|_|_|  _|  _|  _|  _|    _|  
+// _|    _|  _|    _|  _|    _|_|  _|    _|  
+// _|    _|  _|    _|  _|      _|  _|_|_|    
+//                                           
+//=========================================
+//=========================================
+//=========================================
 
 void draw_hand(double force,double distance, int side_view){
 	t++;
@@ -553,16 +557,11 @@ void draw_hand(double force,double distance, int side_view){
 			glVertex3d(-.0,-.6, .7);
 
 
-
-
-
-
 			//poignee gauche
 			glVertex3d(-.5,-.6,-.5);
 			glVertex3d(-.0,-.4,-.7);
 			glVertex3d(-.0,-.6,-.7);
 			glVertex3d(-.5,-.8,-.5);
-
 
 
 			double nb=3;
@@ -615,8 +614,97 @@ void draw_hand(double force,double distance, int side_view){
 		glPopMatrix();
 
 }
-void draw_bow_to_take(double noise,double force){
-	draw_bow(noise,force);
+//==============================================================================
+//                                                                               
+// _|          _|  _|_|_|_|    _|_|    _|_|_|      _|_|    _|      _|    _|_|_|  
+// _|          _|  _|        _|    _|  _|    _|  _|    _|  _|_|    _|  _|        
+// _|    _|    _|  _|_|_|    _|_|_|_|  _|_|_|    _|    _|  _|  _|  _|    _|_|    
+//   _|  _|  _|    _|        _|    _|  _|        _|    _|  _|    _|_|        _|  
+//     _|  _|      _|_|_|_|  _|    _|  _|          _|_|    _|      _|  _|_|_|    
+//                                                                               
+//==============================================================================
+//==============================================================================
+//==============================================================================
+void draw_half_bow(double noise,double force){
+	force+=.5;
+	glPushMatrix();
+		glColor4d(1,0,0,1);
+		gluCylinder(quad,random(1,noise),random(1,noise),3,8,1);
+		glTranslated(0,0,3);
+		glRotated(force*2,1,0.,0.);
+		gluCylinder(quad,random(1,noise),random(1.5,noise),1,8,1);
+		glTranslated(0,0,1);
+		glRotated(force*2,1,0.,0.);
+		gluCylinder(quad,random(1.5,noise),random(1.5,noise),1,8,1);
+		glTranslated(0,0,1);
+		gluCylinder(quad,random(1.5,noise),random(.8,noise),0,8,1);
+		// glTranslated(0,0,0);
+		// glColor4d(1,.6,.6,1);
+		glRotated(force*10,1,0.,0.);
+		gluCylinder(quad,random(.8,noise),random(.7,noise),5,8,1);
+
+		glTranslated(0.,0.,5);
+
+		double length=3.;
+		glRotated(force*5,1,0.,0.);
+		gluCylinder(quad,random(.7,noise),random(.7,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+
+		glRotated(force*10,1,0.,0.);
+		gluCylinder(quad,random(.7,noise),random(.7,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+
+		glRotated(force*20,1,0.,0.);
+		gluCylinder(quad,random(.7,noise),random(.6,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+		glRotated(force*10,1,0.,0.);
+		gluCylinder(quad,random(.6,noise),random(.5,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+		force = force +1;
+		glRotated(360-10/force,1,0.,0.);
+		gluCylinder(quad,random(.5,noise),random(.4,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+		glRotated(360-20/force,1,0.,0.);
+		gluCylinder(quad,random(.4,noise),random(.3,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+
+		glRotated(360-5/force,1.,0.,0.);
+		gluCylinder(quad,random(.3,noise),random(.2,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+
+		//le fil
+		// glRotated(360-5/force,360-5/force,0.,1.);
+		gluCylinder(quad,random(.2,noise),random(.05,noise),0,8,1);
+		// glTranslated(0.,0.,0);
+
+
+
+		glRotated(05/force,05/force,0.,1.);
+		glRotated(20/force,20/force,0.,1.);
+		glRotated(10/force,10/force,0.,1.);
+		force = force -1;
+		glRotated(360-force*10,360-force*10,0.,1.);
+		glRotated(360-force*20,360-force*20,0.,1.);
+		glRotated(360-force*10,360-force*10,0.,1.);
+		glRotated(360-force*05,360-force*05,0.,1.);
+		glRotated(360-force*10,360-force*10,0.,1.);
+		glRotated(360-force*02,360-force*02,0.,1.);
+		glRotated(360-force*02,360-force*02,0.,1.);
+
+
+		force-=.5; //force entre 0 et 1		
+		// glRotated(180*(1-force*.3),180*(1-force*.3),0.,1.);
+		glRotated(180*(1-force*.3),1.,0,0.);
+		gluCylinder(quad,random(.05,noise*.1),random(.05,noise*.1),30.0-2*force,8,1);
+
+	glPopMatrix();
 }
 
 void draw_bow(double noise,double force){
@@ -642,6 +730,12 @@ void draw_bow(double noise,double force){
 	// glPopMatrix();
 }
 
+void draw_bow_to_take(double noise,double force){
+	draw_bow(noise,force);
+}
+//==================================================
+//==================================================
+//==================================================
 void draw_arrow_high_quality(){
 		glPushMatrix();
 			// glTranslated(-1,10,0);
@@ -759,54 +853,110 @@ void draw_sulfateuse(double noise,double angle){
 	//TODO
 	//TODO
 	//TODO
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void draw_wing(double noise,int detail){
-	// glPushMatrix();
-	// 	glBegin(GL_LINES);
-	// 	for(int i=0;i<detail;i++){
-	// 		glVertex3d(0,0,0);
-	// 		// glRotated(time_,0,0,1);
-	// 		glVertex3d(
-	// 			(pow(1.15,i)*cos(5./4.*PI+(1.9*PI-5./4.*PI)*i/(double)detail) )+sin(pow(cos(time_*.05),2)*5.*i/detail),
-	// 			(pow(1.15,i)*cos(5./4.*PI+(1.9*PI-5./4.*PI)*i/(double)detail) )+cos(pow(cos(time_*.05),2)*5.*i/detail),
-	// 			(pow(1.15,i)*sin(5./4.*PI+(1.9*PI-5./4.*PI)*i/(double)detail) ) );
-	// 	}
-	// 	glEnd();
-	// glPopMatrix();
+	double force=.5;
 	glPushMatrix();
-		for(int i=0;i<detail;i++){
-			glRotated(SDL_GetTicks()*0.05,0,0,1);
-			glBegin(GL_LINES);
-			glVertex3d(0,0,0);
-			glVertex3d(1,1,1);
-			glEnd();
-		}
-	glPopMatrix();
+		glScaled(.5,.5,.5);
 
+		glColor4d(1,0,0,1);
+		gluCylinder(quad,random(1,noise),random(1,noise),3,8,1);
+		glTranslated(0,0,3);
+		glRotated(force*2,1,0.,0.);
+		gluCylinder(quad,random(1,noise),random(1.5,noise),1,8,1);
+		glTranslated(0,0,1);
+		glRotated(force*2,1,0.,0.);
+		gluCylinder(quad,random(1.5,noise),random(1.5,noise),1,8,1);
+		glTranslated(0,0,1);
+		gluCylinder(quad,random(1.5,noise),random(.8,noise),0,8,1);
+		// glTranslated(0,0,0);
+		// glColor4d(1,.6,.6,1);
+		glRotated(force*10,1,0.,0.);
+		gluCylinder(quad,random(.8,noise),random(.7,noise),5,8,1);
+
+		glTranslated(0.,0.,5);
+
+		double length=3.;
+		glRotated(force*5,1,0.,0.);
+		gluCylinder(quad,random(.7,noise),random(.7,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+
+		glRotated(force*10,1,0.,0.);
+		gluCylinder(quad,random(.7,noise),random(.7,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+
+		glRotated(force*20,1,0.,0.);
+		gluCylinder(quad,random(.7,noise),random(.6,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+		glRotated(force*10,1,0.,0.);
+		gluCylinder(quad,random(.6,noise),random(.5,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+		force = force +1;
+		glRotated(360-10/force,1,0.,0.);
+		gluCylinder(quad,random(.5,noise),random(.4,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+		glRotated(360-20/force,1,0.,0.);
+		gluCylinder(quad,random(.4,noise),random(.3,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+
+		glRotated(360-5/force,1.,0.,0.);
+		gluCylinder(quad,random(.3,noise),random(.2,noise),length,8,1);
+		glTranslated(0.,0.,length);
+
+
+		//le fil
+		// glRotated(360-5/force,360-5/force,0.,1.);
+		gluCylinder(quad,random(.2,noise),random(.05,noise),0,8,1);
+		// glTranslated(0.,0.,0);
+
+
+
+		glRotated(05/force,05/force,0.,1.);
+		glRotated(20/force,20/force,0.,1.);
+		glRotated(10/force,10/force,0.,1.);
+		force = force -1;
+		glRotated(360-force*10,360-force*10,0.,1.);
+		glRotated(360-force*20,360-force*20,0.,1.);
+		glRotated(360-force*10,360-force*10,0.,1.);
+		glRotated(360-force*05,360-force*05,0.,1.);
+		glRotated(360-force*10,360-force*10,0.,1.);
+		glRotated(360-force*02,360-force*02,0.,1.);
+		glRotated(360-force*02,360-force*02,0.,1.);
+
+
+		force-=.5; //force entre 0 et 1		
+		// glRotated(180*(1-force*.3),180*(1-force*.3),0.,1.);
+		glRotated(180*(1-force*.3),1.,0,0.);
+		gluCylinder(quad,random(.05,noise*.1),random(.05,noise*.1),30.0-2*force,8,1);
+
+	glPopMatrix();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
