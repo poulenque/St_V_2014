@@ -434,51 +434,61 @@ void intro_get_weapon_render(Game* game){
 						for(int i=0;i<i_MAX;i++){
 							for(int j=-10;j<10;j++){
 								double pipi=1./i_MAX;
-								// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
-								double v= (2-d/200.) ;
-								if(v<.2)
-									v=.2;
-								double e=exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1)));
-								double k=(1-i*pipi)*3.;
-								if(k>1)k=1;
-								double ddd=d/15.;
-								if(ddd>1)ddd=1;
-								double transparency=v*(1-exp(1-get_time_()/100.)) * (i*pipi) *ddd *3 *  k  *.3;
-								if(transparency>0.1)transparency=0.1;
-								glColor4d(
-									1,
-									1 - e,
-									1 - e,
-									transparency);
 
 								double xxx=-200+400*(1-i*pipi);
 								double yyy=-3*sin(24*PI*(i+1.2*j)*pipi+get_time_()*.1) + j*10 + (i-40)*(j)*.2;
 								double zzz=8-10*exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1))) + 20*cos(j/30.*2*PI);
 
-								// glPointSize(20);
-								// glPointSize(d/600. * 20 * i*pipi);
-								glPointSize(7);
-								glEnable(GL_POINT_SMOOTH);
-								glPushMatrix();
-									glTranslated(xxx,yyy,zzz);
-									// glRotated((j+i+1)*(time_*.1),0,0,1);
-									// glScaled(1,1,2);
+									// glColor4d(0,0,1,1);
+									// printf("%lf\n",xxx );
+									// printf("%lf\n",-d +200);
 
-									glBegin(GL_POINTS);
-										glVertex3d(0,0,0);
-									glEnd();
+									// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
+									double v= (2-d/200.) ;
+									if(v<.2)
+										v=.2;
+									double e=exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1)));
+									double k=(1-i*pipi)*3;
+									if(k>1)k=1;
+									double ddd=d/15.;
+									if(ddd>1)ddd=1;
 
-									glTranslated(0,-2*yyy,-2*zzz);
-									glBegin(GL_POINTS);
-										glVertex3d(0,0,0);
-									glEnd();
 
-									// draw_face(1,4);
+									double hide_behind =exp((xxx+d-200)*.06);
+									if(hide_behind>1)hide_behind=1;
+									// printf("%lf\n", hide_behind );
+									double transparency=v*(1-exp(1-get_time_()/100.)) * (i*pipi) *ddd *3. *  k  *.3 * hide_behind;
+									if(transparency>0.5)transparency=0.5;
+									glColor4d(
+										1,
+										1 - e,
+										1 - e,
+										transparency);
 
-									// draw_cheni(1,4,3);
-									// draw_cube(1,4);
+									// glPointSize(20);
+									// glPointSize(d/600. * 20 * i*pipi);
+									glPointSize(7);
+									glEnable(GL_POINT_SMOOTH);
+									glPushMatrix();
+										glTranslated(xxx,yyy,zzz);
+										// glRotated((j+i+1)*(time_*.1),0,0,1);
+										// glScaled(1,1,2);
 
-								glPopMatrix();
+										glBegin(GL_POINTS);
+											glVertex3d(0,0,0);
+										glEnd();
+
+										glTranslated(0,-2*yyy,-2*zzz);
+										glBegin(GL_POINTS);
+											glVertex3d(0,0,0);
+										glEnd();
+
+										// draw_face(1,4);
+
+										// draw_cheni(1,4,3);
+										// draw_cube(1,4);
+
+									glPopMatrix();
 							}
 						}
 				glPopMatrix();

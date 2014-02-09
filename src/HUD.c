@@ -351,7 +351,6 @@ void weapon_HUD_FIRE(Game* game){
 
 
 void sulfateuse_HUD(Game* game, int color){
-	double time_pos=game->trigger_value;
 
 	viseur(game);
 

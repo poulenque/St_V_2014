@@ -1,2 +1,4 @@
 src/*.o
 St_V_2014
+callgrind.out.*
+gmon.out*

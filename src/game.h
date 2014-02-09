@@ -25,6 +25,9 @@ typedef struct Game{
 	Arrow* arrows;
 	Arrow* arrows_to_update;//chained list
 
+	double world_x_size;
+	double world_y_size;
+
 
 	Mechant* mechants;
 

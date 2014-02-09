@@ -213,6 +213,9 @@ static void fire_arrow_with_sulfateuse(Game* game){
 //UPDATE PART THAT IS COMMON TO ALL GAMES
 void game_update(Game* game,int dt){
 
+	time_+=dt/15.;
+	camera_update(game->player,dt);
+	fake_walk_update(game,dt);
 	//=======================================================
 	//=======================================================
 	//=======================================================
@@ -264,9 +267,6 @@ void game_update(Game* game,int dt){
 	//=======================================================
 	//=======================================================
 
-	time_+=dt/15.;
-	camera_update(game->player,dt);
-	fake_walk_update(game,dt);
 
 	// if(game->trigger_state==0 && game->trigger_value==game->trigger_value_MAX){
 	// 	game->fire(game);
@@ -334,7 +334,7 @@ void game_render_one_mechant(Mechant * mechant){
 
 void game_render(Game* game){
 	game->render(game);
-
+	
 	//RENDER AN INVISIBLE PLANE FOR GROUND DEPTH
 	glPushMatrix();
 		glTranslated(-game->player->x,-game->player->y,0);
@@ -346,6 +346,17 @@ void game_render(Game* game){
 	GLfloat bkColor[3];
 	glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
 
+	//=======================LOOP TEST=========================
+	//=======================LOOP TEST=========================
+	//=======================LOOP TEST=========================
+	// glPushMatrix();
+	// 	glTranslated(-game->player->x,-game->player->y,-4);
+	// 	glRotated(90,0,1,0);
+	// 	glScaled(1,game->world_y_size,game->world_x_size);
+	// 	glLineWidth(5);
+	// 	glColor4d(0,0,1,1);
+	// 	draw_square(.5,0);
+	// glPopMatrix();
 
 
 	Arrow* arrow;
@@ -365,6 +376,17 @@ void game_render(Game* game){
 		glColor4d(.5+.5*bkColor[0],0+.5*bkColor[1],0+.5*bkColor[2],1);
 		arrow=game->arrows;
 		while(arrow!=NULL){
+			//WORLD LOOP
+			while(arrow->x+game->player->x+game->world_x_size/2.>0)
+				arrow->x-=game->world_x_size;
+			while(arrow->x+game->player->x+game->world_x_size/2.<0)
+				arrow->x+=game->world_x_size;
+			while(arrow->y+game->player->y+game->world_y_size/2.>0)
+				arrow->y-=game->world_y_size;
+			while(arrow->y+game->player->y+game->world_y_size/2.<0)
+				arrow->y+=game->world_y_size;
+
+
 			double xx=arrow->x+game->player->x;
 			double yy=arrow->y+game->player->y;
 			double zz=arrow->z+game->player->z;
@@ -520,6 +542,13 @@ Game* initGame(Camera* player){
 	glDisable( GL_LINE_SMOOTH );
 	glDisable( GL_POLYGON_SMOOTH ); // THIS MAKES A NICE ARTEFACT :¬D
 
+	
+	glHint(GL_LINE_SMOOTH_HINT,GL_FASTEST);
+	glHint(GL_POLYGON_SMOOTH_HINT,GL_FASTEST);
+	glHint(GL_TEXTURE_COMPRESSION_HINT,GL_FASTEST);
+	glHint(GL_FRAGMENT_SHADER_DERIVATIVE_HINT,GL_FASTEST);
+
+	//GL_FASTEST, GL_NICEST, and GL_DONT_CARE
 	// glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
 	// glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
 
@@ -559,8 +588,11 @@ Game* initGame(Camera* player){
 	//                                                                            
 	//THIS IS FOR TESTING PURPOSE
 	//===========================
+
+	game->world_x_size=600;
+	game->world_y_size=600;
+
 	// glClearColor( 1., 1., 1., 1. );
-	
 	// game->update=ingame_level1_update;
 	// game->render=ingame_level1_render;
 

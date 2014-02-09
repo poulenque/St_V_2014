@@ -901,6 +901,21 @@ void draw_sulfateuse(double noise,double angle, int color){
 					gluCylinder(quad,0,diameter ,0  ,8,1);
 				glPopMatrix();
 
+				// glPushAttrib(GL_CURRENT_BIT);
+				// glColor4d(0.8,0,0,1);
+				// glPushMatrix();
+				// 	glRotated(90,1,0,0);
+				// 	glTranslated(0,2,-2.05);
+				// 	glScaled(1,2,1);
+				// 	gluCylinder(quad,.5,.5 ,4.1  ,8,1);
+				// 	// glTranslated(0,2.8,0);
+				// 	// gluCylinder(quad,.5,.5 ,2.1  ,8,1);
+				// 	// glTranslated(0,0,2.1);
+				// 	gluCylinder(quad,.5,0 ,0  ,8,1);
+				// 	glTranslated(0,0,4.1);
+				// 	gluCylinder(quad,.5,0 ,0  ,8,1);
+				// glPopMatrix();
+				// glPopAttrib();
 
 				width =.5;
 				// glPushMatrix();
@@ -938,6 +953,7 @@ void draw_sulfateuse(double noise,double angle, int color){
 				// cylinder_diameter=.5;
 				// cycle_diameter=.8;
 
+				glPushAttrib(GL_CURRENT_BIT);
 				if(color)
 					glColor4d(.8,0,0,1);
 				else
@@ -957,10 +973,7 @@ void draw_sulfateuse(double noise,double angle, int color){
 						gluCylinder(quad,cylinder_diameter,cylinder_diameter ,10,8,1);
 					glPopMatrix();
 				}
-				if(color)
-					glColor4d(.6,0,0,1);
-				else
-					glColor4d(1,0,0,1);
+				glPopAttrib();
 
 
 		glPopMatrix();
