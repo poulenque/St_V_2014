@@ -1,9 +1,11 @@
 #include "draw.h"
+
 #include <stdlib.h>
 #include <GL/glew.h>
+#include <math.h>
+#include <SDL/SDL.h>
 #include "constants.h"
 #include "random.h"
-#include <math.h>
 
 double t=0;
 
@@ -782,8 +784,31 @@ void draw_arrow_low_quality(){
 			glVertex3d(0,0,9.5);
 		glEnd();
 }
+void draw_arrow_ground_high_quality(){
+		glPushMatrix();
+			// glTranslated(-1,10,0);
+			// glRotated(t,1,0,0);
+			gluQuadricDrawStyle(quad, GLU_FILL);
 
-void draw_arrow_very_low_quality(){
+			//tige
+			gluCylinder(quad,.04,.04,10,3,1);
+
+			glTranslated(0,0,8);
+			gluCylinder(quad,.08,.2,.5,2,1);
+			glTranslated(0,0,.5);
+			gluCylinder(quad,.2,.2,1,2,1);
+
+			glTranslated(0,0,-.5);
+			glRotated(90,0,0,1);
+
+			gluCylinder(quad,.08,.2,.5,2,1);
+			glTranslated(0,0,.5);
+			gluCylinder(quad,.2,.2,1,2,1);
+
+		glPopMatrix();
+
+}
+void draw_arrow_ground_low_quality(){
 		glLineWidth(1);
 		glBegin(GL_LINES);
 			glVertex3d(0,0,1);
@@ -797,7 +822,7 @@ void draw_arrow_very_low_quality(){
 		glEnd();
 }
 
-void draw_arrow_ultra_low_quality(){
+void draw_arrow_ground_very_low_quality(){
 		glLineWidth(1);
 		glBegin(GL_LINES);
 			glVertex3d(0,0,1);

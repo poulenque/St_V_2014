@@ -23,7 +23,12 @@ typedef struct Game{
 	Camera* player;
 
 	Arrow* arrows;
+	Arrow* arrows_last;
 	Arrow* arrows_to_update;//chained list
+
+	int color_debug;
+	int sorting;
+	int next_sort_time;
 
 	double world_x_size;
 	double world_y_size;

@@ -18,11 +18,10 @@ int sign(int x) {
 //==================================================================
 void intro_update(Game* game,int dt){
 
-	String3d* str=get_str();
-
 	// if(!audio_isPlaying(game->audio)){
 	// 	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
 	// }
+
 	//distace player begin sphere
 	double x_temp=(game->player->x+20);
 	double y_temp=(game->player->y-0);
@@ -334,22 +333,28 @@ void intro_get_weapon_render(Game* game){
 			v=.2;
 		double w=d/100;
 		if(w>1)w=1;
-		glColor4d(1,0,0,v*(1-exp(-get_time_()/400.)) * (1-i*pipi) *(d/400.) *dd*0.01*w);
+		double transparency=v*(1-exp(-get_time_()/400.)) * (1-i*pipi) *(d/400.) *dd*0.01*w;
+		if(transparency>.07)transparency=.07;
+		// transparency=.07;
+		glColor4d(1,0,0,transparency);
 		double xxx=200;
 		double yyy=0;
 		double zzz=
-				-size*i*pipi*200.*1*(1+exp(4-get_time_()/50.)) * (1.5+.5*cos(get_time_()*0.1+i*pipi*PI*16))
+				-.3 * size*i*pipi*200.*1*(1+exp(4-get_time_()/50.)) * (1.5+.5*cos(get_time_()*0.1+i*pipi*PI*16))
 				-200*exp(-get_time_()/50.)
 				- size;
-		double ttt=180*cos(i*pipi*4*PI+(get_time_()*.01));
-		double www=size*i*pipi*100*(1.2+.2*cos(get_time_()*0.02))+size;
+		double angle=180*cos(i*pipi*4*PI+(get_time_()*.01));
+		double www=.2*size*i*pipi*100*(1+.9+.3*cos(get_time_()*0.02))+size;
+		// double www=size*i*pipi*100*(1+.5+.5*cos((1+i*pipi*16)*get_time_()*0.005))+size;
+		// zzz=.3*zzz;
+		// www=.2*www;
 		// double uuu=.1/(i*pipi*200.);
 		
 		glPushMatrix();
 			glTranslated(0,0,-10 - i*pipi*500 );
 			glTranslated(xxx,yyy,zzz);
 			// glRotated(i*(get_time_()*.1),0,0,1);
-			glRotated(ttt,0,0,1);
+			glRotated(angle,0,0,1);
 			// draw_cube(www,uuu);
 			draw_cube_simple(www);
 
@@ -364,7 +369,7 @@ void intro_get_weapon_render(Game* game){
 			glTranslated(0,0, 10 + i*pipi*500 );
 			glTranslated(xxx,-yyy,-zzz);
 			// glRotated(i*(get_time_()*.1),0,0,1);
-			glRotated(ttt,0,0,1);
+			glRotated(angle,0,0,1);
 			// draw_cube(www,uuu);
 			draw_cube_simple(www);
 		glPopMatrix();

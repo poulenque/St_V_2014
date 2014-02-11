@@ -10,7 +10,8 @@ C_FLAGS += -Wpointer-arith -Wformat=2 -Wlogical-op
 #CFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-unused
 
 C_FLAGS += -O2
-C_FLAGS += -std=c99
+# C_FLAGS += -std=c99
+C_FLAGS += -std=c11
 C_FLAGS += -march=native
 
 

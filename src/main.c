@@ -156,7 +156,8 @@ int main(int argc, char *argv[]) {
 	//SDL INITIALIZATION
 	putenv("SDL_VIDEO_CENTERED=1");
 	SDL_Init( SDL_INIT_EVERYTHING );
-	SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL );
+	// SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL | SDL_FULLSCREEN  );
+	SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL  );
 	glewInit ();
 	SDL_EnableUNICODE( SDL_TRUE );
 	SDL_WM_GrabInput(SDL_GRAB_ON);
@@ -369,6 +370,18 @@ int main(int argc, char *argv[]) {
 							}
 						// }
 					}
+					if(event.key.keysym.sym==SDLK_F12){
+						game->color_debug=!game->color_debug;
+					}
+					if(event.key.keysym.sym==SDLK_F11){
+						game->sorting=!game->sorting;
+						if(game->sorting){
+							printf("SORTING!\n");
+						}else{
+							printf("NOT SORTING!\n");
+						}
+					}
+
 					break;
 				case SDL_MOUSEMOTION:
 					if(MOUSE_ON){

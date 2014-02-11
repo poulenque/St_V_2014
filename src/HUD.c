@@ -4,6 +4,11 @@
 #include <math.h>
 
 
+void bow_HUD(Game* game);
+void weapon_HUD_ARM(Game* game);
+void weapon_HUD_FIRE(Game* game);
+void sulfateuse_HUD(Game* game, int color);
+
 void empty_HUD(Game* game){}
 
 void HUD(Game* game){

@@ -12,6 +12,7 @@ typedef struct Arrow{
 
 	//chained list
 	struct Arrow * next;
+	struct Arrow * prev;
 	struct Arrow * next_update;
 
 	double v;

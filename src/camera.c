@@ -350,6 +350,8 @@ void camera_update(Camera* c,int dt){
 		c->phi  +=.001*c->dphi ;
 		c->rho  +=.001*c->drho -.03*c->rho ;
 	}
+	c->x_culling=c->x+3*cos(-c->phi/360*2*PI);
+	c->y_culling=c->y+3*sin(-c->phi/360*2*PI);
 
 	while(c->theta>180)
 		c->theta-=360;
@@ -372,6 +374,9 @@ void camera_update(Camera* c,int dt){
 	c->ddtheta=0;
 	c->ddphi=0;
 	c->ddrho=0;
+
+	//object culling 
+	c->angle=c->mFOV*.5*c->mAspectRatio;
 
 }
 

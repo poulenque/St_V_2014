@@ -63,6 +63,10 @@ typedef	struct Camera {
 
 	int avance;
 
+	double angle;//for object culling
+	double x_culling;
+	double y_culling;
+
 
 } Camera;
 

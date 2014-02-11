@@ -1,4 +1,6 @@
 #include "levels.h"
+#include "random.h"
+
 //==================================================================
 //                                                                
 //  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|              _|  
@@ -12,6 +14,9 @@
 //==================================================================
 void ingame_level1_update(Game* game,int dt){
 
+	// game->render = ingame_level2_render;
+	// game->update = ingame_level2_update;
+
 	// if(!audio_isPlaying(game->audio)){
 	// 	audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
 	// }
@@ -20,9 +25,9 @@ void ingame_level1_render(Game* game){
 
 	// double z=exp(-time_*.07);
 	double z=exp(-get_time_()*.007);
-	int angle=game->player->mFOV*.5*game->player->mAspectRatio;
+	int angle=game->player->angle;
 	// printf("%i\n",angle);
-	angle=60;
+	// angle=60;
 
 	for(int i=-100;i<100;i++){
 		for(int j=-100;j<100;j++){
@@ -95,8 +100,59 @@ void ingame_level1_render(Game* game){
 //==================================================================
 //==================================================================
 //==================================================================
-void ingame_level2_update(Game* game,int dt);
-void ingame_level2_render(Game* game);
+void ingame_level2_update(Game* game,int dt){
+
+}
+void ingame_level2_render(Game* game){
+	double time_=SDL_GetTicks()*0.001;
+	glDisable( GL_POINT_SMOOTH );
+	glPointSize(1);
+	glBegin(GL_POINTS);
+	glColor4d(.5,0,0,1);
+
+	// glClearColor(1.,1.,1.,0.);
+
+	glDepthFunc(GL_ALWAYS);
+
+	int i_max = 400;
+	int j_max = 10;
+	double inverse_i_max=1./i_max;
+	double inverse_j_max=1./j_max;
+	for(int i=-i_max;i<i_max;i++){
+		for(int j=-j_max;j<j_max;j++){
+
+			double x=i*inverse_i_max + .1*random(-.5,1);
+			double y=j*inverse_j_max + .1*random(-.5,1);
+			// glColor4d(.5+.5*cos(2*PI*exp(2-2*y)-time_),.5+.5*sin(2*PI*exp(2-2*y)+time_),0,1);
+			glColor4d(0,.5+.5*sin(2*PI*exp(2-2*y)+time_),.5+.5*cos(2*PI*exp(2-2*y)-time_),1);
+			// 	glVertex3d(
+			// 		exp(pow(sin(time_),2))*2*i+4*cos(time_*4+i*0.4),
+			// 		8*cos(time_*6+i*1.8),
+			// 		-4 + 4*cos(time_*8+i*0.8));
+				// glColor4d(
+				// 	cos(x + y),y,cos(x*6.2 + y*4),1
+				// 	);
+				// glVertex3d(
+				// 	100*x,100*y,16
+				// 	// 100*cos(x + y),y,32
+				// );
+			// glColor4d(.5-.5*y,0,0,1);
+			double variation = 40*sin(2*x*(1)+.5*time_) +  10*sin(10*x+time_) + 10*sin(24*x-time_) + 3*sin(45*x-5*time_);
+			variation=2*variation;
+			glVertex3d(
+					// x*100 + 10*sin(12*x*(1)+.7*time_) + 10*sin(3*x+time_),
+					x*200 + variation * sin(15*x*(1)+time_),
+					// 40*sin(2*x+.5*time_) +  10*sin(10*x+time_) + 10*sin(24*x-time_) + 3*sin(45*x-5*time_),
+					variation + 5*random(-.5,1),
+					64 + 5*exp(2*(-y+1))+ 5*exp(2*(-y+1))*random(-.5,1) + 20*sin(20*x + time_)
+					// 32+50+50*y+ random(-.25,5)
+				);
+		}
+	}
+	glEnd();
+
+	glDepthFunc(GL_LESS);
+}
 //==================================================================
 //                                                                    
 //  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|            _|_|_|    

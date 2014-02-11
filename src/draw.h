@@ -23,7 +23,9 @@ void draw_hand(double force,double distance,int side_view);
 void draw_bow_to_take(double noise,double force);
 void draw_arrow_high_quality();
 void draw_arrow_low_quality();
-void draw_arrow_ultra_quality();
+void draw_arrow_ground_high_quality();
+void draw_arrow_ground_low_quality();
+void draw_arrow_ground_very_low_quality();
 
 void draw_sulfateuse(double noise,double angle, int color);
 
