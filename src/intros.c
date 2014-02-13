@@ -1,4 +1,5 @@
 #include "levels.h"
+#include "random.h"
 
 int sign(int x) {
     return (x > 0) - (x < 0);
@@ -19,7 +20,7 @@ int sign(int x) {
 void intro_update(Game* game,int dt){
 
 	// if(!audio_isPlaying(game->audio)){
-	// 	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+		// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
 	// }
 
 	//distace player begin sphere
@@ -35,6 +36,9 @@ void intro_update(Game* game,int dt){
 	//!!!!GET INTO START ZONE, LETS BEGIN !!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	if(x_temp+y_temp+z_temp<5*5){
+
+		audioplayer_set_next(game->audio,"music/Goto80_gopho_loop_far.ogg");
+
 		game->player->x=200;
 		game->player->y=0;
 		game->player->z=0;
@@ -228,6 +232,8 @@ void intro_get_weapon_update(Game* game,int dt){
 	if(d<10){
 		// MUSIC QUIT LOOP
 		// GOTO LEVEL 1 !
+		audioplayer_set_next(game->audio,"music/Goto80_gopho_far.ogg");
+
 		game->player->x=0;
 		game->player->y=0;
 		game->player->z=0;
@@ -253,6 +259,50 @@ void intro_get_weapon_update(Game* game,int dt){
 		glFogfv(GL_FOG_COLOR, fogColor);
 		glFogf(GL_FOG_DENSITY, 0.35f);
 		glHint(GL_FOG_HINT, GL_DONT_CARE);
+
+
+		void local_update(Mechant * mechant){
+			// printf("caca\n");
+			mechant->x+=mechant->dx;
+			mechant->y+=mechant->dy;
+			mechant->z+=mechant->dz;
+		}
+		Mechant * mechant;
+		// for(int i=-15;i<15;i++){
+		// 	for(int j=-15;j<15;j++){
+		// 		mechant = malloc(sizeof(Mechant));
+		// 		mechant->x=20*i;
+		// 		mechant->y=20*j;
+		// 		mechant->z=0;
+
+		// 		mechant->dx=0;
+		// 		mechant->dy=0;
+		// 		mechant->dz=0;
+
+		// 		mechant->update=NULL;
+		// 		game_insert_Mechant(game, mechant);
+		// 	}
+		// }
+
+
+		for(int i=-10;i<10;i++){
+			for(int j=-10;j<10;j++){
+				mechant = malloc(sizeof(Mechant));
+				double rayon = random(300,0);
+				double angle = random(0,2*PI);
+				mechant->x=rayon*cos(angle);
+				mechant->y=rayon*sin(angle);
+				mechant->z=0;
+
+				mechant->dx=random(0,.05);
+				mechant->dy=random(0,.05);
+				mechant->dz=0;
+
+				mechant->update=local_update;
+				// mechant->update=NULL;
+				game_insert_Mechant(game, mechant);
+			}
+		}
 
 	}
 }
@@ -289,7 +339,10 @@ void intro_get_weapon_render(Game* game){
 	// glColor4d(0,0,0,1);
 	double dd=d;
 	if (d>1/0.02) dd=1/.02;
-	glColor4d(1,0,0,(1-exp(-get_time_()/100.))*dd*.01);
+	if(game->stereo)
+		glColor4d(.7,.2,.2,(1-exp(-get_time_()/100.))*dd*.01);
+	else
+		glColor4d(1,0,0,(1-exp(-get_time_()/100.))*dd*.01);
 	glPushMatrix();
 		// glTranslated(200,0,-size*2+exp(6+1-get_time_()/50.));
 		glTranslated(200,0,+exp(6+1-get_time_()/30.));
@@ -307,7 +360,10 @@ void intro_get_weapon_render(Game* game){
 	glPopMatrix();
 
 	glLineWidth(3);
-	glColor4d(1,0,0,(1-exp(-get_time_()/100.))*dd*.01);
+	if(game->stereo)
+		glColor4d(.7,.2,.2,(1-exp(-get_time_()/100.))*dd*.01);
+	else
+		glColor4d(1,0,0,(1-exp(-get_time_()/100.))*dd*.01);
 	glPushMatrix();
 	glRotated(90,0,1,0);
 	glTranslated(10,0,200);
@@ -336,7 +392,10 @@ void intro_get_weapon_render(Game* game){
 		double transparency=v*(1-exp(-get_time_()/400.)) * (1-i*pipi) *(d/400.) *dd*0.01*w;
 		if(transparency>.07)transparency=.07;
 		// transparency=.07;
-		glColor4d(1,0,0,transparency);
+		if(game->stereo)
+			glColor4d(.7,.2,.2,transparency);
+		else
+			glColor4d(1,0,0,transparency);
 		double xxx=200;
 		double yyy=0;
 		double zzz=
@@ -381,7 +440,10 @@ void intro_get_weapon_render(Game* game){
 	glPushMatrix();
 				//ALIGNER WORLD A LA CAMERA 
 				glTranslated(200,0,0);
-				glColor4d(1,0,0,1);
+				if(game->stereo)
+					glColor4d(.7,.2,.2,1);
+				else
+					glColor4d(1,0,0,1);
 				// draw_cube(1,1);
 				glRotated(-90-atan2(-game->player->x-200,-game->player->y)*180/PI,0,0,1);
 				// glRotated(-game->player->z*0.15,0,1,0);
@@ -409,7 +471,10 @@ void intro_get_weapon_render(Game* game){
 				glPushMatrix();
 					glScaled(1,-1,1);
 					// glColor4d(0,0,0,1-exp(-time_/100.));
-					glColor4d(1,0.5,0.5,(1-exp(-get_time_()/100.))*dd*.01);
+					if(game->stereo)
+						glColor4d(.7,0.5,0.5,(1-exp(-get_time_()/100.))*dd*.01);
+					else
+						glColor4d(1,0.5,0.5,(1-exp(-get_time_()/100.))*dd*.01);
 					for(int i=0;i<10;i++){
 						string3d_setTxt(str,"go accomplish your mission");
 						str->size=1.12 + .15*(1+cos (get_time_()*.1+i));

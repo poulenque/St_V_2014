@@ -171,31 +171,26 @@ int main(int argc, char *argv[]) {
 	int t_before=SDL_GetTicks();
 	int dt=0;
 
-	Camera* player = new_Camera();
-	Game* game = initGame(player);
-	player->game=game;
 
 	INIT_ULTRA_NECESSARY_TITLE_ANIMATION();
 
 	SDL_WarpMouse(SCREEN_WIDTH/2,SCREEN_HEIGHT/2);
 	//well sometimes the mouse does not move immediatly
 	usleep(10000);
-	
+
 	SDL_Event event;
 	while( SDL_PollEvent( &event ) );
 	SDL_ShowCursor( SDL_DISABLE );
 
 	int MOUSE_ON=1;
 
-
-
-
-
-
 	unsigned int W_KEY=SDLK_w;
 	unsigned int A_KEY=SDLK_a;
 	unsigned int S_KEY=SDLK_s;
 	unsigned int D_KEY=SDLK_d;
+
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
 	while(1){
@@ -321,6 +316,10 @@ int main(int argc, char *argv[]) {
 
 
 
+	Camera* player = new_Camera();
+	Game* game = initGame(player);
+	player->game=game;
+	game->stereo=STEREOSCOPY;
 
 	Uint32 mouse_buttons;
 	int jump_count=0;
@@ -356,8 +355,10 @@ int main(int argc, char *argv[]) {
 							game_pause(game,1);
 						}
 					}
-					if(event.key.keysym.sym == SDLK_RETURN)
+					if(event.key.keysym.sym == SDLK_RETURN){
 						STEREOSCOPY=!STEREOSCOPY;
+						game->stereo=STEREOSCOPY;
+					}
 					if(event.key.keysym.sym ==SDLK_SPACE){
 						// if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)){
 						// }else{
@@ -428,13 +429,13 @@ int main(int argc, char *argv[]) {
 				game->fire(game,1);
 				//walk slowly if on ground
 				if(game->player->z==0)
-					speed=200;
+					speed=400;
 			}
 			if(mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LALT]){
 				game->trigger(game,1);
 				//walk slowly if on ground
 				if(game->player->z==0)
-					speed=200;
+					speed=400;
 			}
 
 			if (keystate[A_KEY]){

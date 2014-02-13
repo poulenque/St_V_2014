@@ -3,7 +3,7 @@
 
 #include "camera.h"
 #include "objects.h"
-// #include "audioplayer.h"
+#include "audioplayer.h"
 
 typedef struct Camera Camera;
 
@@ -26,17 +26,23 @@ typedef struct Game{
 	Arrow* arrows_last;
 	Arrow* arrows_to_update;//chained list
 
+	Arrow * sorting_arrow;
+	Arrow * sorting_next;
+
 	int color_debug;
 	int sorting;
-	int next_sort_time;
 
 	double world_x_size;
 	double world_y_size;
 
 
 	Mechant* mechants;
+	Mechant* mechants_last;
 
-	// AudioPlayer* audio;
+	Particle * particles;
+	Particle * particles_update;
+
+	AudioPlayer* audio;
 
 	void (*update)(struct Game* game,int dt);
 	void (*render)(struct Game* game);
@@ -51,9 +57,13 @@ typedef struct Game{
 	int trigger_state;
 
 	int weapon;
+	int stereo;
 	void (*trigger)(struct Game* game,int state);
 	void (*fire)(struct Game* game,int state);
 }Game;
+
+void game_insert_Mechant(Game* game, Mechant * mechant);
+void game_remove_mechant(Game * game,Mechant * mechant);
 
 Game* initGame(Camera* player);
 void game_pause(Game * game,int state);
@@ -61,6 +71,6 @@ void game_update(Game* game,int dt);
 void game_render(Game* game);
 void clear_arrow(Game* game);
 void clear_mechant(Game* game);
-
+void clear_particles(Game* game);
 
 #endif

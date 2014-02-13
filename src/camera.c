@@ -86,7 +86,8 @@ Camera* new_Camera(){
 
 	//stereoCam
 	c->mConvergence=1000;
-	c->mEyeSeparation=.1;
+	// c->mEyeSeparation=.2;
+	c->mEyeSeparation=.3;
 
 	c->mAspectRatio=4./3;
 	c->mFOV=90;

@@ -45,6 +45,8 @@ void clear_arrow(Game* game){
 	game->arrows=NULL;
 	game->arrows_last=NULL;
 	game->arrows_to_update=NULL;
+	game->sorting_arrow=NULL;
+	game->sorting_next=NULL;
 }
 
 void clear_mechant(Game* game){
@@ -58,10 +60,143 @@ void clear_mechant(Game* game){
 	game->mechants=NULL;
 }
 
+void clear_particles(Game* game){
+	Particle* p = game->particles;
+	Particle* pp;
+	while(p!=NULL){
+		pp=p->next;	
+		free(p);
+		p=pp;
+	}
+	game->particles=NULL;
+	game->particles_update=NULL;
+}
+
 
 static String3d* str;
 String3d* get_str(){
 	return str;
+}
+
+void game_insert_Mechant(Game* game, Mechant * mechant){
+	mechant->next=game->mechants;
+	mechant->prev=NULL;
+	if(mechant->next!=NULL)
+		mechant->next->prev=mechant;
+	game->mechants = mechant;
+	if(game->mechants_last==NULL){
+		game->mechants_last = mechant;
+	}
+}
+
+void game_add_explosion(Game* game,double x,double y, double z){
+	for(int i=0;i<50;i++){
+		Particle * p = malloc (sizeof(Particle));
+		p->next=game->particles;
+		game->particles=p;
+
+		p->next_update=game->particles_update;
+		game->particles_update=p;
+
+		p->x=x+5*random(0,1);
+		p->y=y+5*random(0,1);
+		p->z=z+5*random(0,1);
+
+		p->dx=0.02*random(0,1);
+		p->dy=0.02*random(0,1);
+		p->dz=0.02*random(1,1);
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+		//TODO
+	}
+}
+
+void game_remove_mechant(Game * game,Mechant * mechant){
+	//ADD EXPLOSION
+	game_add_explosion(game, mechant->x,mechant->y,mechant->z);
+	//if head
+	if(mechant == game->mechants){
+		game->mechants=mechant->next;
+	}
+	if(mechant == game->mechants_last){
+		game->mechants_last=mechant->prev;
+	}
+	if(mechant->prev != NULL){
+		mechant->prev->next = mechant->next;
+	}
+	if(mechant->next != NULL){
+		mechant->next->prev = mechant->prev;
+	}
+}
+void update_one_particle(Particle * p){
+	p->x+=p->dx;
+	p->y+=p->dy;
+	p->z+=p->dz;
+	
+	p->dx*=0.997;
+	p->dy*=0.997;
+	p->dz*=0.997;
+
+
+	p->dz-=0.0005;
+	if (p->z < -3.95){
+		p->dz=-.6*p->dz;
+		p->z=-3.95;
+	}
+}
+
+void update_particles(Game* game){
+	Particle * p = game->particles_update;
+	Particle * prev = NULL;
+	while(p!=NULL){
+		Particle * next=p->next_update;
+		update_one_particle(p);
+		double v=fabs(p->dx)+fabs(p->dy)+fabs(p->dz);
+		if(v<0.01 && p->z <= -3.9){
+			//retirer
+			if(p==game->particles_update){
+				game->particles_update=p->next_update;
+			}
+			if(prev!=NULL){
+				prev->next_update=p->next_update;
+			}
+
+		}
+		prev=p;
+		p=next;
+	}
+}
+
+static void update_mechant(Game* game){
+	Mechant* mechant = game->mechants;
+	while(mechant!=NULL){
+		if(mechant->update!=NULL){
+			mechant->update(mechant);
+		}
+		mechant = mechant->next;
+	}
 }
 
 static double trigger_value_MAX[4];
@@ -100,6 +235,21 @@ static void update_arrow(Game* game){
 			//TODO COLLISION
 			//TODO COLLISION
 			//TODO COLLISION
+				Mechant * mechant = game->mechants;
+				while(mechant !=NULL){
+					Mechant * next = mechant->next;
+					if(arrow->z<20){
+						double dist_x=mechant->x - arrow->x;
+						double dist_y=mechant->y - arrow->y;
+						double dist_z=mechant->z - arrow->z;
+						// double dist =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
+						double dist =abs(dist_x)+abs(dist_y)+abs(dist_z);
+						if(dist<20){
+							game_remove_mechant(game,mechant);
+						}
+					}
+					mechant = next;
+				}
 			//TODO COLLISION
 			//TODO COLLISION
 			//TODO COLLISION
@@ -290,6 +440,8 @@ void game_update(Game* game,int dt){
 
 			//UPDATE ARROWS 
 			update_arrow(game);
+			update_mechant(game);
+			update_particles(game);
 
 		}
 	//=======================================================
@@ -315,19 +467,26 @@ void game_update(Game* game,int dt){
 
 
 void game_sort_arrow_distance(Game * game){
-	Arrow * arrow=game->arrows;
-	Arrow * next;
+	Arrow * sort_arrow=game->sorting_arrow;
+	Arrow * sort_next=game->sorting_next;
+
+	if(sort_arrow==NULL){
+		sort_arrow=game->arrows;
+	}
 	Arrow * to_cmp;
-	int cont=1;
-	while(arrow!=NULL){
-		next=arrow->next;
-		to_cmp=arrow->prev;
-		while(to_cmp!=NULL & cont){
-			if(arrow->dist < to_cmp->dist){
-				//if to_cmp == head
+	int continuing=1;
+	int time_before= SDL_GetTicks();
+	while(sort_arrow!=NULL){
+		// sort_count++;
+		sort_next=sort_arrow->next;
+		to_cmp=sort_arrow->prev;
+		while(to_cmp!=NULL & continuing){
+			if(sort_arrow->dist < to_cmp->dist){
+
+				// if to_cmp == heads
 				if(to_cmp == game->arrows){
 				// printf("swap,%i\n",SDL_GetTicks());
-					game->arrows=arrow;
+					game->arrows=sort_arrow;
 				}
 				//if to_cmp == last
 				// WILL NOT HAPPEN (because to_cmp=arrow->prev)
@@ -341,22 +500,22 @@ void game_sort_arrow_distance(Game * game){
 				// 	game->arrows=to_cmp;
 				// }
 				//if arrow == last
-				if(arrow==game->arrows_last){
+				if(sort_arrow==game->arrows_last){
 					game->arrows_last=to_cmp;
 				}
 
 				//si consecutif
-				if(arrow->prev==to_cmp){
-					Arrow* next_1=arrow->next;
+				if(sort_arrow->prev==to_cmp){
+					Arrow* next_1=sort_arrow->next;
 
-					arrow->prev=to_cmp->prev;
-					arrow->next=to_cmp;
+					sort_arrow->prev=to_cmp->prev;
+					sort_arrow->next=to_cmp;
 
-					to_cmp->prev=arrow;
+					to_cmp->prev=sort_arrow;
 					to_cmp->next=next_1;
 
-					if(arrow->prev!=NULL)
-						arrow->prev->next=arrow;
+					if(sort_arrow->prev!=NULL)
+						sort_arrow->prev->next=sort_arrow;
 					// if(arrow->next!=NULL)
 					// 	arrow->next->prev=arrow;
 					// if(to_cmp->prev!=NULL)
@@ -364,31 +523,40 @@ void game_sort_arrow_distance(Game * game){
 					if(to_cmp->next!=NULL)
 						to_cmp->next->prev=to_cmp;
 				}else{
-					Arrow* prev_1=arrow->prev;
-					Arrow* next_1=arrow->next;
+					Arrow* prev_1=sort_arrow->prev;
+					Arrow* next_1=sort_arrow->next;
 
-					arrow->prev=to_cmp->prev;
-					arrow->next=to_cmp->next;
+					sort_arrow->prev=to_cmp->prev;
+					sort_arrow->next=to_cmp->next;
 
 					to_cmp->prev=prev_1;
 					to_cmp->next=next_1;
 
-					if(arrow->prev!=NULL)
-						arrow->prev->next=arrow;
-					if(arrow->next!=NULL)
-						arrow->next->prev=arrow;
+					if(sort_arrow->prev!=NULL)
+						sort_arrow->prev->next=sort_arrow;
+					if(sort_arrow->next!=NULL)
+						sort_arrow->next->prev=sort_arrow;
 					if(to_cmp->prev!=NULL)
 						to_cmp->prev->next=to_cmp;
 					if(to_cmp->next!=NULL)
 						to_cmp->next->prev=to_cmp;
 				}
-				cont=0;
+				continuing=0;
+				// break;
 			}
-			cont=1;
+			continuing=1;
 			to_cmp=to_cmp->prev;
 		}
-		arrow = next;
+		sort_arrow = sort_next;
+		if(SDL_GetTicks()-time_before > 2){
+			break;
+		}else{
+			// sort_count=0;
+		}
 	}
+
+
+	// printf("arrow count : %i\n duration : %i\n\n",sort_count , SDL_GetTicks()-time_before);
 
 
 }
@@ -533,48 +701,41 @@ void game_render_one_arrow_color(Arrow * arrow, Game* game){
 }
 
 
-void game_render_one_mechant(Mechant * mechant){
+void game_render_one_mechant(Mechant * mechant, Game * game){
 	// double z=exp(-get_time_()*.007);
-	// int angle=game->player->mFOV*.5*game->player->mAspectRatio;
-	// // angle=60;
-
-	// double alpha = atan2((y_guy+game->player->y),(x_guy+game->player->x))*180./PI;
-
-	// alpha = alpha+game->player->phi;
-	// while(alpha<=0)
-	// 	alpha+=360;
-	// while(alpha>360)
-	// 	alpha-=360;
 
 
-	// if(alpha <angle||alpha>360-angle){
-	// 	double dist=(x_guy+game->player->x)*(x_guy+game->player->x)+(y_guy+game->player->y)*(y_guy+game->player->y);
 
-	// 	int quality=0;
-	// 	if(dist<20*20*20){
-	// 		quality=2;
-	// 	}else if(dist<50*20*20){
-	// 		quality=1;
-	// 	}else if(dist<300*20*20){
-	// 		quality=0;
-	// 	}else{
-	// 		continue;
-	// 	}
+	int quality=0;
+	if(mechant->dist<20*20*20){
+		quality=2;
+	}else if(mechant->dist<50*20*20){
+		quality=1;
+	}else if(mechant->dist<300*20*20){
+		quality=0;
+	}else{
+		return;
+	}
 
-	// 	glColor4d(z,z,z,1);
-	// 	glPushMatrix();
-	// 		glTranslated(20*i,20*j,20*z);
-	// 		draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
-	// 	glPopMatrix();
+	double alpha = atan2((mechant->y+game->player->y_culling),(mechant->x+game->player->x_culling))*180./PI;
 
-	// 	glColor4d(0.9,0.9,0.9,1-z);
-	// 	glPushMatrix();
-	// 		glTranslated(0,0,-10);
-	// 		glScaled(1,1,-1);
-	// 		glTranslated(20*i,20*j,20*z);
-	// 		draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
-	// 	glPopMatrix();
-	// }
+	alpha = alpha+game->player->phi;
+	while(alpha<=0)
+		alpha+=360;
+	while(alpha>360)
+		alpha-=360;
+
+
+	if(alpha <game->player->angle||alpha>360-game->player->angle){
+	// if(alpha <80||alpha>360-80){
+		// glColor4d(z,z,z,1);
+		// glPushMatrix();
+			// glTranslated(mechant->x,mechant->y,mechant->z+8);
+			// glTranslated(mechant->x,mechant->y,mechant->z);
+			draw_gentil(0,quality);
+			// draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
+		// glPopMatrix();
+	}
 }
 
 
@@ -621,15 +782,18 @@ void game_render(Game* game){
 		//=======================ARROWS=======================
 		//=======================ARROWS=======================
 		if(game->sorting){
-			if(game->next_sort_time<SDL_GetTicks()){
-				// printf("SORT!\n");
-				game_sort_arrow_distance(game);
-				game->next_sort_time=SDL_GetTicks()+1000;
-			}
+			game_sort_arrow_distance(game);
 		}
 		double r_color=.5+.5*bkColor[0];
 		double g_color=0+.5*bkColor[1];
 		double b_color=0+.5*bkColor[2];
+		if(game->stereo){
+			r_color=.35+.5*bkColor[0];
+			g_color=.1+.5*bkColor[1];
+			b_color=.1+.5*bkColor[2];
+
+		}
+
 		glColor4d(r_color,g_color,b_color,1);
 		arrow=game->arrows;
 		void (*draw_arrow)(Arrow * arrow, Game* game);
@@ -683,6 +847,12 @@ void game_render(Game* game){
 			double zz=mechant->z+game->player->z;
 			mechant->dist=xx*xx+yy*yy+zz*zz;
 
+			glPushMatrix();
+				glScaled(1,1,-1);
+				glTranslated(mechant->x,mechant->y,mechant->z+1);
+				game_render_one_mechant(mechant,game);
+			glPopMatrix();
+
 			mechant=mechant->next;
 		}
 
@@ -697,6 +867,11 @@ void game_render(Game* game){
 	r_color=1;
 	g_color=0;
 	b_color=0;
+	if(game->stereo){
+		r_color=.7;
+		g_color=.2;
+		b_color=.2;
+	}
 	glColor4d(r_color,g_color,b_color,1);
 	arrow=game->arrows;
 	// i=0;
@@ -715,7 +890,52 @@ void game_render(Game* game){
 	arrow_high_quality_count=ARROW_MAX_HIGH_QUALITY;
 	arrow_low_quality_count=ARROW_MAX_LOW_QUALITY;
 	arrow_count=ARROW_MAX;
+	//======================MECHANTS======================
+	//======================MECHANTS======================
+	//======================MECHANTS======================
+	mechant=game->mechants;
+	while(mechant!=NULL){
+		// WORLD LOOP
+		while(mechant->x+game->player->x+game->world_x_size/2.>0)
+			mechant->x-=game->world_x_size;
+		while(mechant->x+game->player->x+game->world_x_size/2.<0)
+			mechant->x+=game->world_x_size;
+		while(mechant->y+game->player->y+game->world_y_size/2.>0)
+			mechant->y-=game->world_y_size;
+		while(mechant->y+game->player->y+game->world_y_size/2.<0)
+			mechant->y+=game->world_y_size;
 
+		double xx=mechant->x+game->player->x;
+		double yy=mechant->y+game->player->y;
+		double zz=mechant->z+game->player->z;
+		mechant->dist=xx*xx+yy*yy+zz*zz;
+
+		glPushMatrix();
+			// glScaled(1,1,-1);
+			glTranslated(mechant->x,mechant->y,mechant->z+1);
+			game_render_one_mechant(mechant,game);
+		glPopMatrix();
+
+		mechant=mechant->next;
+	}
+
+
+
+
+	Particle* p=game->particles;
+	while(p!=NULL){
+		glBegin(GL_POINTS);
+			glVertex3d(p->x,p->y,p->z);
+		glEnd();
+		p=p->next;
+	}
+
+
+
+
+	//==================================================
+	//==================================================
+	//==================================================
 	int duration=SDL_GetTicks()-time_render_begin;
 	if(duration>20){
 		// printf("reducing arrow limits\n");
@@ -741,7 +961,6 @@ void game_render(Game* game){
 		// if(ARROW_MAX!=10000)
 		// 	printf("%i,%i,%i\n",ARROW_MAX_HIGH_QUALITY,ARROW_MAX_LOW_QUALITY,ARROW_MAX);
 	}
-
 }
 
 void fire(Game* game,int state){
@@ -750,32 +969,19 @@ void fire(Game* game,int state){
 
 void trigger(Game* game,int state){
 	game->trigger_state=state;
-	// if(state)
-	// 	printf("trigger_ON\n");
-	// else
-	// 	printf("trigger_OFF\n");
 }
 
 void game_pause(Game * game,int state){
 	if(state){
+		printf("PAUSE\n");
+		audioplayer_pause(game->audio);
 		//TODO PAUSE MUSIC
 	}else{
+		printf("PLAY\n");
+		audioplayer_play(game->audio);
 		//TODO UNPAUSE MUSIC
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 Game* initGame(Camera* player){
@@ -796,7 +1002,7 @@ Game* initGame(Camera* player){
 	// fire_value_MAX[3]   =1;
 
 	draw_init();
-	// audio_init();
+	audio_init();
 
 	for(int i=0;i<200;i++){
 		messages_x[i]=rand()*1./RAND_MAX;
@@ -852,7 +1058,9 @@ Game* initGame(Camera* player){
 
 	game->color_debug=0;
 	game->sorting=1;
-	game->next_sort_time=SDL_GetTicks();
+	game->sorting_arrow=NULL;
+	game->sorting_next=NULL;
+
 
 	game->trigger=trigger;
 	game->trigger_value=0;
@@ -861,12 +1069,13 @@ Game* initGame(Camera* player){
 	game->weapon=0;
 
 	game->mechants=NULL;
+	game->particles=NULL;
+	game->particles_update=NULL;
 
 	game->arrows=NULL;
 	game->arrows_last=NULL;
 	game->arrows_to_update=NULL;
-	// game->audio= audio_new (PLAYER_AMBIENT|PLAYER_LOOP);
-	// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+	game->audio= new_audioplayer();
 
 	//===========================
 	// 
@@ -879,13 +1088,29 @@ Game* initGame(Camera* player){
 	//THIS IS FOR TESTING PURPOSE
 	//===========================
 
+	// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
+	// audio_playMusic(game->audio,"music/short_test.ogg");
+	// audio_playMusic(game->audio,"music/INEXISTANT_FILE");
+	// audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
 	game->world_x_size=600;
 	game->world_y_size=600;
+	// audioplayer_set_next(game->audio,"music/Goto80_gopho_loop.ogg");
+
+	// Mechant * mechant = malloc(sizeof(mechant));
+	// mechant->x =0;
+	// mechant->y =0;
+	// mechant->z =0;
+	// mechant->update =NULL;
+
+	// game_insert_Mechant(game, mechant);
+
 
 	// glClearColor( 1., 1., 1., 1. );
-	game->update=ingame_level2_update;
-	game->render=ingame_level2_render;
+	// game->update=ingame_level1_update;
+	// game->render=ingame_level1_render;
 
+	// game->update=ingame_level3_update;
+	// game->render=ingame_level3_render;
 
 	//===========================
 	//===========================

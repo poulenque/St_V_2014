@@ -25,6 +25,10 @@ l'effet sera que les fleches les plus recentes ne disparaitront pas avec le cull
 
 paralleliser la rangement des elements
 
+boss final
+
+BUG dans la stereoscopie (corrier applyLeftFustrum and applyRightFustrum)
+
 
 
 TRICKS:

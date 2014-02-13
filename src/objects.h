@@ -26,16 +26,36 @@ typedef struct Mechant{
 	double y;
 	double z;
 
+	double dx;
+	double dy;
+	double dz;
 
 	double phi;
 	double theta;
 	double rho;
 
 	struct Mechant * next;
+	struct Mechant * prev;
+
+	void (*update)(struct Mechant * mechant);
 
 	double dist;
 
 }Mechant;
+
+typedef struct Particle{
+	double x;
+	double y;
+	double z;
+
+	double dx;
+	double dy;
+	double dz;
+
+	struct Particle* next;
+	struct Particle* next_update;
+}Particle;
+
 
 
 #endif

@@ -1,13 +1,29 @@
 #ifndef AUDIOPLAYER_H
 #define AUDIOPLAYER_H
 
+
+#include <pthread.h>
+#include "sound.h"
+
+
 typedef struct AudioPlayer{
-	// 0=pause
-	// 1=play
-	int play_state;
-
-
+	SoundSample * s1;
+	// SoundSample * s2;
+	char * next_file_path;
+	// Sound * lastSound;
+	// unsigned int is_playing;
+	unsigned int source_id;
+	unsigned int buffer_id[2];
+	unsigned int sound_buffer;
+	pthread_t t;
+	// unsigned int flags;
 }AudioPlayer;
+
+
+int audio_init ();
+void audio_shutdown ();
+void audio_playMusic (AudioPlayer * player, const char * path);
+void audio_stop (AudioPlayer * player);
 
 
 // !!! optionnal nice generalization : allow user to play n files in same time !

@@ -23,59 +23,59 @@ void ingame_level1_update(Game* game,int dt){
 }
 void ingame_level1_render(Game* game){
 
-	// double z=exp(-time_*.07);
-	double z=exp(-get_time_()*.007);
-	int angle=game->player->angle;
-	// printf("%i\n",angle);
-	// angle=60;
+	// // double z=exp(-time_*.07);
+	// double z=exp(-get_time_()*.007);
+	// int angle=game->player->angle;
+	// // printf("%i\n",angle);
+	// // angle=60;
 
-	for(int i=-100;i<100;i++){
-		for(int j=-100;j<100;j++){
-			double x_guy=20*i;
-			double y_guy=20*j;
-			// double alpha = atan((x_guy+game->player->x)/(y_guy+game->player->y))*180./PI;
-			double alpha = atan2((y_guy+game->player->y),(x_guy+game->player->x))*180./PI;
+	// for(int i=-100;i<100;i++){
+	// 	for(int j=-100;j<100;j++){
+	// 		double x_guy=20*i;
+	// 		double y_guy=20*j;
+	// 		// double alpha = atan((x_guy+game->player->x)/(y_guy+game->player->y))*180./PI;
+	// 		double alpha = atan2((y_guy+game->player->y),(x_guy+game->player->x))*180./PI;
 
-			alpha = alpha+game->player->phi;
-			while(alpha<=0)
-				alpha+=360;
-			while(alpha>360)
-				alpha-=360;
+	// 		alpha = alpha+game->player->phi;
+	// 		while(alpha<=0)
+	// 			alpha+=360;
+	// 		while(alpha>360)
+	// 			alpha-=360;
 
 
-			if(
-				 (alpha <angle||alpha>360-angle)
-				){
-				double dist=(x_guy+game->player->x)*(x_guy+game->player->x)+(y_guy+game->player->y)*(y_guy+game->player->y);
+	// 		if(
+	// 			 (alpha <angle||alpha>360-angle)
+	// 			){
+	// 			double dist=(x_guy+game->player->x)*(x_guy+game->player->x)+(y_guy+game->player->y)*(y_guy+game->player->y);
 
-				int quality=0;
-				if(dist<20*20*20){
-					quality=2;
-				}else if(dist<50*20*20){
-					quality=1;
-				}else if(dist<300*20*20){
-					quality=0;
-				}else{
-					continue;
-				}
+	// 			int quality=0;
+	// 			if(dist<20*20*20){
+	// 				quality=2;
+	// 			}else if(dist<50*20*20){
+	// 				quality=1;
+	// 			}else if(dist<300*20*20){
+	// 				quality=0;
+	// 			}else{
+	// 				continue;
+	// 			}
 
-				glColor4d(z,z,z,1);
-				glPushMatrix();
-					glTranslated(20*i,20*j,20*z);
-					draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
-				glPopMatrix();
+	// 			glColor4d(z,z,z,1);
+	// 			glPushMatrix();
+	// 				glTranslated(20*i,20*j,20*z);
+	// 				draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
+	// 			glPopMatrix();
 
-				glColor4d(0.9,0.9,0.9,1-z);
-				glPushMatrix();
-					glTranslated(0,0,-10);
-					glScaled(1,1,-1);
-					glTranslated(20*i,20*j,20*z);
-					draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
-				glPopMatrix();
+	// 			glColor4d(0.9,0.9,0.9,1-z);
+	// 			glPushMatrix();
+	// 				glTranslated(0,0,-10);
+	// 				glScaled(1,1,-1);
+	// 				glTranslated(20*i,20*j,20*z);
+	// 				draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
+	// 			glPopMatrix();
 
-			}
-		}
-	}
+	// 		}
+	// 	}
+	// }
 
 
 }
@@ -124,7 +124,10 @@ void ingame_level2_render(Game* game){
 			double x=i*inverse_i_max + .1*random(-.5,1);
 			double y=j*inverse_j_max + .1*random(-.5,1);
 			// glColor4d(.5+.5*cos(2*PI*exp(2-2*y)-time_),.5+.5*sin(2*PI*exp(2-2*y)+time_),0,1);
-			glColor4d(0,.5+.5*sin(2*PI*exp(2-2*y)+time_),.5+.5*cos(2*PI*exp(2-2*y)-time_),1);
+			// glColor4d(0,.5+.5*sin(2*PI*exp(2-2*y)+time_),.5+.5*cos(2*PI*exp(2-2*y)-time_),1);
+			double dist_factor=1-exp(-1-1*y);
+			double super_z = exp(2*(-y+1))*(1+random(-.5,1));
+			glColor4d(0,dist_factor*(.5+.5*sin(2*PI*x+2*PI*exp(-.1-.1*super_z)-time_)),dist_factor*(.5+.5*cos(2*PI*exp(-.1-.1*super_z)-time_)),.2);
 			// 	glVertex3d(
 			// 		exp(pow(sin(time_),2))*2*i+4*cos(time_*4+i*0.4),
 			// 		8*cos(time_*6+i*1.8),
@@ -139,13 +142,18 @@ void ingame_level2_render(Game* game){
 			// glColor4d(.5-.5*y,0,0,1);
 			double variation = 40*sin(2*x*(1)+.5*time_) +  10*sin(10*x+time_) + 10*sin(24*x-time_) + 3*sin(45*x-5*time_);
 			variation=2*variation;
+			// glVertex3d(
+			// 		// x*100 + 10*sin(12*x*(1)+.7*time_) + 10*sin(3*x+time_),
+			// 		x*200 + variation * sin(15*x*(1)+time_),
+			// 		// 40*sin(2*x+.5*time_) +  10*sin(10*x+time_) + 10*sin(24*x-time_) + 3*sin(45*x-5*time_),
+			// 		variation + 5*random(-.5,1),
+			// 		64 + 5*exp(2*(-y+1))+ 5*exp(2*(-y+1))*random(-.5,1) + 20*sin(20*x + time_)
+			// 		// 32+50+50*y+ random(-.25,5)
+			// 	);
 			glVertex3d(
-					// x*100 + 10*sin(12*x*(1)+.7*time_) + 10*sin(3*x+time_),
 					x*200 + variation * sin(15*x*(1)+time_),
-					// 40*sin(2*x+.5*time_) +  10*sin(10*x+time_) + 10*sin(24*x-time_) + 3*sin(45*x-5*time_),
-					variation + 5*random(-.5,1),
-					64 + 5*exp(2*(-y+1))+ 5*exp(2*(-y+1))*random(-.5,1) + 20*sin(20*x + time_)
-					// 32+50+50*y+ random(-.25,5)
+					variation + 20*random(-.5,1),
+					64 + 5*super_z + 20*sin(20*x + time_)
 				);
 		}
 	}
@@ -164,8 +172,38 @@ void ingame_level2_render(Game* game){
 //==================================================================
 //==================================================================
 //==================================================================
-void ingame_level3_update(Game* game,int dt);
-void ingame_level3_render(Game* game);
+void ingame_level3_update(Game* game,int dt){
+
+}
+void ingame_level3_render(Game* game){
+	double time_=SDL_GetTicks()*0.001;
+	// time_*=.2;
+	double R;
+	double deltat=1;
+
+	for(int i=-50;i<50;i++){
+		for(int j=-50;j<50;j++){
+			double t=fmod(time_,deltat);
+			// R=exp(-4*t)*sin(t/deltat*2*PI* (16-16*t/deltat) )+10;
+			double theta = PI*i/50.;
+			double phi = PI*(50+j/100.);
+			// R=2*exp(-4*t)*sin(fabs(.3*theta) * t/deltat*2*PI* 8*exp(-2*t/deltat) )+10;
+			// R=2*exp(-4*t)*sin(fabs(2*theta) + t/deltat*2*PI* 8*exp(-2*t/deltat) )+10;
+			// R=2*exp(-4*t)*sin(fabs(2*theta) + 2*phi + t/deltat*2*PI* 8*exp(-2*t/deltat) )+10;
+			// R=((fabs(theta)+1)*10+9*cos(5*time_+2*phi))/(2+sin(phi+time_));
+			// R = exp( sin (theta*2*phi*cos(time_*0.05)) );
+			// R =  sin (theta*2*phi*(1+cos(time_*0.05))) ;
+			// R = (theta-phi)*sin (theta+2*phi+time_) ;
+			// R = 10 *sin(2*theta-time_)/(2+cos(2*phi+time_));
+
+			glColor4d(.5+.5*cos(time_),0.4,0,1);
+			glBegin(GL_POINTS);
+				// glVertex3d(R*cos(theta)*sin(phi),R*sin(theta)*sin(phi),R*cos(theta));
+				glVertex3d(R*sin(theta)*cos(phi),R*sin(theta)*sin(phi),R*cos(theta));
+			glEnd();
+		}
+	}
+}
 //==================================================================
 //                                                                    
 //  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|            _|  _|    
