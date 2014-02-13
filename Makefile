@@ -44,13 +44,13 @@ all:$(OBJECTS)
 	$(CC) $(C_FLAGS) -c $< -o $@
 
 run:all
-	./St_V_2014
+	./$(PROG)
 
 run-softwae:all
-	LIBGL_DEBUG=verbose LIBGL_SHOW_FPS=1 LIBGL_ALWAYS_SOFTWARE=1 ./St_V_2014
+	LIBGL_DEBUG=verbose LIBGL_SHOW_FPS=1 LIBGL_ALWAYS_SOFTWARE=1 ./$(PROG)
 
 run-profiling:all
-	LIBGL_DEBUG=verbose LIBGL_SHOW_FPS=1 ./St_V_2014 ;gprof St_V_2014 gmon.out
+	LIBGL_DEBUG=verbose LIBGL_SHOW_FPS=1 ./$(PROG) ;gprof $(PROG) gmon.out
 
 clean:
 	rm -f $(OBJECTS)

@@ -202,12 +202,6 @@ static void update_mechant(Game* game){
 static double trigger_value_MAX[4];
 static double fire_value_MAX[4]   ;
 
-static double messages_x[200];
-static double messages_y[200];
-static double messages_z[200];
-static double messages_z_exp_offset[200];
-static double messages_z_exp_speed[200];
-static double messages_dephasage[200];
 
 static void update_arrow(Game* game){
 		Arrow* arrow_before=NULL;
@@ -244,7 +238,7 @@ static void update_arrow(Game* game){
 						double dist_z=mechant->z - arrow->z;
 						// double dist =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
 						double dist =abs(dist_x)+abs(dist_y)+abs(dist_z);
-						if(dist<20){
+						if(dist<10){
 							game_remove_mechant(game,mechant);
 						}
 					}
@@ -1004,21 +998,12 @@ Game* initGame(Camera* player){
 	draw_init();
 	audio_init();
 
-	for(int i=0;i<200;i++){
-		messages_x[i]=rand()*1./RAND_MAX;
-		messages_y[i]=rand()*1./RAND_MAX;
-		messages_z[i]=rand()*1./RAND_MAX;
-		messages_z_exp_offset[i]=rand()*1./RAND_MAX;
-		messages_z_exp_speed[i]=rand()*1./RAND_MAX;
-		messages_dephasage[i]=rand()*1./RAND_MAX;
-	}
 
 	str = new_string3d();
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
-	glClearColor( 0., 0., 0., 1. );
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable (GL_BLEND);
@@ -1049,8 +1034,6 @@ Game* initGame(Camera* player){
 
 	Game* game = malloc(sizeof(Game));
 
-	game->update=intro_update;
-	game->render=intro_render;
 
 	game->player=player;
 
@@ -1076,6 +1059,8 @@ Game* initGame(Camera* player){
 	game->arrows_last=NULL;
 	game->arrows_to_update=NULL;
 	game->audio= new_audioplayer();
+
+	intro_setup(game);
 
 	//===========================
 	// 

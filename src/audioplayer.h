@@ -10,6 +10,8 @@ typedef struct AudioPlayer{
 	SoundSample * s1;
 	// SoundSample * s2;
 	char * next_file_path;
+	char * now_playing;
+	double time_buffer_offset;
 	// Sound * lastSound;
 	// unsigned int is_playing;
 	unsigned int source_id;
@@ -22,40 +24,19 @@ typedef struct AudioPlayer{
 
 int audio_init ();
 void audio_shutdown ();
-void audio_playMusic (AudioPlayer * player, const char * path);
-void audio_stop (AudioPlayer * player);
 
-
-// !!! optionnal nice generalization : allow user to play n files in same time !
-//     set_next => set_next(AudioPlayer*audioplayer, int file_count ,const char ** paths_to_files)
-//     getDuration will return an array of double
-
-
-
-//will create an AudioPlayer and will return it. (allocate memory, set variables etc...)
 AudioPlayer* new_audioplayer();
 
-
-// this will set the next file to play.
-//
-// !!! if the function is called before the player gets to the end of the last file,
-//     the effect should be the same as if the last call was not done.
-//
-// if nothing is playing, then play immediatly
 void audioplayer_set_next(AudioPlayer* audioplayer, const char * path_to_file);
 
-// pause
-void audioplayer_pause(AudioPlayer* audioplayer);
-
-// play where paused
-// if there is nothing to play, does nothing.
 void audioplayer_play(AudioPlayer* audioplayer);
+void audioplayer_pause(AudioPlayer* audioplayer);
 
 // actual time in file 
 double audioplayer_getTime(AudioPlayer* audioplayer);
 
 // how long the music lasts
-double audioplayer_getDuration(AudioPlayer* audioplayer);
+// double audioplayer_getDuration(AudioPlayer* audioplayer);
 
 // this will do this calculation :
 //  - there will be a buffer in which the audio file

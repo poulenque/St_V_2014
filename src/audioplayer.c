@@ -34,8 +34,10 @@ AudioPlayer* new_audioplayer(){
 	alGenBuffers (2, player->buffer_id);
 
 	player->next_file_path=NULL;
+	player->time_buffer_offset=0;
 
 	player->s1 = sound_loadSample ("music/silence.ogg");
+	player->now_playing="music/silence.ogg";
 
 	if (player->s1 == NULL) {
 		printf("ERROR : STUPID SILENT FILE MISSING X¬D NEED : \"%s\"\n",player->next_file_path);
@@ -60,7 +62,6 @@ AudioPlayer* new_audioplayer(){
 
 	alSourcePlay (player->source_id);
 
-
 	//le thread tourne en permanence
 	pthread_create (&player->t, NULL, play, player);
 	pthread_detach (player->t);
@@ -69,13 +70,13 @@ AudioPlayer* new_audioplayer(){
 }
 
 void audioplayer_play(AudioPlayer* player){
-		printf("audioplayer -> play\n");
+		// printf("audioplayer -> play\n");
 		alSourcePlay (player->source_id);
 }
 
 // pause
 void audioplayer_pause(AudioPlayer* player){
-		printf("audioplayer -> pause\n");
+		// printf("audioplayer -> pause\n");
 		alSourcePause (player->source_id);
 }
 
@@ -86,10 +87,16 @@ void audioplayer_set_next(AudioPlayer* player, const char * path){
 }
 
 // actual time in file 
-double audioplayer_getTime(AudioPlayer* audioplayer);
+double audioplayer_getTime(AudioPlayer* player){
+	float time_position; 
+	alGetSourcef( player->source_id, AL_SAMPLE_OFFSET, &time_position );
+	time_position/=player->s1->freq;
+	return time_position + player->time_buffer_offset;
+	// return  player->time_position;
+}
 
 // how long the music lasts
-double audioplayer_getDuration(AudioPlayer* audioplayer);
+// double audioplayer_getDuration(AudioPlayer* audioplayer);
 
 // this will do this calculation :
 //  - there will be a buffer in which the audio file
@@ -99,7 +106,10 @@ double audioplayer_getDuration(AudioPlayer* audioplayer);
 //      return = sum but[x]^2  for x from t to t+dt
 //            where t is the position now
 //                  t+dt is the position in time_dt
-double audioplayer_getAmplitude(AudioPlayer* audioplayer, int time_dt);
+double audioplayer_getAmplitude(AudioPlayer* audioplayer, int time_dt){
+	int delta=time_dt*audioplayer->s1->freq;
+	//integrer le buffer entre now et min(now+delta,bufsize) 
+}
 
 
 // maybe a function to get what is in the buffer between t and t+time_dt ?
@@ -111,20 +121,10 @@ double audioplayer_getAmplitude(AudioPlayer* audioplayer, int time_dt);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // void audio_position (AudioPlayer * player, float x, float y, float z) {
 // 	alSource3f (player->source_id, AL_POSITION, x, y, z);
 // }
+
 
 // this thread sould be playing a file and play the next one as the first one finished,
 static void * play (void * p) {
@@ -133,48 +133,76 @@ static void * play (void * p) {
 	int no_buf;
 	unsigned int buf;
 
+	int cached=0;
+	int music_changed=0;
+	int music_looped=0;
+
+	float buf_time=0;
+	float buf_time_next=0;
+	char * next_file_path;
 
 	do {
+			//how many buf to unqueue ?
 			alGetSourcei (player->source_id, AL_BUFFERS_PROCESSED, &no_buf);
+			while(no_buf--){
 
-			for (i = 0; i < no_buf; i++) {
+				//unqueue -> time_buffer_offset incrased by time buffered in this buffer
 				alSourceUnqueueBuffers (player->source_id, 1, &buf);
+				player->time_buffer_offset+=buf_time;
+				buf_time=buf_time_next;
 
-				if (sound_nextSample (player->s1)) {
+				if(music_changed){
+					music_changed=0;
+					player->time_buffer_offset=0;
+					player->now_playing=next_file_path;
+				}
+				if(music_looped){
+					music_looped=0;
+					player->time_buffer_offset=0;
+				}
+				if (cached) {
+					// printf("______________CONTINUE\n");
 					alBufferData (buf, player->s1->format, player->s1->data, player->s1->read_size, player->s1->freq);
 					alSourceQueueBuffers (player->source_id, 1, &buf);
+					buf_time_next=player->s1->read_size/(double)player->s1->freq/4.;
 				} else {
-
-					//===
-					//===
-					//===
-					// TODO MUTEX
 					if(player->next_file_path){
+						// printf("______________NEW_FILE\n");
 						// printf("MUSIC CHANGED TO %s\n",player->next_file_path);
 						sound_closeSample(player->s1);
+						//===
+						//===
+						//===
+						// TODO MUTEX
 						player->s1=sound_loadSample(player->next_file_path);
-						sound_nextSample (player->s1);
-						alBufferData (buf, player->s1->format, player->s1->data, player->s1->read_size, player->s1->freq);
-						alSourceQueueBuffers (player->source_id, 1, &buf);
+						next_file_path=player->next_file_path;
 						player->next_file_path=NULL;
-						alSourcePlay (player->source_id);
+						// TODO MUTEX
+						//===
+						//===
+						//===
+						music_changed=1;
 					}
-					// TODO MUTEX
-					//===
-					//===
-					//===
 					else if(player->s1!=NULL){
-						// printf("FINISHED, GONNA LOOP\n");
+						// printf("______________RELOAD\n");
+						// printf("GONNA REPLAY\n");
+						music_looped=1;
 						sound_seekSample (player->s1);
-						sound_nextSample (player->s1);
-						alBufferData (buf, player->s1->format, player->s1->data, player->s1->read_size, player->s1->freq);
-						alSourceQueueBuffers (player->source_id, 1, &buf);
-						alSourcePlay (player->source_id);
 					}else{
 						printf("ERROR : SOUND CRASHED\n");
 						break;
 					}
+					sound_nextSample (player->s1);
+					alBufferData (buf, player->s1->format, player->s1->data, player->s1->read_size, player->s1->freq);
+					alSourceQueueBuffers (player->source_id, 1, &buf);
+					alSourcePlay (player->source_id);
+					buf_time_next=player->s1->read_size/(double)player->s1->freq/4.;
 				}
+				cached=sound_nextSample (player->s1);
+				// if(cached==0){
+				// 	printf("______________CACHE IS EMPTY\n");
+				// 	player->time_buffer_offset=0;
+				// }
 			}
 	}while (1);
 
@@ -183,7 +211,6 @@ static void * play (void * p) {
 	for (i = 0; i < no_buf; i++){
 		alSourceUnqueueBuffers (player->source_id, 1, &buf);
 	}
-
 
 	return NULL;
 }

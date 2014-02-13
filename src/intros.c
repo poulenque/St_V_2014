@@ -5,6 +5,12 @@ int sign(int x) {
     return (x > 0) - (x < 0);
 }
 
+static double messages_x[200];
+static double messages_y[200];
+static double messages_z[200];
+static double messages_z_exp_offset[200];
+static double messages_z_exp_speed[200];
+static double messages_dephasage[200];
 
 //==================================================================
 //                                                                    
@@ -17,12 +23,14 @@ int sign(int x) {
 //==================================================================
 //==================================================================
 //==================================================================
+void intro_setup(Game* game){
+	glClearColor( 0., 0., 0., 1. );
+	game->update=intro_update;
+	game->render=intro_render;
+
+}
+
 void intro_update(Game* game,int dt){
-
-	// if(!audio_isPlaying(game->audio)){
-		// audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
-	// }
-
 	//distace player begin sphere
 	double x_temp=(game->player->x+20);
 	double y_temp=(game->player->y-0);
@@ -36,43 +44,7 @@ void intro_update(Game* game,int dt){
 	//!!!!GET INTO START ZONE, LETS BEGIN !!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	if(x_temp+y_temp+z_temp<5*5){
-
-		audioplayer_set_next(game->audio,"music/Goto80_gopho_loop_far.ogg");
-
-		game->player->x=200;
-		game->player->y=0;
-		game->player->z=0;
-
-		// if(game->player->avance==-1)
-			game->player->phi  =0;
-		// else
-		// 	game->player->phi  =180;
-
-		// game->player->theta=0;
-		// game->player->rho  =0;
-
-		set_time_(0);
-
-		glClearColor( 1.f, 1.f, 1.f, 1.f );
-		game->update=intro_get_weapon_update;
-		game->render=intro_get_weapon_render;
-
-		glEnable(GL_FOG);
-
-		GLfloat fogColor[4]= {1,1, 1, 1};
-		glFogi(GL_FOG_MODE, GL_LINEAR);//GL_EXP, GL_EXP2, GL_LINEAR
-		glFogf(GL_FOG_START, 700);
-		glFogf(GL_FOG_END, 1000);
-
-		// glFogi(GL_FOG_MODE, GL_EXP);//GL_EXP, GL_EXP2, GL_LINEAR
-		// glFogi(GL_FOG_MODE, GL_EXP2);//GL_EXP, GL_EXP2, GL_LINEAR
-		// glFogf(GL_FOG_START, 2000);
-		// glFogf(GL_FOG_END, 3000);
-
-		glFogfv(GL_FOG_COLOR, fogColor);
-		glFogf(GL_FOG_DENSITY, 0.35f);
-		glHint(GL_FOG_HINT, GL_DONT_CARE);
-		clear_arrow(game);
+		intro_get_weapon_setup(game);
 	}
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -206,13 +178,50 @@ void intro_render(Game* game){
 //==================================================================
 //==================================================================
 //==================================================================
-double shared_var1;
+static double shared_var1;
+
+void intro_get_weapon_setup(Game* game){
+		audioplayer_set_next(game->audio,"music/Goto80_gopho_loop_far.ogg");
+		// audioplayer_set_next(game->audio,"music/Goto80_gopho_far.ogg");
+
+		game->player->x=200;
+		game->player->y=0;
+		game->player->z=0;
+
+		// if(game->player->avance==-1)
+			game->player->phi  =0;
+		// else
+		// 	game->player->phi  =180;
+
+		// game->player->theta=0;
+		// game->player->rho  =0;
+
+		set_time_(0);
+
+		glClearColor( 1.f, 1.f, 1.f, 1.f );
+		game->update=intro_get_weapon_update;
+		game->render=intro_get_weapon_render;
+
+		glEnable(GL_FOG);
+
+		GLfloat fogColor[4]= {1,1, 1, 1};
+		glFogi(GL_FOG_MODE, GL_LINEAR);//GL_EXP, GL_EXP2, GL_LINEAR
+		glFogf(GL_FOG_START, 700);
+		glFogf(GL_FOG_END, 1000);
+
+		// glFogi(GL_FOG_MODE, GL_EXP);//GL_EXP, GL_EXP2, GL_LINEAR
+		// glFogi(GL_FOG_MODE, GL_EXP2);//GL_EXP, GL_EXP2, GL_LINEAR
+		// glFogf(GL_FOG_START, 2000);
+		// glFogf(GL_FOG_END, 3000);
+
+		glFogfv(GL_FOG_COLOR, fogColor);
+		glFogf(GL_FOG_DENSITY, 0.35f);
+		glHint(GL_FOG_HINT, GL_DONT_CARE);
+		clear_arrow(game);
+}
+
 
 void intro_get_weapon_update(Game* game,int dt){
-
-	// if(!audio_isPlaying(game->audio)){
-	// 	audio_playMusic(game->audio,"music/Goto80_gopho_loop.ogg");
-	// }
 
 	String3d* str=get_str();
 
@@ -229,81 +238,11 @@ void intro_get_weapon_update(Game* game,int dt){
 
 	shared_var1=d;
 
+	printf("%lf\n", audioplayer_getTime(game->audio));
+
 	if(d<10){
-		// MUSIC QUIT LOOP
 		// GOTO LEVEL 1 !
-		audioplayer_set_next(game->audio,"music/Goto80_gopho_far.ogg");
-
-		game->player->x=0;
-		game->player->y=0;
-		game->player->z=0;
-		game->player->theta=0;
-		game->update=ingame_level1_update;
-		game->render=ingame_level1_render;
-		game->weapon=1;
-
-		set_time_(0);
-
-		glEnable(GL_FOG);
-
-		GLfloat fogColor[4]= {1,1, 1, 1};
-		glFogi(GL_FOG_MODE, GL_LINEAR);//GL_EXP, GL_EXP2, GL_LINEAR
-		glFogf(GL_FOG_START, 20);
-		glFogf(GL_FOG_END, 300);
-
-		// glFogi(GL_FOG_MODE, GL_EXP);//GL_EXP, GL_EXP2, GL_LINEAR
-		// glFogi(GL_FOG_MODE, GL_EXP2);//GL_EXP, GL_EXP2, GL_LINEAR
-		// glFogf(GL_FOG_START, 2000);
-		// glFogf(GL_FOG_END, 3000);
-
-		glFogfv(GL_FOG_COLOR, fogColor);
-		glFogf(GL_FOG_DENSITY, 0.35f);
-		glHint(GL_FOG_HINT, GL_DONT_CARE);
-
-
-		void local_update(Mechant * mechant){
-			// printf("caca\n");
-			mechant->x+=mechant->dx;
-			mechant->y+=mechant->dy;
-			mechant->z+=mechant->dz;
-		}
-		Mechant * mechant;
-		// for(int i=-15;i<15;i++){
-		// 	for(int j=-15;j<15;j++){
-		// 		mechant = malloc(sizeof(Mechant));
-		// 		mechant->x=20*i;
-		// 		mechant->y=20*j;
-		// 		mechant->z=0;
-
-		// 		mechant->dx=0;
-		// 		mechant->dy=0;
-		// 		mechant->dz=0;
-
-		// 		mechant->update=NULL;
-		// 		game_insert_Mechant(game, mechant);
-		// 	}
-		// }
-
-
-		for(int i=-10;i<10;i++){
-			for(int j=-10;j<10;j++){
-				mechant = malloc(sizeof(Mechant));
-				double rayon = random(300,0);
-				double angle = random(0,2*PI);
-				mechant->x=rayon*cos(angle);
-				mechant->y=rayon*sin(angle);
-				mechant->z=0;
-
-				mechant->dx=random(0,.05);
-				mechant->dy=random(0,.05);
-				mechant->dz=0;
-
-				mechant->update=local_update;
-				// mechant->update=NULL;
-				game_insert_Mechant(game, mechant);
-			}
-		}
-
+		ingame_level1_setup(game);
 	}
 }
 void intro_get_weapon_render(Game* game){
@@ -371,9 +310,13 @@ void intro_get_weapon_render(Game* game){
 			glPushMatrix();
 				glTranslated(5+exp(7-(2000-abs(i*i*i))*get_time_()/40000),  sign(i)* exp(3.5+abs(i)*.3) - sign(i)* 30 ,0);
 				draw_square(size/2,.1);
+				glTranslated(1,0,0);
+				draw_square(size/2,.1);
 			glPopMatrix();
 			glPushMatrix();
 				glTranslated(5+exp(7-(2000-abs(i*i*i))*get_time_()/40000),0,sign(i)* exp(3.5+abs(i)*.3) - sign(i)* 30);
+				draw_square(size/2,.1);
+				glTranslated(1,0,0);
 				draw_square(size/2,.1);
 			glPopMatrix();
 		}
@@ -450,24 +393,6 @@ void intro_get_weapon_render(Game* game){
 				glRotated(atan2(-game->player->z,d)*180/PI,0,1,0);
 				glTranslated(-200,0,0);
 
-
-				// glPushMatrix();
-				// glScaled(1,-1,1);
-				// for(int i=0;i<50;i++){
-				// 	string3d_setTxt(str,"go accomplish your mission");
-				// 	str->size=2;
-				// 	str->dist=15;
-
-				// 	str->x=100+200.*messages_x[i];
-				// 	str->y=100-200.*messages_y[i];
-				// 	str->z=15-30.*messages_z[i]+exp(6+1.*messages_z_exp_offset[i]-time_/50.*messages_z_exp_speed[i]);
-				// 	str->phi=time_*.75+360.*messages_dephasage[i];
-
-				// 	glColor4d(0,0,0,.5*exp(6-time_/50.*messages_z_exp_speed[i]));
-				// 	string3d_draw(str);
-				// }
-				// glPopMatrix();
-
 				glPushMatrix();
 					glScaled(1,-1,1);
 					// glColor4d(0,0,0,1-exp(-time_/100.));
@@ -487,15 +412,6 @@ void intro_get_weapon_render(Game* game){
 						string3d_draw(str);
 					}
 				glPopMatrix();
-
-				// glScaled(-1,-1,1);
-				// glColor4d(0,1,0,1);
-				// string3d_setTxt(str,"abcdefghijklmnopqrstuvwxyz1234567890");
-				// str->size=1;
-				// str->dist=10;
-				// str->z=-.5;
-				// str->phi=0;
-				// string3d_draw(str);
 
 				glDepthFunc(GL_NOTEQUAL);
 
@@ -563,26 +479,6 @@ void intro_get_weapon_render(Game* game){
 						}
 				glPopMatrix();
 	glPopMatrix();
-
-	// double dddd=d;
-	// dddd=dddd/200-.2;
-	// // printf("%lf\n",dddd);
-	// glColor4d(0,0,0,dddd);
-	// 	str->x=0;
-	// 	str->y=0;
-	// 	str->z=0;
-	// 	string3d_setTxt(str,"<== look behind you ==>");
-	// 	str->size=.3;
-	// 	str->dist=7.15;
-	// 	str->z=-.25;
-	// 	// str->phi=225;
-	// 	str->phi=225;
-	// 	glPushMatrix();
-	// 		// glTranslated(game->player->x,game->player->y,game->player->z);
-	// 		glTranslated(-game->player->x,-game->player->y,-game->player->z);
-	// 		glRotated(-90-atan2(-game->player->x-200,-game->player->y)*180/PI,0,0,1);
-	// 		string3d_draw(str);
-	// 	glPopMatrix();
 
 	glDepthFunc(GL_LESS);
 }
