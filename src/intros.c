@@ -28,6 +28,7 @@ void intro_setup(Game* game){
 	game->update=intro_update;
 	game->render=intro_render;
 
+	// level1_spawn_mechants(game);
 }
 
 void intro_update(Game* game,int dt){
@@ -220,6 +221,7 @@ void intro_get_weapon_setup(Game* game){
 		clear_arrow(game);
 }
 
+double fadout=1;
 
 void intro_get_weapon_update(Game* game,int dt){
 
@@ -238,16 +240,119 @@ void intro_get_weapon_update(Game* game,int dt){
 
 	shared_var1=d;
 
-	printf("%lf\n", audioplayer_getTime(game->audio));
+	// printf("%lf\n", audioplayer_getTime(game->audio));
 
-	if(d<10){
+	if(d<5){
 		// GOTO LEVEL 1 !
-		ingame_level1_setup(game);
+		game->weapon=1;
+		game->render= intro_get_weapon_render_fadout;
+		audioplayer_set_next(game->audio,"music/Goto80_gopho_level1.ogg");
+	}
+	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level1.ogg")){
+		fadout=1-audioplayer_getTime(game->audio)/6.;
+		if(audioplayer_getTime(game->audio)>6){
+			ingame_level1_setup(game);
+		}
 	}
 }
+
+void intro_get_weapon_render_fadout(Game* game){
+	String3d* str=get_str();
+
+
+
+	double d= shared_var1;
+	// glClearColor(d*.01,d*.01,d*.01,1);
+
+	glColor4d(0,0,0,1*fadout);
+	double size=10;
+
+	double dd=d;
+	if (dd>1/0.02) dd=1/.02;
+	dd=dd*.01;
+	if(dd<.5)dd=.5;
+	if(game->stereo)
+		glColor4d(.7,.2,.2,.5*fadout);
+	else
+		glColor4d(1,0,0,.5*fadout);
+	glPushMatrix();
+		// glTranslated(200,0,-size*2+exp(6+1-get_time_()/50.));
+		glTranslated(200,0,0);
+		// glRotated(-45,0,0,1);
+		glLineWidth(2);
+		draw_cube(size,.1);
+
+	glPopMatrix();
+
+	glLineWidth(3);
+	if(game->stereo)
+		glColor4d(.7,.2,.2,.5*fadout);
+	else
+		glColor4d(1,0,0,.5*fadout);
+	glPushMatrix();
+	glRotated(90,0,1,0);
+	glTranslated(10,0,200);
+		for(int i=-15;i<=15;i++){
+			glPushMatrix();
+				glTranslated(5,  sign(i)* exp(3.5+abs(i)*.3) - sign(i)* 30 ,0);
+				draw_square(size/2,.1);
+				glTranslated(1,0,0);
+				draw_square(size/2,.1);
+			glPopMatrix();
+			glPushMatrix();
+				glTranslated(5,0,sign(i)* exp(3.5+abs(i)*.3) - sign(i)* 30);
+				draw_square(size/2,.1);
+				glTranslated(1,0,0);
+				draw_square(size/2,.1);
+			glPopMatrix();
+		}
+	glPopMatrix();
+
+	glPopMatrix();
+
+	glDepthFunc(GL_LESS);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void intro_get_weapon_render(Game* game){
 
 	String3d* str=get_str();
+
+	double tps=get_time_();
 
 
 
@@ -257,16 +362,17 @@ void intro_get_weapon_render(Game* game){
 	glColor4d(0,0,0,1);
 	double size=10;
 
-	glPushMatrix();
-		glColor4d(
-			1-exp(2.5-get_time_()*0.05),
-			1-exp(2.5-get_time_()*0.05),
-			1-exp(2.5-get_time_()*0.05),
-			1);
-		glTranslated(-210-exp(get_time_()*0.05),0,0);
-		// draw_face(100*(1-exp(-time_*0.05)),.1);
-		draw_face(30,.1);
-	glPopMatrix();
+	// glPushMatrix();
+	// 	glColor4d(
+	// 		1-exp(2.5-tps*0.05),
+	// 		1-exp(2.5-tps*0.05),
+	// 		1-exp(2.5-tps*0.05),
+	// 		1);
+	// 	glTranslated(-210-exp(tps*0.05),0,0);
+	// 	// draw_face(100*(1-exp(-time_*0.05)),.1);
+	// 	draw_face(30,.1);
+	// glPopMatrix();
+
 
 	// glColor4d(0,0,0,exp(-time_/50.));
 	// glPushMatrix();
@@ -277,20 +383,23 @@ void intro_get_weapon_render(Game* game){
 
 	// glColor4d(0,0,0,1);
 	double dd=d;
-	if (d>1/0.02) dd=1/.02;
+	if (dd>1/0.02) dd=1/.02;
+	dd=dd*.01;
+	if(dd<.5)dd=.5;
 	if(game->stereo)
-		glColor4d(.7,.2,.2,(1-exp(-get_time_()/100.))*dd*.01);
+		glColor4d(.7,.2,.2,(1-exp(-tps/100.))*dd);
 	else
-		glColor4d(1,0,0,(1-exp(-get_time_()/100.))*dd*.01);
+		glColor4d(1,0,0,(1-exp(-tps/100.))*dd);
 	glPushMatrix();
-		// glTranslated(200,0,-size*2+exp(6+1-get_time_()/50.));
-		glTranslated(200,0,+exp(6+1-get_time_()/30.));
+		// glTranslated(200,0,-size*2+exp(6+1-tps/50.));
+		glTranslated(200,0,+exp(6+1-tps/30.));
 		// glRotated(-45,0,0,1);
+		glLineWidth(2);
 		draw_cube(size,.1);
 
 		// glTranslated(0,0,size*2);
 		glPushMatrix();
-		glRotated(get_time_(),0,0,1);
+		glRotated(tps,0,0,1);
 		glRotated(45,45,0,1);
 		// glColor4d(1,0,0,1);
 		draw_bow_to_take(.4,0);
@@ -300,21 +409,21 @@ void intro_get_weapon_render(Game* game){
 
 	glLineWidth(3);
 	if(game->stereo)
-		glColor4d(.7,.2,.2,(1-exp(-get_time_()/100.))*dd*.01);
+		glColor4d(.7,.2,.2,(1-exp(-tps/100.))*dd);
 	else
-		glColor4d(1,0,0,(1-exp(-get_time_()/100.))*dd*.01);
+		glColor4d(1,0,0,(1-exp(-tps/100.))*dd);
 	glPushMatrix();
 	glRotated(90,0,1,0);
 	glTranslated(10,0,200);
 		for(int i=-15;i<=15;i++){
 			glPushMatrix();
-				glTranslated(5+exp(7-(2000-abs(i*i*i))*get_time_()/40000),  sign(i)* exp(3.5+abs(i)*.3) - sign(i)* 30 ,0);
+				glTranslated(5+exp(7-(2000-abs(i*i*i))*tps/40000),  sign(i)* exp(3.5+abs(i)*.3) - sign(i)* 30 ,0);
 				draw_square(size/2,.1);
 				glTranslated(1,0,0);
 				draw_square(size/2,.1);
 			glPopMatrix();
 			glPushMatrix();
-				glTranslated(5+exp(7-(2000-abs(i*i*i))*get_time_()/40000),0,sign(i)* exp(3.5+abs(i)*.3) - sign(i)* 30);
+				glTranslated(5+exp(7-(2000-abs(i*i*i))*tps/40000),0,sign(i)* exp(3.5+abs(i)*.3) - sign(i)* 30);
 				draw_square(size/2,.1);
 				glTranslated(1,0,0);
 				draw_square(size/2,.1);
@@ -332,7 +441,7 @@ void intro_get_weapon_render(Game* game){
 			v=.2;
 		double w=d/100;
 		if(w>1)w=1;
-		double transparency=v*(1-exp(-get_time_()/400.)) * (1-i*pipi) *(d/400.) *dd*0.01*w;
+		double transparency=v*(1-exp(-tps/400.)) * (1-i*pipi) *(d/400.) *dd*w;
 		if(transparency>.07)transparency=.07;
 		// transparency=.07;
 		if(game->stereo)
@@ -342,12 +451,12 @@ void intro_get_weapon_render(Game* game){
 		double xxx=200;
 		double yyy=0;
 		double zzz=
-				-.3 * size*i*pipi*200.*1*(1+exp(4-get_time_()/50.)) * (1.5+.5*cos(get_time_()*0.1+i*pipi*PI*16))
-				-200*exp(-get_time_()/50.)
+				-.3 * size*i*pipi*200.*1*(1+exp(4-tps/50.)) * (1.5+.5*cos(tps*0.1+i*pipi*PI*16))
+				-200*exp(-tps/50.)
 				- size;
-		double angle=180*cos(i*pipi*4*PI+(get_time_()*.01));
-		double www=.2*size*i*pipi*100*(1+.9+.3*cos(get_time_()*0.02))+size;
-		// double www=size*i*pipi*100*(1+.5+.5*cos((1+i*pipi*16)*get_time_()*0.005))+size;
+		double angle=180*cos(i*pipi*4*PI+(tps*.01));
+		double www=.2*size*i*pipi*100*(1+.9+.3*cos(tps*0.02))+size;
+		// double www=size*i*pipi*100*(1+.5+.5*cos((1+i*pipi*16)*tps*0.005))+size;
 		// zzz=.3*zzz;
 		// www=.2*www;
 		// double uuu=.1/(i*pipi*200.);
@@ -355,7 +464,7 @@ void intro_get_weapon_render(Game* game){
 		glPushMatrix();
 			glTranslated(0,0,-10 - i*pipi*500 );
 			glTranslated(xxx,yyy,zzz);
-			// glRotated(i*(get_time_()*.1),0,0,1);
+			// glRotated(i*(tps*.1),0,0,1);
 			glRotated(angle,0,0,1);
 			// draw_cube(www,uuu);
 			draw_cube_simple(www);
@@ -370,7 +479,7 @@ void intro_get_weapon_render(Game* game){
 		glPushMatrix();
 			glTranslated(0,0, 10 + i*pipi*500 );
 			glTranslated(xxx,-yyy,-zzz);
-			// glRotated(i*(get_time_()*.1),0,0,1);
+			// glRotated(i*(tps*.1),0,0,1);
 			glRotated(angle,0,0,1);
 			// draw_cube(www,uuu);
 			draw_cube_simple(www);
@@ -397,18 +506,18 @@ void intro_get_weapon_render(Game* game){
 					glScaled(1,-1,1);
 					// glColor4d(0,0,0,1-exp(-time_/100.));
 					if(game->stereo)
-						glColor4d(.7,0.5,0.5,(1-exp(-get_time_()/100.))*dd*.01);
+						glColor4d(.7,0.5,0.5,(1-exp(-tps/100.))*dd);
 					else
-						glColor4d(1,0.5,0.5,(1-exp(-get_time_()/100.))*dd*.01);
+						glColor4d(1,0.5,0.5,(1-exp(-tps/100.))*dd);
 					for(int i=0;i<10;i++){
 						string3d_setTxt(str,"go accomplish your mission");
-						str->size=1.12 + .15*(1+cos (get_time_()*.1+i));
-						str->dist=7.15 + 1+cos (get_time_()*.1+i);
+						str->size=1.12 + .15*(1+cos (tps*.1+i));
+						str->dist=7.15 + 1+cos (tps*.1+i);
 						str->x=200;
 						str->y=0;
-						str->z=exp(6+1-get_time_()/30.)+i*2 -10;
-						// str->z=-.5+exp(6+1-get_time_()/50.)+i*2 -30+1;
-						str->phi=get_time_()*.75+i*40;
+						str->z=exp(6+1-tps/30.)+i*2 -10;
+						// str->z=-.5+exp(6+1-tps/50.)+i*2 -30+1;
+						str->phi=tps*.75+i*40;
 						string3d_draw(str);
 					}
 				glPopMatrix();
@@ -422,8 +531,8 @@ void intro_get_weapon_render(Game* game){
 								double pipi=1./i_MAX;
 
 								double xxx=-200+400*(1-i*pipi);
-								double yyy=-3*sin(24*PI*(i+1.2*j)*pipi+get_time_()*.1) + j*10 + (i-40)*(j)*.2;
-								double zzz=8-10*exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1))) + 20*cos(j/30.*2*PI);
+								double yyy=-3*sin(24*PI*(i+1.2*j)*pipi+tps*.1) + j*10 + (i-40)*(j)*.2;
+								double zzz=8-10*exp(-(1+sin(12*PI*(i+2*j)*pipi+tps*.1))) + 20*cos(j/30.*2*PI);
 
 									// glColor4d(0,0,1,1);
 									// printf("%lf\n",xxx );
@@ -433,17 +542,17 @@ void intro_get_weapon_render(Game* game){
 									double v= (2-d/200.) ;
 									if(v<.2)
 										v=.2;
-									double e=exp(-(1+sin(12*PI*(i+2*j)*pipi+get_time_()*.1)));
+									double e=exp(-(1+sin(12*PI*(i+2*j)*pipi+tps*.1)));
 									double k=(1-i*pipi)*3;
 									if(k>1)k=1;
-									double ddd=d/15.;
+									double ddd=d*100./15.;
 									if(ddd>1)ddd=1;
 
 
 									double hide_behind =exp((xxx+d-200)*.06);
 									if(hide_behind>1)hide_behind=1;
 									// printf("%lf\n", hide_behind );
-									double transparency=v*(1-exp(1-get_time_()/100.)) * (i*pipi) *ddd *3. *  k  *.3 * hide_behind;
+									double transparency=v*(1-exp(1-tps/100.)) * (i*pipi) *ddd *3. *  k  *.3 * hide_behind;
 									if(transparency>0.5)transparency=0.5;
 									glColor4d(
 										1,

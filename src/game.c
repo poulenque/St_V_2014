@@ -14,6 +14,9 @@
 #include "HUD.h"
 #include "levels.h"
 
+#define GOOD 1
+#define BAD 0
+
 //==========================================================
 //                                                      
 //  _|_|_|_|    _|_|    _|      _|  _|_|_|_|_|          
@@ -89,22 +92,39 @@ void game_insert_Mechant(Game* game, Mechant * mechant){
 	}
 }
 
-void game_add_explosion(Game* game,double x,double y, double z){
-	for(int i=0;i<50;i++){
+void game_add_explosion(Game* game,int good,int count,double x,double y, double z,double dx,double dy, double dz){
+	for(int i=0;i<count;i++){
 		Particle * p = malloc (sizeof(Particle));
-		p->next=game->particles;
-		game->particles=p;
 
+		p->next=game->particles;
 		p->next_update=game->particles_update;
+
+		p->prev=NULL;
+		p->prev_update=NULL;
+
+		if(p->next!=NULL)
+			p->next->prev=p;
+		if(p->next_update!=NULL)
+			p->next_update->prev_update=p;
+
+		game->particles=p;
 		game->particles_update=p;
 
 		p->x=x+5*random(0,1);
 		p->y=y+5*random(0,1);
 		p->z=z+5*random(0,1);
+		if(good){
+			p->z=z+10*random(0,1);
+		}
 
-		p->dx=0.02*random(0,1);
-		p->dy=0.02*random(0,1);
-		p->dz=0.02*random(1,1);
+		p->dx=(.8+.2*random_simple())*dx+0.02*random(0,1);
+		p->dy=(.8+.2*random_simple())*dy+0.02*random(0,1);
+		p->dz=(.8+.2*random_simple())*dz+0.02*random(1,1);
+		if(good){
+			p->dz+=.1;
+		}
+
+		p->good=good;
 		//TODO
 		//TODO
 		//TODO
@@ -134,8 +154,6 @@ void game_add_explosion(Game* game,double x,double y, double z){
 }
 
 void game_remove_mechant(Game * game,Mechant * mechant){
-	//ADD EXPLOSION
-	game_add_explosion(game, mechant->x,mechant->y,mechant->z);
 	//if head
 	if(mechant == game->mechants){
 		game->mechants=mechant->next;
@@ -149,6 +167,31 @@ void game_remove_mechant(Game * game,Mechant * mechant){
 	if(mechant->next != NULL){
 		mechant->next->prev = mechant->prev;
 	}
+	free(mechant);
+}
+void game_remove_particle(Game * game,Particle * p){
+	//if head
+	if(p == game->particles){
+		game->particles=p->next;
+	}
+	if(p == game->particles_update){
+		game->particles_update=p->next;
+	}
+
+	if(p->prev != NULL){
+		p->prev->next = p->next;
+	}
+	if(p->next != NULL){
+		p->next->prev = p->prev;
+	}
+
+	if(p->prev_update != NULL){
+		p->prev_update->next_update = p->next_update;
+	}
+	if(p->next_update != NULL){
+		p->next_update->prev_update = p->prev_update;
+	}
+	free(p);
 }
 void update_one_particle(Particle * p){
 	p->x+=p->dx;
@@ -159,8 +202,11 @@ void update_one_particle(Particle * p){
 	p->dy*=0.997;
 	p->dz*=0.997;
 
-
-	p->dz-=0.0005;
+	if(p->good){
+		p->dz-=0.0005;
+	}else{
+		p->dz+=0.0002;
+	}
 	if (p->z < -3.95){
 		p->dz=-.6*p->dz;
 		p->z=-3.95;
@@ -174,7 +220,7 @@ void update_particles(Game* game){
 		Particle * next=p->next_update;
 		update_one_particle(p);
 		double v=fabs(p->dx)+fabs(p->dy)+fabs(p->dz);
-		if(v<0.01 && p->z <= -3.9){
+		if(v<0.02 && p->z <= -3.9){
 			//retirer
 			if(p==game->particles_update){
 				game->particles_update=p->next_update;
@@ -182,6 +228,19 @@ void update_particles(Game* game){
 			if(prev!=NULL){
 				prev->next_update=p->next_update;
 			}
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
+			//TODO
 
 		}
 		prev=p;
@@ -199,8 +258,8 @@ static void update_mechant(Game* game){
 	}
 }
 
-static double trigger_value_MAX[4];
-static double fire_value_MAX[4]   ;
+static double trigger_value_MAX[5];
+static double fire_value_MAX[5]   ;
 
 
 static void update_arrow(Game* game){
@@ -232,14 +291,24 @@ static void update_arrow(Game* game){
 				Mechant * mechant = game->mechants;
 				while(mechant !=NULL){
 					Mechant * next = mechant->next;
-					if(arrow->z<20){
+					if(arrow->z<5){
 						double dist_x=mechant->x - arrow->x;
 						double dist_y=mechant->y - arrow->y;
 						double dist_z=mechant->z - arrow->z;
 						// double dist =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
 						double dist =abs(dist_x)+abs(dist_y)+abs(dist_z);
 						if(dist<10){
-							game_remove_mechant(game,mechant);
+							game_add_explosion(game,GOOD,50, mechant->x,mechant->y,mechant->z,.3*arrow->dx,.3*arrow->dy,.3*arrow->dz);
+							// game_remove_mechant(game,mechant);
+							double rayon = random(300,0);
+							double angle = random(0,2*PI);
+							mechant->x=-game->player->x+rayon*cos(angle);
+							mechant->y=-game->player->y+rayon*sin(angle);
+							mechant->z=0;
+
+							mechant->dx=random(0,.05);
+							mechant->dy=random(0,.05);
+							mechant->dz=0;
 						}
 					}
 					mechant = next;
@@ -381,6 +450,37 @@ static void fire_arrow_with_sulfateuse(Game* game){
 	}
 }
 
+void update_interraction_mechant_player(Game* game){
+	Mechant * mechant = game->mechants;
+	while(mechant !=NULL){
+		Mechant * next = mechant->next;
+		double dist_x=mechant->x + game->player->x + .05*game->player->dx;
+		double dist_y=mechant->y + game->player->y + .05*game->player->dy;
+		double dist_z=mechant->z + game->player->z + .05*game->player->dz;
+		double dist =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
+		dist_x=mechant->x + game->player->x;
+		dist_y=mechant->y + game->player->y;
+		dist_z=mechant->z + game->player->z;
+		double dist2 =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
+			// double dist =abs(dist_x)+abs(dist_y)+abs(dist_z);
+			if(dist<20 || dist2<20){
+				game_add_explosion(game,BAD,50*6, mechant->x,mechant->y,mechant->z,-.0015*game->player->dx,-.0015*game->player->dy,-.0015*game->player->dz);
+				// game_remove_mechant(game,mechant);
+				double rayon = random(300,0);
+				double angle = random(0,2*PI);
+				mechant->x=-game->player->x+rayon*cos(angle);
+				mechant->y=-game->player->y+rayon*sin(angle);
+				mechant->z=0;
+
+				mechant->dx=random(0,.05);
+				mechant->dy=random(0,.05);
+				mechant->dz=0;
+			}
+		mechant = next;
+	}
+
+}
+
 //UPDATE PART THAT IS COMMON TO ALL GAMES
 void game_update(Game* game,int dt){
 
@@ -414,7 +514,7 @@ void game_update(Game* game,int dt){
 
 			if(game->fire_value>0){
 				game->fire_value-=1./fire_value_MAX[game->weapon];
-				if(game->weapon==1 && game->fire_value<=0){
+				if((game->weapon==1 || game->weapon==4) && game->fire_value<=0){
 					//set trigger to 0 if using bow
 					game->trigger_value=0;
 				}
@@ -425,9 +525,12 @@ void game_update(Game* game,int dt){
 					game->fire_value+=1;
 					if(game->weapon==1){
 						fire_arrow_with_bow(game);
-						// fire_arrow_with_sulfateuse(game);
-					}else if(game->weapon>=2){
+					}else if(game->weapon==2||game->weapon==3){
 						fire_arrow_with_sulfateuse(game);
+					}else if(game->weapon==4){
+						fire_arrow_with_bow(game);
+						fire_arrow_with_bow(game);
+						fire_arrow_with_bow(game);
 					}
 				}
 			}
@@ -451,7 +554,8 @@ void game_update(Game* game,int dt){
 	// 	//TO CHECK
 	// }
 
-
+	//INTERRACT_MECHANT_PLAYER
+	update_interraction_mechant_player(game);
 
 	game->update(game,dt);
 }
@@ -726,7 +830,11 @@ void game_render_one_mechant(Mechant * mechant, Game * game){
 		// glPushMatrix();
 			// glTranslated(mechant->x,mechant->y,mechant->z+8);
 			// glTranslated(mechant->x,mechant->y,mechant->z);
-			draw_gentil(0,quality);
+		if(mechant->type==0){
+			draw_gentil(audioplayer_getAmplitude(game->audio,.05),quality);
+		}else{
+
+		}
 			// draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
 		// glPopMatrix();
 	}
@@ -917,12 +1025,15 @@ void game_render(Game* game){
 
 
 	Particle* p=game->particles;
+	glDisable(GL_POINT_SMOOTH);
+	glPointSize(7);
 	while(p!=NULL){
 		glBegin(GL_POINTS);
 			glVertex3d(p->x,p->y,p->z);
 		glEnd();
 		p=p->next;
 	}
+	glEnable(GL_POINT_SMOOTH);
 
 
 
@@ -986,6 +1097,8 @@ Game* initGame(Camera* player){
 	//bow
 	trigger_value_MAX[1]=200;
 	fire_value_MAX[1]   =300;
+	trigger_value_MAX[4]=200;
+	fire_value_MAX[4]   =300;
 	// fire_value_MAX[1]   =1800;
 	// la sulfateuse
 	trigger_value_MAX[2]=400;
@@ -1077,6 +1190,8 @@ Game* initGame(Camera* player){
 	// audio_playMusic(game->audio,"music/short_test.ogg");
 	// audio_playMusic(game->audio,"music/INEXISTANT_FILE");
 	// audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
+
+	// ingame_level2_setup(game);
 	game->world_x_size=600;
 	game->world_y_size=600;
 	// audioplayer_set_next(game->audio,"music/Goto80_gopho_loop.ogg");

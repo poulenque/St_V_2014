@@ -4,9 +4,9 @@
 #include <math.h>
 
 
-void bow_HUD(Game* game);
-void weapon_HUD_ARM(Game* game);
-void weapon_HUD_FIRE(Game* game);
+void bow_HUD(Game* game, int mode);
+void weapon_HUD_ARM(Game* game, int mode);
+void weapon_HUD_FIRE(Game* game, int mode);
 void sulfateuse_HUD(Game* game, int color);
 
 void empty_HUD(Game* game){}
@@ -16,12 +16,14 @@ void HUD(Game* game){
 
 	}
 	else if(game->weapon==1){
-		bow_HUD(game);
+		bow_HUD(game,0);
 	}
 	else if(game->weapon==2){
 		sulfateuse_HUD(game,0);
 	}else if(game->weapon==3){
 		sulfateuse_HUD(game,1);
+	}else if(game->weapon==4){
+		bow_HUD(game,1);
 	}
 }
 
@@ -55,12 +57,12 @@ void fake_walk_update(Game* game,int dt){
 	}
 }
 
-void bow_HUD(Game* game){
+void bow_HUD(Game* game, int mode){
 	//TODO
 	if(game->fire_value<=0){
-		weapon_HUD_ARM(game);
+		weapon_HUD_ARM(game,mode);
 	}else{
-		weapon_HUD_FIRE(game);
+		weapon_HUD_FIRE(game,mode);
 	}
 }
 
@@ -103,7 +105,7 @@ void viseur(Game * game){
 }
 
 
-void weapon_HUD_ARM(Game* game){
+void weapon_HUD_ARM(Game* game,int mode){
 #define BOW_GL_MATRIX() \
 	fake_walking=\
 		 game->player->dx*game->player->dx\
@@ -159,6 +161,19 @@ void weapon_HUD_ARM(Game* game){
 
 				glScaled(1,1,1+.2*time_pos);
 				draw_arrow_high_quality();
+				if(mode){
+					glPushMatrix();
+						glTranslated(-1.3,0,1.7);
+						glRotated(10,0,1,0);
+						draw_arrow_high_quality();
+					glPopMatrix();
+					glPushMatrix();
+						glTranslated(1.3,0,1);
+						glRotated(-10,0,1,0);
+						draw_arrow_high_quality();
+					glPopMatrix();
+
+				}
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 			glPopMatrix();
@@ -166,10 +181,20 @@ void weapon_HUD_ARM(Game* game){
 			TEMP_MACRO();
 			if(time_pos){//stable hands
 				draw_hand(.3*time_pos,2*time_pos,TRUE);
-				draw_bow(.2,.2+.6*time_pos);
+				if(mode){
+					draw_bow_v2(.2,.2+.6*time_pos);
+				}else{
+					draw_bow(.2,.2+.6*time_pos);
+				}
 			}else{//shaking hands
 				draw_hand(  .3+.1*oscill_force,0,FALSE);
-				draw_bow(.2,.2+.1*oscill_force);
+				if(mode){
+					draw_bow_v2(.2,.2+.1*oscill_force);
+				}else{
+					draw_bow(.2,.2+.1*oscill_force);
+				}
+					
+					
 			}
 
 			#undef TEMP_MACRO
@@ -183,7 +208,7 @@ void weapon_HUD_ARM(Game* game){
 }
 
 
-void weapon_HUD_FIRE(Game* game){
+void weapon_HUD_FIRE(Game* game, int mode){
 	viseur(game);
 
 
@@ -225,7 +250,11 @@ void weapon_HUD_FIRE(Game* game){
 
 		//BOW + HAND
 		draw_hand(.5*time_pos,2.+2-2*time_pos,TRUE);
-		draw_bow(.2,.5*time_pos);
+		if(mode){
+			draw_bow_v2(.2,.5*time_pos);
+		}else{
+			draw_bow(.2,.5*time_pos);
+		}
 
 
 
@@ -247,7 +276,11 @@ void weapon_HUD_FIRE(Game* game){
 		glTranslated(0, 0, -3*time_pos);
 
 		draw_hand(0,2.+2,TRUE);
-		draw_bow(.2,0);
+		if(mode){
+			draw_bow_v2(.2,0);
+		}else{
+			draw_bow(.2,0);
+		}
 
 
 	}else if(time_pos<.6){
@@ -281,7 +314,11 @@ void weapon_HUD_FIRE(Game* game){
 		glTranslated(0, 0, -3);
 
 		draw_hand(0,2.+2-2*time_pos,TRUE);
-		draw_bow(.2,0);
+		if(mode){
+			draw_bow_v2(.2,0);
+		}else{
+			draw_bow(.2,0);
+		}
 
 	}else{
 
@@ -325,10 +362,27 @@ void weapon_HUD_FIRE(Game* game){
 			glTranslated(-3*time_pos,0,0);
 
 			draw_arrow_high_quality();
+				if(mode){
+					glPushMatrix();
+						glTranslated(-1.3,0,1.7);
+						glRotated(10,0,1,0);
+						draw_arrow_high_quality();
+					glPopMatrix();
+					glPushMatrix();
+						glTranslated(1.3,0,1);
+						glRotated(-10,0,1,0);
+						draw_arrow_high_quality();
+					glPopMatrix();
+
+				}
 		glPopMatrix();
 
 		draw_hand(  .3+.1*oscill_force,0,FALSE);
-		draw_bow(.2,.2+.1*oscill_force);
+		if(mode){
+			draw_bow_v2(.2,.2+.1*oscill_force);
+		}else{
+			draw_bow(.2,.2+.1*oscill_force);
+		}
 
 
 	}

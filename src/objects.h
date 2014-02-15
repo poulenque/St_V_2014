@@ -34,6 +34,8 @@ typedef struct Mechant{
 	double theta;
 	double rho;
 
+	int type;
+
 	struct Mechant * next;
 	struct Mechant * prev;
 
@@ -52,10 +54,16 @@ typedef struct Particle{
 	double dy;
 	double dz;
 
+	int good;
+
 	struct Particle* next;
+	struct Particle* prev;
 	struct Particle* next_update;
+	struct Particle* prev_update;
 }Particle;
 
+//MECHANT PATTERNS
+void mechant_update_dummy(Mechant * mechant);
 
 
 #endif

@@ -709,6 +709,155 @@ void draw_half_bow(double noise,double force){
 	glPopMatrix();
 }
 
+void draw_half_bow_v2(double noise,double force){
+	draw_half_bow(noise,force);
+	glPushMatrix();
+		glTranslated(0,0,4);
+		glRotated(-90,0,1,0);
+		gluCylinder(quad,.2,.2,2,8,1);
+		glTranslated(0,0,2);
+		glRotated(45,1,-1,0);
+		gluCylinder(quad,.2,.2,2,8,1);
+		glTranslated(0,0,2);
+		glRotated(90,1,0,0);
+		// gluCylinder(quad,.2,.2,2,8,1);
+		// glTranslated(0,0,2);
+
+		// glRotated(90+20*cos(SDL_GetTicks()*0.01),0,0,1);
+		glRotated(90,0,0,1);
+		// glRotated(20*cos(SDL_GetTicks()*0.01),1,0,0);
+		glRotated(20,1,0,0);
+		// glColor4d(0,1,0,1);
+		// glScaled(1,1.5,1);
+		for(int i=0;i<20;i++){
+			double x=i/20.;
+			double x_=(i-1)/20.;
+			glRotated(40*x,1,0,0);
+			glRotated(-40*x,0,1,0);
+			gluCylinder(quad,.2*(1-x_),.2*(1-x),1+x,8,1);
+			glTranslated(0,0,1+x);
+		}
+		// glColor4d(1,0,0,1);
+
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslated(0,0,4);
+		for(int i=0;i<20;i++){
+			double x=i/20.;
+			double x_=(i-1)/20.;
+				glRotated(20,0,-.7,1);
+				gluCylinder(quad,.2*(1-x_),.2*(1-x),1,8,1);
+				glTranslated(0,0,1);
+		}
+
+	glPopMatrix();
+
+
+
+	glPushMatrix();
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// glColor4d(0,1,0,1);
+
+		glTranslated(0,0,3);
+		glRotated(force*2,1,0.,0.);
+		glTranslated(0,0,1);
+		glRotated(force*2,1,0.,0.);
+		glTranslated(0,0,1);
+		glRotated(force*10,1,0.,0.);
+
+		glPushMatrix();
+			glTranslated(0,0,2);
+			glRotated(-90,0,1,0);
+			gluCylinder(quad,1,0,3,8,1);
+			glRotated(-180,0,1,0);
+			gluCylinder(quad,1,0,3,8,1);
+		glPopMatrix();
+
+		glTranslated(0.,0.,5);
+		double length=3.;
+		glRotated(force*5,1,0.,0.);
+
+		glPushMatrix();
+			glTranslated(0,-.5,0);
+			glRotated(-90,0,1,0);
+			gluCylinder(quad,1,0,2,8,1);
+			glRotated(-180,0,1,0);
+			gluCylinder(quad,1,0,2,8,1);
+		glPopMatrix();
+		// glPushMatrix();
+		// 	glTranslated(0,-2,10);
+		// 	glRotated(-90,0,1,0);
+		// 	glColor4d(0,1,0,1);
+		// 	gluCylinder(quad,1,0,3,8,1);
+		// glPopMatrix();
+
+		// glTranslated(0.,0.,length);
+
+
+		// glRotated(force*10,1,0.,0.);
+		// glTranslated(0.,0.,length);
+
+
+		// glRotated(force*20,1,0.,0.);
+		// glTranslated(0.,0.,length);
+
+		// glRotated(force*10,1,0.,0.);
+		// glTranslated(0.,0.,length);
+
+		// force = force +1;
+		// glRotated(360-10/force,1,0.,0.);
+		// glTranslated(0.,0.,length);
+
+		// glRotated(360-20/force,1,0.,0.);
+		// glTranslated(0.,0.,length);
+
+
+		// glRotated(360-5/force,1.,0.,0.);
+		// glTranslated(0.,0.,length);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	glPopMatrix();
+}
+
 void draw_bow(double noise,double force){
 	gluQuadricDrawStyle(quad, GLU_FILL);
 	glPushMatrix();
@@ -720,16 +869,37 @@ void draw_bow(double noise,double force){
 		glPopMatrix();
 	glPopMatrix();
 
-		gluQuadricDrawStyle(quad, GLU_LINE);
+	gluQuadricDrawStyle(quad, GLU_LINE);
+	glPushMatrix();
+		glScaled(.25,.25,.25);
+		draw_half_bow(noise,force);
 		glPushMatrix();
-			glScaled(.25,.25,.25);
+			glScaled(1,1,-1);
 			draw_half_bow(noise,force);
-			glPushMatrix();
-				glScaled(1,1,-1);
-				draw_half_bow(noise,force);
-			glPopMatrix();
 		glPopMatrix();
-	// glPopMatrix();
+	glPopMatrix();
+}
+
+void draw_bow_v2(double noise,double force){
+	gluQuadricDrawStyle(quad, GLU_FILL);
+	glPushMatrix();
+		glScaled(.25,.25,.25);
+		draw_half_bow_v2(noise,force);
+		glPushMatrix();
+			glScaled(1,1,-1);
+			draw_half_bow_v2(noise,force);
+		glPopMatrix();
+	glPopMatrix();
+
+	gluQuadricDrawStyle(quad, GLU_LINE);
+	glPushMatrix();
+		glScaled(.25,.25,.25);
+		draw_half_bow_v2(noise,force);
+		glPushMatrix();
+			glScaled(1,1,-1);
+			draw_half_bow_v2(noise,force);
+		glPopMatrix();
+	glPopMatrix();
 }
 
 void draw_bow_to_take(double noise,double force){

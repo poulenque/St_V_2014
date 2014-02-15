@@ -1,6 +1,15 @@
 #include "levels.h"
 #include "random.h"
 
+void change_bg_color(double r,double g,double b){
+	GLfloat fogColor[4]= {r,g,b, 1};
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glClearColor(r,g,b,1);
+}
+
+#define BAD 0
+#define GOOD 1
+
 //==================================================================
 //                                                                
 //  _|        _|_|_|_|  _|      _|  _|_|_|_|  _|              _|  
@@ -13,12 +22,6 @@
 //==================================================================
 //==================================================================
 void level1_spawn_mechants(Game* game){
-	void local_update(Mechant * mechant){
-		// printf("caca\n");
-		mechant->x+=mechant->dx;
-		mechant->y+=mechant->dy;
-		mechant->z+=mechant->dz;
-	}
 	Mechant * mechant;
 	// for(int i=-15;i<15;i++){
 	// 	for(int j=-15;j<15;j++){
@@ -50,7 +53,8 @@ void level1_spawn_mechants(Game* game){
 			mechant->dy=random(0,.05);
 			mechant->dz=0;
 
-			mechant->update=local_update;
+			mechant->update=mechant_update_dummy;
+			mechant->type=0;
 			// mechant->update=NULL;
 			game_insert_Mechant(game, mechant);
 		}
@@ -60,10 +64,12 @@ void level1_spawn_mechants(Game* game){
 void ingame_level1_setup(Game* game){
 	audioplayer_set_next(game->audio,"music/Goto80_gopho_level1.ogg");
 
-	game->player->x=0;
-	game->player->y=0;
-	game->player->z=0;
-	game->player->theta=0;
+	glClearColor(1,1,1,1);
+
+	// game->player->x=0;
+	// game->player->y=0;
+	// game->player->z=0;
+	// game->player->theta=0;
 	game->update=ingame_level1_update;
 	game->render=ingame_level1_render;
 	game->weapon=1;
@@ -72,7 +78,6 @@ void ingame_level1_setup(Game* game){
 
 	glEnable(GL_FOG);
 
-	GLfloat fogColor[4]= {1,1, 1, 1};
 	glFogi(GL_FOG_MODE, GL_LINEAR);//GL_EXP, GL_EXP2, GL_LINEAR
 	glFogf(GL_FOG_START, 20);
 	glFogf(GL_FOG_END, 300);
@@ -82,62 +87,104 @@ void ingame_level1_setup(Game* game){
 	// glFogf(GL_FOG_START, 2000);
 	// glFogf(GL_FOG_END, 3000);
 
+	GLfloat fogColor[4]= {1,1, 1, 1};
 	glFogfv(GL_FOG_COLOR, fogColor);
 	glFogf(GL_FOG_DENSITY, 0.35f);
 	glHint(GL_FOG_HINT, GL_DONT_CARE);
 
+	glFogf(GL_FOG_START, 20);
+	glFogf(GL_FOG_END, 50);
+	level1_spawn_mechants(game);
 
 }
-void ingame_level1_update_waiting_music_sync(Game* game,int dt){
-
-}
-static int generated=0;
 static int landed=0;
 void ingame_level1_update(Game* game,int dt){
+	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_loop_far.ogg")){
+		game->player->z=-100;
+		game->player->dz=0;
+		// String3d* str=get_str();
+		// string3d_setTxt(str,"==========\n");
+	}
 	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level1.ogg")){
-		printf("%lf\n", audioplayer_getTime(game->audio));
+
+		audioplayer_set_next(game->audio,"music/Goto80_gopho_level2.ogg");
+
+		// printf("%lf\n", audioplayer_getTime(game->audio));
 		if(audioplayer_getTime(game->audio)<6.7){
 			// printf("FLYING\n");
 			game->player->z=-100;
 			game->player->dz=0;
 		}else if(audioplayer_getTime(game->audio)<7.65){
-			if(!generated){
-				level1_spawn_mechants(game);
-				generated=1;
-				// clear_arrow(game);
-				game->player->z=-100;
-				game->player->y=0;
-				game->player->x=0;
-			}
+			double t=(audioplayer_getTime(game->audio)-6.7)/(7.65-6.7);
+			glFogf(GL_FOG_START, 20);
+			glFogf(GL_FOG_END, 50+t*250);
+
 			// game->player->z=100-100*(audioplayer_getTime(game->audio)-6.7)/(7.65-6.7);
 			// game->player->dz=-10;
 		}else{
 			if(!landed){
 				for(int i=0;i<20;i++){
-					game_add_explosion(game,
+					game_add_explosion(game,GOOD,50,
 						-game->player->x + random(0,20),
 						-game->player->y + random(0,20),
-						-game->player->z + random(0,20));
+						-game->player->z + random(0,20),
+						-0.003*game->player->dx,
+						-0.003*game->player->dy,
+						0.);
 				}
 				landed=1;
 				// printf("BOOM\n");
 			}
 		}
 
-	}else{
-		game->player->z=-100;
-		game->player->dz=0;
+		if (audioplayer_getTime(game->audio)>37.30 &&
+			audioplayer_getTime(game->audio)<37.60){
+			GLfloat fogColor[4]= {0,0, 0, 1};
+			glFogfv(GL_FOG_COLOR, fogColor);
+			glClearColor(0,0,0,1);
+		}else
+		if (audioplayer_getTime(game->audio)>37.60 &&
+			audioplayer_getTime(game->audio)<37.85){
+			GLfloat fogColor[4]= {1,0, 0, 1};
+			glFogfv(GL_FOG_COLOR, fogColor);
+			glClearColor(1,0,0,1);
+		}else
+		if (audioplayer_getTime(game->audio)>37.85){
+			GLfloat fogColor[4]= {0,0, 0, 1};
+			glFogfv(GL_FOG_COLOR, fogColor);
+			game->weapon=4;
+			// TODO
+			// TODO
+			// TODO
+			// SPAWN NEW MONSTER
+			// TODO
+			// TODO
+			// TODO
+			glClearColor(0,0,0,1);
+		}
+
+	}
+	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level2.ogg")){
+		ingame_level2_setup(game);
 	}
 
 }
 void ingame_level1_render(Game* game){
+	// if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_loop_far.ogg")){
+	// 		double t=audioplayer_getTime(game->audio)/7.66;
+	// }
 
-	// // double z=exp(-time_*.07);
-	// double z=exp(-get_time_()*.007);
-	// int angle=game->player->angle;
-	// // printf("%i\n",angle);
-	// // angle=60;
-
+	// glColor4d(1,0,0,1);
+	// for(int i=0;i<10;i++){
+	// 	for(int j=0;j<10;j++){
+	// 		glBegin(GL_LINE_STRIP);
+	// 			glVertex3d( 10*i, 10*j,-4+100);
+	// 			glVertex3d(-10*i, 10*j,-4+100);
+	// 			glVertex3d(-10*i,-10*j,-4+100);
+	// 			glVertex3d( 10*i,-10*j,-4+100);
+	// 		glEnd();
+	// 	}
+	// }
 }
 
 
@@ -161,28 +208,56 @@ void ingame_level1_render(Game* game){
 //==================================================================
 //==================================================================
 void ingame_level2_setup(Game* game){
+
+	glClearColor(0,0,0,1);
+
+	audioplayer_set_next(game->audio,"music/Goto80_gopho_level2.ogg");
+	glEnable(GL_FOG);
+	GLfloat fogColor[4]= {0,0, 0, 1};
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glFogf(GL_FOG_DENSITY, 0.35f);
+	glHint(GL_FOG_HINT, GL_DONT_CARE);
+	glFogi(GL_FOG_MODE, GL_LINEAR);
+	glFogf(GL_FOG_START, 20);
+	glFogf(GL_FOG_END, 300);
+
 	game->update=ingame_level2_update;
 	game->render=ingame_level2_render;
 }
 
 void ingame_level2_update(Game* game,int dt){
-
+	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level2.ogg")){
+		audioplayer_set_next(game->audio,"music/Goto80_gopho_level3.ogg");
+	}
+	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level3.ogg")){
+		change_bg_color(0,0,0);
+		game->weapon=2;		
+		ingame_level3_setup(game);
+	}
 }
-void ingame_level2_render(Game* game){
+void draw_aurore_boreale(Game * game,double * X, double *Y, double * Z){
 	double time_=SDL_GetTicks()*0.001;
 	glDisable( GL_POINT_SMOOTH );
 	glPointSize(1);
 	glBegin(GL_POINTS);
 	glColor4d(.5,0,0,1);
 
-	// glClearColor(1.,1.,1.,0.);
 
 	glDepthFunc(GL_ALWAYS);
 
-	int i_max = 400;
+	int i_max = 200;
 	int j_max = 10;
 	double inverse_i_max=1./i_max;
 	double inverse_j_max=1./j_max;
+	while(*X+game->player->x+game->world_x_size>0)
+		*X-=game->world_x_size*2;
+	while(*X+game->player->x+game->world_x_size<0)
+		*X+=game->world_x_size*2;
+	while(*Y+game->player->y+game->world_y_size>0)
+		*Y-=game->world_y_size*2;
+	while(*Y+game->player->y+game->world_y_size<0)
+		*Y+=game->world_y_size*2;
+
 	for(int i=-i_max;i<i_max;i++){
 		for(int j=-j_max;j<j_max;j++){
 
@@ -192,7 +267,7 @@ void ingame_level2_render(Game* game){
 			// glColor4d(0,.5+.5*sin(2*PI*exp(2-2*y)+time_),.5+.5*cos(2*PI*exp(2-2*y)-time_),1);
 			double dist_factor=1-exp(-1-1*y);
 			double super_z = exp(2*(-y+1))*(1+random(-.5,1));
-			glColor4d(0,dist_factor*(.5+.5*sin(2*PI*x+2*PI*exp(-.1-.1*super_z)-time_)),dist_factor*(.5+.5*cos(2*PI*exp(-.1-.1*super_z)-time_)),.2);
+			glColor4d(0,dist_factor*(.5+.5*sin(2*PI*x+2*PI*exp(-.1-.1*super_z)-time_)),dist_factor*(.5+.5*cos(2*PI*exp(-.1-.1*super_z)-time_)),.7);
 			// 	glVertex3d(
 			// 		exp(pow(sin(time_),2))*2*i+4*cos(time_*4+i*0.4),
 			// 		8*cos(time_*6+i*1.8),
@@ -206,7 +281,6 @@ void ingame_level2_render(Game* game){
 				// );
 			// glColor4d(.5-.5*y,0,0,1);
 			double variation = 40*sin(2*x*(1)+.5*time_) +  10*sin(10*x+time_) + 10*sin(24*x-time_) + 3*sin(45*x-5*time_);
-			variation=2*variation;
 			// glVertex3d(
 			// 		// x*100 + 10*sin(12*x*(1)+.7*time_) + 10*sin(3*x+time_),
 			// 		x*200 + variation * sin(15*x*(1)+time_),
@@ -215,16 +289,111 @@ void ingame_level2_render(Game* game){
 			// 		64 + 5*exp(2*(-y+1))+ 5*exp(2*(-y+1))*random(-.5,1) + 20*sin(20*x + time_)
 			// 		// 32+50+50*y+ random(-.25,5)
 			// 	);
+
+			//VERSION LINEAIRE 
+			variation=2*variation;
 			glVertex3d(
-					x*200 + variation * sin(15*x*(1)+time_),
-					variation + 20*random(-.5,1),
-					64 + 5*super_z + 20*sin(20*x + time_)
+					*X+x*200 + variation * sin(15*x*(1)+time_)+ 20*random(-.5,1),
+					*Y+variation                              + 20*random(-.5,1),
+					*Z+64 + 5*super_z + 20*sin(20*x + time_)
 				);
+			// //VERSION CIRCULAIRE 
+			// glVertex3d(
+			// 		200*sin(PI/2.*x) + variation * sin(15*x*(1)+time_)+ 20*random(-.5,1),
+			// 		200*cos(PI/2.*x) + variation                              + 20*random(-.5,1),
+			// 		32+5*super_z + 20*sin(20*x + time_)
+			// 	);
 		}
 	}
 	glEnd();
 
 	glDepthFunc(GL_LESS);
+
+}
+
+double X1=0;
+double Y1=0;
+double Z1=0;
+
+// double X2=600;
+// double Y2=300;
+// double Z2=0;
+
+
+void ingame_level2_render(Game* game){
+	draw_aurore_boreale(game,&X1,&Y1,&Z1);
+	// draw_aurore_boreale(game,&X2,&Y2,&Z2);
+
+	double music_time=audioplayer_getTime(game->audio);
+
+	// -22:80 !!! 
+	// -23:00 !!!
+
+	//	7.45 -> 7.7 ->7.9
+			// change_bg_color(.2,0,0);
+			// change_bg_color(.2,.2,.2);
+			// change_bg_color(.5,.2,.2);
+		if(      07.45<music_time && music_time<07.70){
+			change_bg_color(.5,.2,.2);
+		}else if(22.70<music_time && music_time<22.95){
+			change_bg_color(.5,.2,.2);
+		}else if(29.70<music_time && music_time<29.80){
+			change_bg_color(1,1,1);
+		}else if(29.80<music_time && music_time<30.05){
+			change_bg_color(1,0,0);
+		}else if(30.05<music_time && music_time<30.30){
+			change_bg_color(0,0,0);
+		}else if(30.30<music_time && music_time<30.50){
+			change_bg_color(1,0,0);
+		}else if(44.35<music_time && music_time<45.45){
+			double x=(music_time-44.35)/(45.45-44.35);
+			change_bg_color(x*.5,0,0);
+		}else if(45.45<music_time && music_time<45.75){
+			change_bg_color(1,0,0);
+		}else{
+			change_bg_color(0,0,0);
+		}
+		if(45.75<music_time){
+			game->weapon=2;
+		}
+		
+
+	// if(22.8<music_time){
+	// 	if(music_time<23.00){
+	// 		double x=(music_time-22.8)/(23.00-22.8);
+	// 		GLfloat fogColor[4]= {x,0, 0, 1};
+	// 		glFogfv(GL_FOG_COLOR, fogColor);
+	// 		glClearColor(x,0,0,1);
+	// 	}else if(music_time<23.00){
+	// 		double x=(music_time-22.8)/(23.00-22.8);
+	// 		GLfloat fogColor[4]= {x,0, 0, 1};
+	// 		glFogfv(GL_FOG_COLOR, fogColor);
+	// 		glClearColor(x,0,0,1);			
+	// 	}
+
+	//face rouges dans le ciel a vive allure
+	// 15:50 -> 23:10
+	//   16:40 = max , diminuendo
+	// change de forme/couleur en
+	// 15:80
+	// 16:80
+	// 17:75
+	// 18:70
+	// 19:65
+	// 20:60
+	// 21:55
+	// 22:55
+	// 23:50
+	// 24:45
+	// 25:40
+	// 26:35
+	// 27:35
+	// 28:25
+	// 29:25
+	if(15.50<music_time && music_time<23.10){
+		change_bg_color(1,1,1);
+	}
+
 }
 //==================================================================
 //                                                                    
@@ -237,6 +406,25 @@ void ingame_level2_render(Game* game){
 //==================================================================
 //==================================================================
 //==================================================================
+void ingame_level3_setup(Game* game){
+	audioplayer_set_next(game->audio,"music/Goto80_gopho_level3.ogg");
+
+	game->update=ingame_level3_update;
+	game->render=ingame_level3_render;
+
+	set_time_(0);
+
+	glEnable(GL_FOG);
+
+	glFogi(GL_FOG_MODE, GL_LINEAR);//GL_EXP, GL_EXP2, GL_LINEAR
+	glFogf(GL_FOG_START, 20);
+	glFogf(GL_FOG_END, 300);
+	GLfloat fogColor[4]= {0,0, 0, 1};
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glFogf(GL_FOG_DENSITY, 0.35f);
+	glHint(GL_FOG_HINT, GL_DONT_CARE);
+
+}
 void ingame_level3_update(Game* game,int dt){
 
 }

@@ -19,6 +19,7 @@ void draw_sphere2(double size,double time_,double noise);
 void draw_init();
 
 void draw_bow(double noise,double force);
+void draw_bow_v2(double noise,double force);
 void draw_hand(double force,double distance,int side_view);
 void draw_bow_to_take(double noise,double force);
 void draw_arrow_high_quality();

@@ -355,11 +355,11 @@ int main(int argc, char *argv[]) {
 							game_pause(game,1);
 						}
 					}
-					if(event.key.keysym.sym == SDLK_RETURN){
+					else if(event.key.keysym.sym == SDLK_RETURN){
 						STEREOSCOPY=!STEREOSCOPY;
 						game->stereo=STEREOSCOPY;
 					}
-					if(event.key.keysym.sym ==SDLK_SPACE){
+					else if(event.key.keysym.sym ==SDLK_SPACE){
 						// if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)){
 						// }else{
 							if(game->player->z==0){
@@ -371,16 +371,35 @@ int main(int argc, char *argv[]) {
 							}
 						// }
 					}
-					if(event.key.keysym.sym==SDLK_F12){
+					else if(event.key.keysym.sym==SDLK_F12){
 						game->color_debug=!game->color_debug;
 					}
-					if(event.key.keysym.sym==SDLK_F11){
+					else if(event.key.keysym.sym==SDLK_F11){
 						game->sorting=!game->sorting;
 						if(game->sorting){
 							printf("SORTING!\n");
 						}else{
 							printf("NOT SORTING!\n");
 						}
+					}
+					else if(event.key.keysym.sym==SDLK_F1){
+						game->weapon=0;
+					}
+					else if(event.key.keysym.sym==SDLK_F2){
+						if(game->weapon==1){
+							game->weapon=4;
+						}else{
+							game->weapon=1;
+						}
+					}
+					else if(event.key.keysym.sym==SDLK_F3){
+						game->weapon=2;
+					}
+					else if(event.key.keysym.sym==SDLK_F4){
+						game->weapon=3;
+					}
+					else if(event.key.keysym.sym==SDLK_F5){
+						clear_arrow(game);
 					}
 
 					break;
@@ -396,29 +415,6 @@ int main(int argc, char *argv[]) {
 					break;
 			}
 		}
-
-		//========================
-		//========TESTING=========
-		//========================
-		if(keystate[SDLK_F1]){
-			game->weapon=0;
-		}
-		if(keystate[SDLK_F2]){
-			game->weapon=1;
-		}
-		if(keystate[SDLK_F3]){
-			game->weapon=2;
-		}
-		if(keystate[SDLK_F4]){
-			game->weapon=3;
-		}
-
-		if(keystate[SDLK_F5]){
-			clear_arrow(game);
-		}
-		//========================
-		//========================
-		//========================
 
 		double speed=1000;
 		if(MOUSE_ON){

@@ -22,7 +22,7 @@ void intro_render(Game* game);
 void intro_get_weapon_setup(Game* game);
 void intro_get_weapon_update(Game* game,int dt);
 void intro_get_weapon_render(Game* game);
-
+void intro_get_weapon_render_fadout(Game* game);
 //friendly ennemies
 void ingame_level1_setup(Game* game);
 void ingame_level1_update(Game* game,int dt);

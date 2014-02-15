@@ -109,6 +109,7 @@ double audioplayer_getTime(AudioPlayer* player){
 double audioplayer_getAmplitude(AudioPlayer* audioplayer, int time_dt){
 	int delta=time_dt*audioplayer->s1->freq;
 	//integrer le buffer entre now et min(now+delta,bufsize) 
+	return 1;
 }
 
 
