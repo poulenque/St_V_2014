@@ -386,7 +386,9 @@ int main(int argc, char *argv[]) {
 						game->weapon=0;
 					}
 					else if(event.key.keysym.sym==SDLK_F2){
-						if(game->weapon==1){
+						if(game->weapon==4){
+							game->weapon=5;
+						}else if(game->weapon==1){
 							game->weapon=4;
 						}else{
 							game->weapon=1;
@@ -400,6 +402,9 @@ int main(int argc, char *argv[]) {
 					}
 					else if(event.key.keysym.sym==SDLK_F5){
 						clear_arrow(game);
+					}
+					else if(event.key.keysym.sym==SDLK_F6){
+						clear_particles(game);
 					}
 
 					break;

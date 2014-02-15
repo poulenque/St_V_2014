@@ -110,18 +110,24 @@ void game_add_explosion(Game* game,int good,int count,double x,double y, double 
 		game->particles=p;
 		game->particles_update=p;
 
+		p->dx=(.8+.2*random_simple())*dx+0.02*random(0,1);
+		p->dy=(.8+.2*random_simple())*dy+0.02*random(0,1);
+		p->dz=(.8+.2*random_simple())*dz+0.02*random(1,1);
+
 		p->x=x+5*random(0,1);
 		p->y=y+5*random(0,1);
 		p->z=z+5*random(0,1);
 		if(good){
 			p->z=z+10*random(0,1);
+		}else{
+			p->z=z+10*random(0,1);
+			// p->z_destination=random(80+20*p->dz,20);
 		}
 
-		p->dx=(.8+.2*random_simple())*dx+0.02*random(0,1);
-		p->dy=(.8+.2*random_simple())*dy+0.02*random(0,1);
-		p->dz=(.8+.2*random_simple())*dz+0.02*random(1,1);
 		if(good){
-			p->dz+=.1;
+			p->dz+=.1*random_simple();
+		}else{
+			p->dz-=.1*random_simple();
 		}
 
 		p->good=good;
@@ -175,7 +181,7 @@ void game_remove_particle(Game * game,Particle * p){
 		game->particles=p->next;
 	}
 	if(p == game->particles_update){
-		game->particles_update=p->next;
+		game->particles_update=p->next_update;
 	}
 
 	if(p->prev != NULL){
@@ -191,6 +197,10 @@ void game_remove_particle(Game * game,Particle * p){
 	if(p->next_update != NULL){
 		p->next_update->prev_update = p->prev_update;
 	}
+	p->next_update=NULL;
+	p->prev_update=NULL;
+	p->next=NULL;
+	p->prev=NULL;
 	free(p);
 }
 void update_one_particle(Particle * p){
@@ -198,14 +208,21 @@ void update_one_particle(Particle * p){
 	p->y+=p->dy;
 	p->z+=p->dz;
 	
-	p->dx*=0.997;
-	p->dy*=0.997;
-	p->dz*=0.997;
+	if(p->good){
+		p->dx*=0.997;
+		p->dy*=0.997;
+		p->dz*=0.997;
+	}else{
+		p->dx*=0.999;
+		p->dy*=0.999;
+		p->dz*=0.999;
+	}
 
 	if(p->good){
 		p->dz-=0.0005;
 	}else{
-		p->dz+=0.0002;
+		// p->dz+=0.00001*(p->z_destination-p->z);
+		p->dz+=0.0001;
 	}
 	if (p->z < -3.95){
 		p->dz=-.6*p->dz;
@@ -236,6 +253,20 @@ void update_particles(Game* game){
 		if(p->z>100){
 			game_remove_particle(game,p);
 		}
+		// if(p->z>random(200,400)){
+		// 	if(p==game->particles_update){
+		// 		game->particles_update=p->next_update;
+		// 	}
+		// 	if(p->prev_update!=NULL){
+		// 		p->prev_update->next_update=p->next_update;
+		// 	}
+		// 	if(p->next_update!=NULL){
+		// 		p->next_update->prev_update=p->prev_update;
+		// 	}
+		// 	p->next_update=NULL;
+		// 	p->prev_update=NULL;
+		// 	// game_remove_particle(game,p);
+		// }
 		p=next;
 	}
 }
@@ -250,8 +281,8 @@ static void update_mechant(Game* game){
 	}
 }
 
-static double trigger_value_MAX[5];
-static double fire_value_MAX[5]   ;
+static double trigger_value_MAX[6];
+static double fire_value_MAX[6]   ;
 
 
 static void update_arrow(Game* game){
@@ -450,13 +481,14 @@ void update_interraction_mechant_player(Game* game){
 		double dist_y=mechant->y + game->player->y + .05*game->player->dy;
 		double dist_z=mechant->z + game->player->z + .05*game->player->dz;
 		double dist =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
-		dist_x=mechant->x + game->player->x;
-		dist_y=mechant->y + game->player->y;
-		dist_z=mechant->z + game->player->z;
-		double dist2 =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
+		// dist_x=mechant->x + game->player->x;
+		// dist_y=mechant->y + game->player->y;
+		// dist_z=mechant->z + game->player->z;
+		// double dist2 =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
 			// double dist =abs(dist_x)+abs(dist_y)+abs(dist_z);
-			if(dist<20 || dist2<20){
-				game_add_explosion(game,BAD,50*6, mechant->x,mechant->y,mechant->z,-.0015*game->player->dx,-.0015*game->player->dy,-.0015*game->player->dz);
+			// if(dist<20 || dist2<20){
+			if(dist<10){
+				game_add_explosion(game,BAD,50*6, mechant->x,mechant->y,mechant->z,-.0025*game->player->dx,-.0025*game->player->dy,-.0025*game->player->dz);
 				// game_remove_mechant(game,mechant);
 				double rayon = random(300,0);
 				double angle = random(0,2*PI);
@@ -476,7 +508,7 @@ void update_interraction_mechant_player(Game* game){
 //UPDATE PART THAT IS COMMON TO ALL GAMES
 void game_update(Game* game,int dt){
 
-	time_+=dt/15.;
+	time_+=dt;
 	camera_update(game->player,dt);
 	fake_walk_update(game,dt);
 	//=======================================================
@@ -506,7 +538,7 @@ void game_update(Game* game,int dt){
 
 			if(game->fire_value>0){
 				game->fire_value-=1./fire_value_MAX[game->weapon];
-				if((game->weapon==1 || game->weapon==4) && game->fire_value<=0){
+				if((game->weapon==1 || game->weapon==4 || game->weapon==5) && game->fire_value<=0){
 					//set trigger to 0 if using bow
 					game->trigger_value=0;
 				}
@@ -520,6 +552,12 @@ void game_update(Game* game,int dt){
 					}else if(game->weapon==2||game->weapon==3){
 						fire_arrow_with_sulfateuse(game);
 					}else if(game->weapon==4){
+						fire_arrow_with_bow(game);
+						fire_arrow_with_bow(game);
+						fire_arrow_with_bow(game);
+					}else if(game->weapon==5){
+						fire_arrow_with_bow(game);
+						fire_arrow_with_bow(game);
 						fire_arrow_with_bow(game);
 						fire_arrow_with_bow(game);
 						fire_arrow_with_bow(game);
@@ -687,51 +725,20 @@ void game_render_one_arrow(Arrow * arrow, Game* game){
 	double angle=80-arrow->dist*4.e-4;
 	if(alpha <angle||alpha>360-angle){
 
+		glRotated(arrow->beta,0,0,1);
+		glRotated(arrow->alpha,0,1,0);
 		if(arrow->dist<500){
 			// if flying
 			if(!(arrow->z<=-4)){
 				if(arrow_high_quality_count){
-
-
-					if(arrow->dist<200){
-						int n=5;
-						for(int i=0;i<n;i++){
-							glPushMatrix();
-								glTranslated(
-									-2*i*arrow->dx,
-									-2*i*arrow->dy,
-									-2*i*arrow->dz);
-								glRotated(arrow->beta,0,0,1);
-								glRotated(arrow->alpha,0,1,0);
-								draw_arrow_high_quality();
-							glPopMatrix();
-							if(i == 0)
-								glAccum(GL_LOAD, 1.0 / n);
-							else
-								glAccum(GL_ACCUM, 1.0 / n);
-						}
-						glAccum(GL_RETURN, 1.0);
-					}else{
-						glPushMatrix();
-							glRotated(arrow->beta,0,0,1);
-							glRotated(arrow->alpha,0,1,0);
-							draw_arrow_high_quality();
-						glPopMatrix();
-
-					}
-
-
+					draw_arrow_high_quality();
 					arrow_high_quality_count--;
 					// last_rendered_total_arrow++;
 				}else{
-					glRotated(arrow->beta,0,0,1);
-					glRotated(arrow->alpha,0,1,0);
 					draw_arrow_low_quality();
 				}
 			//if not flying
 			}else{
-				glRotated(arrow->beta,0,0,1);
-				glRotated(arrow->alpha,0,1,0);
 				glScaled(.5,.5,.5);
 				if(arrow_high_quality_count){
 					draw_arrow_ground_high_quality();
@@ -742,8 +749,6 @@ void game_render_one_arrow(Arrow * arrow, Game* game){
 				}
 			}
 		}else{
-		glRotated(arrow->beta,0,0,1);
-		glRotated(arrow->alpha,0,1,0);
 			//les fleches dans les aires il faut toujours les dessiner
 			if(!(arrow->z<=-4)){
 				draw_arrow_low_quality();
@@ -1054,6 +1059,14 @@ void game_render(Game* game){
 	glDisable(GL_POINT_SMOOTH);
 	glPointSize(7);
 	while(p!=NULL){
+		// double xx=p->x+game->player->x;
+		// double yy=p->y+game->player->y;
+		// double zz=p->z+game->player->z;
+		// double dist = sqrt(xx*xx+yy*yy+zz*zz);
+		// dist=50-dist;
+		// if(dist<7)dist=7;
+		// if(dist>30)dist=30;
+		// glPointSize(dist);
 		glBegin(GL_POINTS);
 			glVertex3d(p->x,p->y,p->z);
 		glEnd();
@@ -1122,9 +1135,11 @@ Game* initGame(Camera* player){
 	fire_value_MAX[0]   =1;//avoid 1./0.
 	//bow
 	trigger_value_MAX[1]=200;
-	fire_value_MAX[1]   =300;
+	fire_value_MAX[1]   =278;
 	trigger_value_MAX[4]=200;
-	fire_value_MAX[4]   =300;
+	fire_value_MAX[4]   =278;
+	trigger_value_MAX[5]=200;
+	fire_value_MAX[5]   =278;
 	// fire_value_MAX[1]   =1800;
 	// la sulfateuse
 	trigger_value_MAX[2]=400;
@@ -1217,7 +1232,9 @@ Game* initGame(Camera* player){
 	// audio_playMusic(game->audio,"music/INEXISTANT_FILE");
 	// audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
 
+	// ingame_level3_setup(game);
 	// ingame_level2_setup(game);
+	// level1_spawn_mechants(game);
 	game->world_x_size=600;
 	game->world_y_size=600;
 	// audioplayer_set_next(game->audio,"music/Goto80_gopho_loop.ogg");

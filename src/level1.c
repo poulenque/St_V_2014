@@ -7,6 +7,18 @@ void change_bg_color(double r,double g,double b){
 	glClearColor(r,g,b,1);
 }
 
+void game_loop_coord(Game* game,double * X, double* Y){
+	while(*X+game->player->x+game->world_x_size*.5>0)
+		*X-=game->world_x_size;
+	while(*X+game->player->x+game->world_x_size*.5<0)
+		*X+=game->world_x_size;
+	while(*Y+game->player->y+game->world_y_size*.5>0)
+		*Y-=game->world_y_size;
+	while(*Y+game->player->y+game->world_y_size*.5<0)
+		*Y+=game->world_y_size;
+
+}
+
 #define BAD 0
 #define GOOD 1
 
@@ -43,7 +55,7 @@ void level1_spawn_mechants(Game* game){
 	for(int i=-10;i<10;i++){
 		for(int j=-10;j<10;j++){
 			mechant = malloc(sizeof(Mechant));
-			double rayon = random(300,0);
+			double rayon = random(200,120);
 			double angle = random(0,2*PI);
 			mechant->x=rayon*cos(angle);
 			mechant->y=rayon*sin(angle);
@@ -97,7 +109,7 @@ void ingame_level1_setup(Game* game){
 	level1_spawn_mechants(game);
 
 }
-static int landed=2;
+static int landed=0;
 void ingame_level1_update(Game* game,int dt){
 	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_loop_far.ogg")){
 		game->player->z=-100;
@@ -112,8 +124,8 @@ void ingame_level1_update(Game* game,int dt){
 		// printf("%lf\n", audioplayer_getTime(game->audio));
 		if(audioplayer_getTime(game->audio)<6.7){
 			// printf("FLYING\n");
-			game->player->z=-100;
-			game->player->dz=0;
+			// game->player->z=-100;
+			// game->player->dz=0;
 		}else if(audioplayer_getTime(game->audio)<7.65){
 			double t=(audioplayer_getTime(game->audio)-6.7)/(7.65-6.7);
 			glFogf(GL_FOG_START, 20);
@@ -122,11 +134,6 @@ void ingame_level1_update(Game* game,int dt){
 			// game->player->z=100-100*(audioplayer_getTime(game->audio)-6.7)/(7.65-6.7);
 			// game->player->dz=-10;
 		}else{
-			if(landed==2){
-				game->player->x=0;
-				game->player->y=0;
-				landed=0;
-			}
 			if(!landed){
 				for(int i=0;i<20;i++){
 					game_add_explosion(game,GOOD,50,
@@ -230,9 +237,63 @@ void ingame_level2_setup(Game* game){
 	game->render=ingame_level2_render;
 }
 
+double sky_1_x=0;
+double sky_1_y=0;
+// double sky_1_z=64;
+double sky_1_dx=10;
+double sky_1_dy=10;
+
+double sky_2_x=0;
+double sky_2_y=0;
+// double sky_2_z=96;
+double sky_2_dx=10;
+double sky_2_dy=-5;
+
+double sky_3_x=0;
+double sky_3_y=0;
+// double sky_3_z=128;
+double sky_3_dx=10;
+double sky_3_dy=-5;
+
+double sky_1_z=-3.9;
+double sky_2_z=30;
+double sky_3_z=60;
+
+double sky_transparency=0;
+
+void draw_stuff_in_sky(double x,double y,double z,double dx,double dy){
+
+	glLineWidth(3);
+	for(int i=0;i<50;i++){
+		for(int j=0;j<50;j++){
+			double xx=.5-i/50.;
+			double yy=.5-j/50.;
+			xx*=2000;
+			yy*=2000;
+			xx+=x;
+			yy+=y;
+			glBegin(GL_LINES);
+				glColor4d(0,0,0,0);
+				glVertex3d(xx,yy,z);
+				glColor4d(0,1,0,sky_transparency);
+				glVertex3d(xx+dx,yy+dy,z);
+			glEnd();
+		}
+	}
+}
 void ingame_level2_update(Game* game,int dt){
 	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level2.ogg")){
 		audioplayer_set_next(game->audio,"music/Goto80_gopho_level3.ogg");
+		sky_1_x+=.5*sky_1_dx;
+		sky_1_y+=.5*sky_1_dy;
+		game_loop_coord(game,&sky_1_x,&sky_1_y);
+		sky_2_x+=.5*sky_2_dx;
+		sky_2_y+=.5*sky_2_dy;
+		game_loop_coord(game,&sky_2_x,&sky_2_y);
+		sky_3_x+=.5*sky_3_dx;
+		sky_3_y+=.5*sky_3_dy;
+		game_loop_coord(game,&sky_3_x,&sky_3_y);
+
 	}
 	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level3.ogg")){
 		change_bg_color(0,0,0);
@@ -240,30 +301,48 @@ void ingame_level2_update(Game* game,int dt){
 		ingame_level3_setup(game);
 	}
 }
-void draw_aurore_boreale(Game * game,double * X, double *Y, double * Z){
+void draw_aurore_boreale(Game * game,double * X, double *Y, double * Z,int partie){
 	double time_=SDL_GetTicks()*0.001;
 	glDisable( GL_POINT_SMOOTH );
-	glPointSize(1);
+	glPointSize(4);
 	glBegin(GL_POINTS);
 	glColor4d(.5,0,0,1);
 
 
 	glDepthFunc(GL_ALWAYS);
 
-	int i_max = 200;
-	int j_max = 10;
+	int i_max = 120;
+	int j_max = 7;
 	double inverse_i_max=1./i_max;
 	double inverse_j_max=1./j_max;
-	while(*X+game->player->x+game->world_x_size>0)
-		*X-=game->world_x_size*2;
-	while(*X+game->player->x+game->world_x_size<0)
-		*X+=game->world_x_size*2;
-	while(*Y+game->player->y+game->world_y_size>0)
-		*Y-=game->world_y_size*2;
-	while(*Y+game->player->y+game->world_y_size<0)
-		*Y+=game->world_y_size*2;
+	if(partie){
+		while(*X-100+game->player->x+game->world_x_size*.5>0)
+			*X-=game->world_x_size;
+		while(*X-100+game->player->x+game->world_x_size*.5<0)
+			*X+=game->world_x_size;
+		while(*Y+game->player->y+game->world_y_size*.5>0)
+			*Y-=game->world_y_size;
+		while(*Y+game->player->y+game->world_y_size*.5<0)
+			*Y+=game->world_y_size;
+	}else{
+		while(*X-200+game->player->x+game->world_x_size*.5>0)
+			*X-=game->world_x_size;
+		while(*X-200+game->player->x+game->world_x_size*.5<0)
+			*X+=game->world_x_size;
+		while(*Y+game->player->y+game->world_y_size*.5>0)
+			*Y-=game->world_y_size;
+		while(*Y+game->player->y+game->world_y_size*.5<0)
+			*Y+=game->world_y_size;
+	}
 
-	for(int i=-i_max;i<i_max;i++){
+	int i_min=-i_max;
+	if(partie){
+		i_min=0;
+	}else{
+		i_max=0;
+	}
+
+	for(int i=i_min;i<i_max;i++){
 		for(int j=-j_max;j<j_max;j++){
 
 			double x=i*inverse_i_max + .1*random(-.5,1);
@@ -272,7 +351,7 @@ void draw_aurore_boreale(Game * game,double * X, double *Y, double * Z){
 			// glColor4d(0,.5+.5*sin(2*PI*exp(2-2*y)+time_),.5+.5*cos(2*PI*exp(2-2*y)-time_),1);
 			double dist_factor=1-exp(-1-1*y);
 			double super_z = exp(2*(-y+1))*(1+random(-.5,1));
-			glColor4d(0,dist_factor*(.5+.5*sin(2*PI*x+2*PI*exp(-.1-.1*super_z)-time_)),dist_factor*(.5+.5*cos(2*PI*exp(-.1-.1*super_z)-time_)),.7);
+			glColor4d(0,dist_factor*(.5+.5*sin(2*PI*x+2*PI*exp(-.1-.1*super_z)-time_)),dist_factor*(.5+.5*cos(2*PI*exp(-.1-.1*super_z)-time_)),.4);
 			// 	glVertex3d(
 			// 		exp(pow(sin(time_),2))*2*i+4*cos(time_*4+i*0.4),
 			// 		8*cos(time_*6+i*1.8),
@@ -308,6 +387,13 @@ void draw_aurore_boreale(Game * game,double * X, double *Y, double * Z){
 			// 		200*cos(PI/2.*x) + variation                              + 20*random(-.5,1),
 			// 		32+5*super_z + 20*sin(20*x + time_)
 			// 	);
+
+			//testing
+			// if(partie)
+			// 	glColor4d(1,0,0,1);
+			// else
+			// 	glColor4d(0,1,0,1);
+			// glVertex3d(*X+x*200,*Y,*Z+64+j);
 		}
 	}
 	glEnd();
@@ -320,16 +406,19 @@ double X1=0;
 double Y1=0;
 double Z1=0;
 
-// double X2=600;
-// double Y2=300;
-// double Z2=0;
 
+double X2=300;
+double Y2=300;
+double Z2=0;
+
+
+
+static int sky_change_counter=0;
 
 void ingame_level2_render(Game* game){
-	draw_aurore_boreale(game,&X1,&Y1,&Z1);
-	// draw_aurore_boreale(game,&X2,&Y2,&Z2);
 
 	double music_time=audioplayer_getTime(game->audio);
+
 
 	// -22:80 !!! 
 	// -23:00 !!!
@@ -362,6 +451,13 @@ void ingame_level2_render(Game* game){
 			game->weapon=2;
 		}
 		
+	if(music_time<45.75){
+		draw_aurore_boreale(game,&X1,&Y1,&Z1,1);
+		draw_aurore_boreale(game,&X1,&Y1,&Z1,0);
+
+		draw_aurore_boreale(game,&X2,&Y2,&Z2,1);
+		draw_aurore_boreale(game,&X2,&Y2,&Z2,0);
+	}
 
 	// if(22.8<music_time){
 	// 	if(music_time<23.00){
@@ -395,8 +491,65 @@ void ingame_level2_render(Game* game){
 	// 27:35
 	// 28:25
 	// 29:25
-	if(15.50<music_time && music_time<23.10){
-		change_bg_color(1,1,1);
+
+
+	//change 4*16 fois de 15:50 a 29:65
+	if(music_time+.1>sky_change_counter*(15.325)/64.){
+		sky_change_counter++;
+
+		double angle=random(0.,PI/4.);
+		if(angle<0)	angle-=PI/8.;
+		else angle+=PI/8.;
+		double newx=cos(angle)*sky_1_dx-sin(angle)*sky_1_dy;
+		double newy=sin(angle)*sky_1_dx+cos(angle)*sky_1_dy;
+		sky_1_dx=newx;
+		sky_1_dy=newy;
+
+		angle=random(0,PI/4.);
+		if(angle<0)	angle-=PI/8.;
+		else angle+=PI/8.;
+		newx=cos(angle)*sky_2_dx-sin(angle)*sky_2_dy;
+		newy=sin(angle)*sky_2_dx+cos(angle)*sky_2_dy;
+		sky_2_dx=newx;
+		sky_2_dy=newy;
+
+		angle=random(0,PI/4.);
+		if(angle<0)	angle-=PI/8.;
+		else angle+=PI/8.;
+		newx=cos(angle)*sky_3_dx-sin(angle)*sky_3_dy;
+		newy=sin(angle)*sky_3_dx+cos(angle)*sky_3_dy;
+		sky_3_dx=newx;
+		sky_3_dy=newy;
+	}
+	if(15.50<music_time && music_time<29.65){
+		draw_stuff_in_sky(sky_1_x,sky_1_y,sky_1_z,sky_1_dx,sky_1_dy);
+		draw_stuff_in_sky(sky_2_x,sky_2_y,sky_2_z,sky_2_dx,sky_2_dy);
+		draw_stuff_in_sky(sky_3_x,sky_3_y,sky_3_z,sky_3_dx,sky_3_dy);
+		if(music_time<19.10){
+			sky_transparency=(music_time-15.5)/(19.1-15.50);
+		}else if(music_time<23.3){
+			sky_transparency=1 - (music_time-19.1)/(23.3-19.1);
+		}else if(music_time<26.7){
+			sky_transparency=(music_time-23.3)/(26.7-23.3);
+		}else{
+			sky_transparency=1 - (music_time-26.7)/(29.65-26.7);
+		}
+		// change_bg_color(1,1,1);
+	}
+	if(30.50<music_time && music_time<44.65){
+		draw_stuff_in_sky(sky_1_x,sky_1_y,sky_1_z,sky_1_dx,sky_1_dy);
+		draw_stuff_in_sky(sky_2_x,sky_2_y,sky_2_z,sky_2_dx,sky_2_dy);
+		draw_stuff_in_sky(sky_3_x,sky_3_y,sky_3_z,sky_3_dx,sky_3_dy);
+		if(music_time<34.10){
+			sky_transparency=(music_time-30.5)/(34.1-30.50);
+		}else if(music_time<38.3){
+			sky_transparency=1 - (music_time-34.1)/(38.3-34.1);
+		}else if(music_time<41.7){
+			sky_transparency=(music_time-38.3)/(41.7-38.3);
+		}else{
+			sky_transparency=1 - (music_time-41.7)/(44.65-41.7);
+		}
+		// change_bg_color(1,1,1);
 	}
 
 }
@@ -431,13 +584,18 @@ void ingame_level3_setup(Game* game){
 
 }
 void ingame_level3_update(Game* game,int dt){
-
+	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level3.ogg")){
+		audioplayer_set_next(game->audio,"music/Goto80_gopho_level4.ogg");
+	}
+	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level4.ogg")){
+		ingame_level4_setup(game);
+	}
 }
 void ingame_level3_render(Game* game){
 	double time_=SDL_GetTicks()*0.001;
 	// time_*=.2;
 	double R;
-	double deltat=1;
+	double deltat=.960;
 
 	for(int i=-50;i<50;i++){
 		for(int j=-50;j<50;j++){
@@ -447,7 +605,7 @@ void ingame_level3_render(Game* game){
 			double phi = PI*(50+j/100.);
 			// R=2*exp(-4*t)*sin(fabs(.3*theta) * t/deltat*2*PI* 8*exp(-2*t/deltat) )+10;
 			// R=2*exp(-4*t)*sin(fabs(2*theta) + t/deltat*2*PI* 8*exp(-2*t/deltat) )+10;
-			// R=2*exp(-4*t)*sin(fabs(2*theta) + 2*phi + t/deltat*2*PI* 8*exp(-2*t/deltat) )+10;
+			R=2*exp(-4*t)*sin(fabs(2*theta) + 2*phi + t/deltat*2*PI* 8*exp(-2*t/deltat) )+10;
 			// R=((fabs(theta)+1)*10+9*cos(5*time_+2*phi))/(2+sin(phi+time_));
 			// R = exp( sin (theta*2*phi*cos(time_*0.05)) );
 			// R =  sin (theta*2*phi*(1+cos(time_*0.05))) ;
@@ -473,5 +631,30 @@ void ingame_level3_render(Game* game){
 //==================================================================
 //==================================================================
 //==================================================================
-void ingame_level4_update(Game* game,int dt);
-void ingame_level4_render(Game* game);
+void ingame_level4_setup(Game* game){
+	audioplayer_set_next(game->audio,"music/Goto80_gopho_level4.ogg");
+
+	game->update=ingame_level4_update;
+	game->render=ingame_level4_render;
+
+	set_time_(0);
+
+	glEnable(GL_FOG);
+
+	glFogi(GL_FOG_MODE, GL_LINEAR);//GL_EXP, GL_EXP2, GL_LINEAR
+	glFogf(GL_FOG_START, 20);
+	glFogf(GL_FOG_END, 300);
+	GLfloat fogColor[4]= {0,0, 0, 1};
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glFogf(GL_FOG_DENSITY, 0.35f);
+	glHint(GL_FOG_HINT, GL_DONT_CARE);
+
+}
+void ingame_level4_update(Game* game,int dt){
+	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level4.ogg")){
+		audioplayer_set_next(game->audio,"music/silence.ogg");
+	}
+}
+void ingame_level4_render(Game* game){
+
+}

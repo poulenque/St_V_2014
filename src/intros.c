@@ -27,7 +27,6 @@ void intro_setup(Game* game){
 	glClearColor( 0., 0., 0., 1. );
 	game->update=intro_update;
 	game->render=intro_render;
-
 	// level1_spawn_mechants(game);
 }
 
@@ -71,9 +70,9 @@ void intro_render(Game* game){
 	glRotated(60,1,1,0);\
 	glScaled(1,1,1);\
 	glColor4d(1,0,0,1);\
-	draw_bow(0,.5+.5*cos(PI*cos(get_time_()*.1)));\
+	draw_bow(0,.5+.5*cos(PI*cos(get_time_()/15.*.1)));\
 	glScaled(3,1,3);\
-	glTranslated(0,3.2-4*cos(PI*cos(get_time_()*.1)),0);\
+	glTranslated(0,3.2-4*cos(PI*cos(get_time_()/15.*.1)),0);\
 	glRotated(90,1,0,0);\
 	draw_arrow_high_quality();
 
@@ -167,6 +166,135 @@ void intro_render(Game* game){
 		//====================================================
 
 	glPopMatrix();
+
+
+
+
+
+
+
+
+
+				double x_temp=(game->player->x+200);
+				double y_temp=(game->player->y-0);
+				double z_temp=(game->player->z-0);
+
+				x_temp*=x_temp;//square
+				y_temp*=y_temp;//square
+				z_temp*=z_temp;//square
+
+				double d= (sqrt(x_temp+y_temp+z_temp));
+				double tps=get_time_()/15.;
+				int i_MAX=100;
+				glPushMatrix();
+
+					double kk=20;
+					glTranslated(kk,0,0);
+					// draw_cube(1,1);
+					glRotated(-90-atan2(-game->player->x-kk,-game->player->y)*180/PI,0,0,1);
+					// glRotated(-game->player->z*0.15,0,1,0);
+					glRotated(atan2(-game->player->z,d)*180/PI,0,1,0);
+					glTranslated(-kk,0,0);
+
+					// glTranslated(+kk-200,0,0);
+
+
+						glLineWidth(1);
+						for(int i=0;i<i_MAX;i++){
+							for(int j=-20;j<20;j++){
+								double pipi=1./i_MAX;
+
+								double jj=j/2.;
+
+								double xxx=-10*kk*i*pipi+80;
+								double yyy=-sin(24*PI*(i+1.2*jj)*pipi+tps*.1) + jj*2 + (i-40)*(jj)*.2;
+								double zzz=8-10*exp(-(1+sin(12*PI*(i+2*jj)*pipi+tps*.1))) + 20*cos(jj/30.*2*PI);
+
+								// xxx*=.1;
+								// yyy*=.1;
+								// zzz*=.1;
+
+									// glColor4d(0,0,1,1);
+									// printf("%lf\n",xxx );
+									// printf("%lf\n",-d +200);
+
+									// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
+									double v= (2-d/200.) ;
+									if(v<.2)
+										v=.2;
+									double e=exp(-(1+sin(12*PI*(i+2*j)*pipi+tps*.1)));
+									double k=(1-i*pipi)*3;
+									if(k>1)k=1;
+									double ddd=d*100./15.;
+									if(ddd>1)ddd=1;
+
+
+									// double hide_behind =exp((xxx+d-kk)*.06);
+									double hide_behind =exp((xxx+d-10*kk)*.006)-1;
+									// double hide_behind=(xxx+d-10*kk);
+									if(hide_behind>1)hide_behind=1;
+									// hide_behind=1;
+
+									double vv=v * (i*pipi) *ddd *3. *  k  *.3;
+									if (vv>1)vv=1;
+
+									double transparency= vv* hide_behind;
+									if(transparency>0.5)transparency=0.5;
+									glColor4d(
+										e,
+										e,
+										e,
+										transparency);
+
+									// glPointSize(20);
+									// glPointSize(d/600. * 20 * i*pipi);
+									glPointSize(7);
+									glEnable(GL_POINT_SMOOTH);
+										// glRotated((j+i+1)*(time_*.1),0,0,1);
+										// glScaled(1,1,2);
+
+										glBegin(GL_POINTS);
+											glVertex3d(xxx,yyy,zzz);
+											glVertex3d(xxx,-yyy,-zzz);
+										glEnd();
+
+										// draw_face(1,4);
+
+										// draw_cheni(1,4,3);
+										// draw_cube(1,4);
+
+							}
+						}
+				glPopMatrix();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 //==================================================================
 //                                                                    
@@ -250,7 +378,11 @@ void intro_get_weapon_update(Game* game,int dt){
 	}
 	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level1.ogg")){
 		fadout=1-audioplayer_getTime(game->audio)/6.;
-		if(audioplayer_getTime(game->audio)>6){
+		if(audioplayer_getTime(game->audio)>6.7){
+			game->player->z=-100;
+			game->player->dz=0;
+			game->player->x=0;
+			game->player->y=0;
 			ingame_level1_setup(game);
 		}
 	}
@@ -352,7 +484,7 @@ void intro_get_weapon_render(Game* game){
 
 	String3d* str=get_str();
 
-	double tps=get_time_();
+	double tps=get_time_()/15.;
 
 
 
@@ -486,7 +618,6 @@ void intro_get_weapon_render(Game* game){
 		glPopMatrix();
 	}
 
-	i_MAX=70;
 
 
 	glPushMatrix();
@@ -524,15 +655,18 @@ void intro_get_weapon_render(Game* game){
 
 				glDepthFunc(GL_NOTEQUAL);
 
+				i_MAX=70;
 				glPushMatrix();
 						glLineWidth(1);
 						for(int i=0;i<i_MAX;i++){
-							for(int j=-10;j<10;j++){
+							for(int j=-20;j<20;j++){
 								double pipi=1./i_MAX;
 
+								double jj=j/2.;
+
 								double xxx=-200+400*(1-i*pipi);
-								double yyy=-3*sin(24*PI*(i+1.2*j)*pipi+tps*.1) + j*10 + (i-40)*(j)*.2;
-								double zzz=8-10*exp(-(1+sin(12*PI*(i+2*j)*pipi+tps*.1))) + 20*cos(j/30.*2*PI);
+								double yyy=-3*sin(24*PI*(i+1.2*jj)*pipi+tps*.1) + jj*10 + (i-40)*(jj)*.2;
+								double zzz=8-10*exp(-(1+sin(12*PI*(i+2*jj)*pipi+tps*.1))) + 20*cos(jj/30.*2*PI);
 
 									// glColor4d(0,0,1,1);
 									// printf("%lf\n",xxx );
@@ -564,18 +698,12 @@ void intro_get_weapon_render(Game* game){
 									// glPointSize(d/600. * 20 * i*pipi);
 									glPointSize(7);
 									glEnable(GL_POINT_SMOOTH);
-									glPushMatrix();
-										glTranslated(xxx,yyy,zzz);
 										// glRotated((j+i+1)*(time_*.1),0,0,1);
 										// glScaled(1,1,2);
 
 										glBegin(GL_POINTS);
-											glVertex3d(0,0,0);
-										glEnd();
-
-										glTranslated(0,-2*yyy,-2*zzz);
-										glBegin(GL_POINTS);
-											glVertex3d(0,0,0);
+											glVertex3d(xxx,yyy,zzz);
+											glVertex3d(xxx,-yyy,-zzz);
 										glEnd();
 
 										// draw_face(1,4);
@@ -583,7 +711,6 @@ void intro_get_weapon_render(Game* game){
 										// draw_cheni(1,4,3);
 										// draw_cube(1,4);
 
-									glPopMatrix();
 							}
 						}
 				glPopMatrix();

@@ -49,6 +49,8 @@ typedef struct Particle{
 	double x;
 	double y;
 	double z;
+	
+	double z_destination;
 
 	double dx;
 	double dy;
