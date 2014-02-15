@@ -97,7 +97,7 @@ void ingame_level1_setup(Game* game){
 	level1_spawn_mechants(game);
 
 }
-static int landed=0;
+static int landed=2;
 void ingame_level1_update(Game* game,int dt){
 	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_loop_far.ogg")){
 		game->player->z=-100;
@@ -122,6 +122,11 @@ void ingame_level1_update(Game* game,int dt){
 			// game->player->z=100-100*(audioplayer_getTime(game->audio)-6.7)/(7.65-6.7);
 			// game->player->dz=-10;
 		}else{
+			if(landed==2){
+				game->player->x=0;
+				game->player->y=0;
+				landed=0;
+			}
 			if(!landed){
 				for(int i=0;i<20;i++){
 					game_add_explosion(game,GOOD,50,

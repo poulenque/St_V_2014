@@ -408,43 +408,62 @@ void weapon_HUD_FIRE(Game* game, int mode){
 
 
 
-
+double angle=0;
 void sulfateuse_HUD(Game* game, int color){
 
 	viseur(game);
 
 	double oscill_force=.5*sin(SDL_GetTicks()*.001)+.5*sin(SDL_GetTicks()*.00085);
 
-	glPushMatrix();
-			fake_walking=
-				 game->player->dx*game->player->dx
-				+game->player->dy*game->player->dy
-				+game->player->dz*game->player->dz;
-			fake_walking=sqrt(fake_walking);
-			fake_walking*=0.007;
-			double real_rho=game->player->rho    +fake_rho;
-			double real_theta=game->player->theta+fake_theta;
-			glRotated(real_rho*(-4),1,0,0);
-			glRotated(real_theta*.5, 0.0, 1.0, 0.0);
-			double real_HUD_drho_compensation=HUD_drho_compensation+fake_HUD_drho_compensation;
-			glTranslated(0,0,-real_HUD_drho_compensation*real_HUD_drho_compensation*0.0007);
-			glTranslated(5,0,-3);
-			glTranslated(real_theta*(.05),0,0);
-			glRotated(80, 0, 1, 0);
-			glRotated(70, 1, 0, 0);
-			glRotated(real_theta*(1),0,0,1);
-			glRotated(real_HUD_drho_compensation,0,1,0);
-			glTranslated(0,0,-1);
-			glLineWidth(3.0);
+	angle+=game->trigger_value*10.;
+	int n=20;
+	for(int i=0;i<n;i++){
+		glPushMatrix();
+				fake_walking=
+					 game->player->dx*game->player->dx
+					+game->player->dy*game->player->dy
+					+game->player->dz*game->player->dz;
+				fake_walking=sqrt(fake_walking);
+				fake_walking*=0.007;
+				double real_rho=game->player->rho    +fake_rho;
+				double real_theta=game->player->theta+fake_theta;
+				glRotated(real_rho*(-4),1,0,0);
+				glRotated(real_theta*.5, 0.0, 1.0, 0.0);
+				double real_HUD_drho_compensation=HUD_drho_compensation+fake_HUD_drho_compensation;
+				glTranslated(0,0,-real_HUD_drho_compensation*real_HUD_drho_compensation*0.0007);
+				glTranslated(5,0,-3);
+				glTranslated(real_theta*(.05),0,0);
+				glRotated(80, 0, 1, 0);
+				glRotated(70, 1, 0, 0);
+				glRotated(real_theta*(1),0,0,1);
+				glRotated(real_HUD_drho_compensation,0,1,0);
+				glTranslated(0,0,-1);
+				glLineWidth(3.0);
 
-			draw_hand(  .3+.1*oscill_force,0,FALSE);
-			draw_sulfateuse(0,0,color);
+				draw_hand(  .3+.1*oscill_force,0,FALSE);
+				draw_sulfateuse(0,angle-i*game->trigger_value,color);
+		// glTranslated(                               0, 1, -5+1*oscill_force);
+		// glTranslated(-.3+.1*sin(SDL_GetTicks()*.0017), 0, 0);
+		// draw_arrow(.2);
+		glPopMatrix();
 
+		if(i == 0)
+			glAccum(GL_LOAD, 1.0 / n);
+		else
+			glAccum(GL_ACCUM, 1.0 / n);
 
-	// glTranslated(                               0, 1, -5+1*oscill_force);
-	// glTranslated(-.3+.1*sin(SDL_GetTicks()*.0017), 0, 0);
+	}
+	glAccum(GL_RETURN, 1.0);
 
-	// draw_arrow(.2);
-	glPopMatrix();
+	// int n=20;
+	// for(int i=0;i<n;i++){
+	// 	draw();
+	// 	if(i == 0)
+	// 		glAccum(GL_LOAD, 1.0 / n);
+	// 	else
+	// 		glAccum(GL_ACCUM, 1.0 / n);
+	// }
+	// glAccum(GL_RETURN, 1.0);
+
 }
 

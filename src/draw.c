@@ -7,7 +7,6 @@
 #include "constants.h"
 #include "random.h"
 
-double t=0;
 
 static GLUquadric* quad;
 
@@ -420,7 +419,7 @@ void draw_wing(double noise,int detail){
 //=========================================
 
 void draw_hand(double force,double distance, int side_view){
-	t++;
+	double t=SDL_GetTicks()/15.;
 	glPushMatrix();
 	glTranslated(0,-.2,0);
 	glTranslated(0,force*.5,0);
@@ -1035,7 +1034,6 @@ void draw_arrow_ground_very_low_quality(){
 
 void draw_sulfateuse(double noise,double angle, int color){
 
-	angle=SDL_GetTicks()*0.5;
 	gluQuadricDrawStyle(quad, GLU_FILL);
 	// gluQuadricDrawStyle(quad, GLU_LINE);
 

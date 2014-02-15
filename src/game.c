@@ -215,7 +215,6 @@ void update_one_particle(Particle * p){
 
 void update_particles(Game* game){
 	Particle * p = game->particles_update;
-	Particle * prev = NULL;
 	while(p!=NULL){
 		Particle * next=p->next_update;
 		update_one_particle(p);
@@ -225,25 +224,18 @@ void update_particles(Game* game){
 			if(p==game->particles_update){
 				game->particles_update=p->next_update;
 			}
-			if(prev!=NULL){
-				prev->next_update=p->next_update;
+			if(p->prev_update!=NULL){
+				p->prev_update->next_update=p->next_update;
 			}
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-			//TODO
-
+			if(p->next_update!=NULL){
+				p->next_update->prev_update=p->prev_update;
+			}
+			p->next_update=NULL;
+			p->prev_update=NULL;
 		}
-		prev=p;
+		if(p->z>100){
+			game_remove_particle(game,p);
+		}
 		p=next;
 	}
 }
@@ -695,21 +687,52 @@ void game_render_one_arrow(Arrow * arrow, Game* game){
 	double angle=80-arrow->dist*4.e-4;
 	if(alpha <angle||alpha>360-angle){
 
-		glRotated(arrow->beta,0,0,1);
-		glRotated(arrow->alpha,0,1,0);
 		if(arrow->dist<500){
 			// if flying
 			if(!(arrow->z<=-4)){
-				glScaled(2,2,2);
 				if(arrow_high_quality_count){
-					draw_arrow_high_quality();
+
+
+					if(arrow->dist<200){
+						int n=5;
+						for(int i=0;i<n;i++){
+							glPushMatrix();
+								glTranslated(
+									-2*i*arrow->dx,
+									-2*i*arrow->dy,
+									-2*i*arrow->dz);
+								glRotated(arrow->beta,0,0,1);
+								glRotated(arrow->alpha,0,1,0);
+								draw_arrow_high_quality();
+							glPopMatrix();
+							if(i == 0)
+								glAccum(GL_LOAD, 1.0 / n);
+							else
+								glAccum(GL_ACCUM, 1.0 / n);
+						}
+						glAccum(GL_RETURN, 1.0);
+					}else{
+						glPushMatrix();
+							glRotated(arrow->beta,0,0,1);
+							glRotated(arrow->alpha,0,1,0);
+							draw_arrow_high_quality();
+						glPopMatrix();
+
+					}
+
+
 					arrow_high_quality_count--;
 					// last_rendered_total_arrow++;
 				}else{
+					glRotated(arrow->beta,0,0,1);
+					glRotated(arrow->alpha,0,1,0);
 					draw_arrow_low_quality();
 				}
 			//if not flying
 			}else{
+				glRotated(arrow->beta,0,0,1);
+				glRotated(arrow->alpha,0,1,0);
+				glScaled(.5,.5,.5);
 				if(arrow_high_quality_count){
 					draw_arrow_ground_high_quality();
 					// last_rendered_total_arrow++;
@@ -719,15 +742,18 @@ void game_render_one_arrow(Arrow * arrow, Game* game){
 				}
 			}
 		}else{
+		glRotated(arrow->beta,0,0,1);
+		glRotated(arrow->alpha,0,1,0);
 			//les fleches dans les aires il faut toujours les dessiner
 			if(!(arrow->z<=-4)){
-				glScaled(2,2,2);
 				draw_arrow_low_quality();
 			}else if(arrow->dist<30000 && arrow_low_quality_count ){
+				glScaled(.5,.5,.5);
 				draw_arrow_ground_low_quality();
 				// last_rendered_total_arrow++;
 				arrow_low_quality_count--;
 			}else if(arrow_count){
+				glScaled(.5,.5,.5);
 			// }else {
 				draw_arrow_ground_very_low_quality();
 				// last_rendered_total_arrow++;
@@ -756,7 +782,6 @@ void game_render_one_arrow_color(Arrow * arrow, Game* game){
 		if(arrow->dist<500){
 			// if flying
 			if(!(arrow->z<=-4)){
-				glScaled(2,2,2);
 				if(arrow_high_quality_count){
 					glColor4d(0,0,1,1);
 					draw_arrow_high_quality();
@@ -767,6 +792,7 @@ void game_render_one_arrow_color(Arrow * arrow, Game* game){
 				}
 			//if not flying
 			}else{
+				glScaled(.5,.5,.5);
 				if(arrow_high_quality_count){
 					glColor4d(0,0,1,1);
 					draw_arrow_ground_high_quality();
@@ -781,15 +807,16 @@ void game_render_one_arrow_color(Arrow * arrow, Game* game){
 		}else{
 			//les fleches dans les aires il faut toujours les dessiner
 			if(!(arrow->z<=-4)){
-				glScaled(2,2,2);
 				glColor4d(0,1,1,1);
 				draw_arrow_low_quality();
 			}else if(arrow->dist<30000 && arrow_low_quality_count ){
+				glScaled(.5,.5,.5);
 				glColor4d(0,1,0,1);
 				draw_arrow_ground_low_quality();
 				arrow_low_quality_count--;
 			// }else if(arrow_count){
 			}else {
+				glScaled(.5,.5,.5);
 				glColor4d(1,0,0,1);
 				draw_arrow_ground_very_low_quality();
 				arrow_count--;
@@ -920,7 +947,7 @@ void game_render(Game* game){
 				// glDepthFunc(GL_ALWAYS);//debug
 				glPushMatrix();
 					glTranslated(arrow->x,arrow->y,-arrow->z);
-					glScaled(.5,.5,-.5);
+					glScaled(1,1,-1);
 					draw_arrow(arrow,game);
 				glPopMatrix();
 			}
@@ -983,7 +1010,6 @@ void game_render(Game* game){
 			// i++;
 			glPushMatrix();
 				glTranslated(arrow->x,arrow->y,arrow->z);
-				glScaled(.5,.5,.5);
 				draw_arrow(arrow,game);
 			glPopMatrix();
 		}
