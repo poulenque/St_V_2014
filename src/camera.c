@@ -80,6 +80,9 @@ Camera* new_Camera(){
 	c->dy=0;
 	c->dz=0;
 
+	c->fake_y=0;
+	c->fake_z=0;
+
 	c->ddx=0;
 	c->ddy=0;
 	c->ddz=0;
@@ -176,6 +179,7 @@ void camera_render(Camera* c){
 	// glBindFramebuffer(GL_FRAMEBUFFER,game->frame_buffer_id);
 
 	// camera_HUD(c);
+	double time_=SDL_GetTicks()*0.001;
 
 	camera_look(c);
 	glMatrixMode(GL_MODELVIEW);
@@ -187,7 +191,8 @@ void camera_render(Camera* c){
 	glRotated(c->rho,1,0,0);
 	glRotated(c->theta, 0.0, 1.0, 0.0);
 	glRotated(c->phi, 0.0, 0.0, 1.0);
-	glTranslated(c->x, c->y, c->z);
+	// glTranslated(c->x, c->y + 10*cos(time_), c->z + 0.5 * 10*sin(time_));
+	glTranslated(c->x, c->y + c->fake_y, c->z + c->fake_z);
 
 	game_render(c->game);
 	// c->game->render(c->game);

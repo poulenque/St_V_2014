@@ -19,7 +19,9 @@ union soundFile{
 
 typedef struct SoundSample{
 	char * data;
+	char * old_data;
 	int size;
+	int old_read_size;
 	int read_size;
 	int freq;
 	int format;
@@ -27,7 +29,7 @@ typedef struct SoundSample{
 	union soundFile s_file;
 }SoundSample;
 
-Sound * sound_load (const char * path);
+// Sound * sound_load (const char * path);
 
 SoundSample * sound_loadSample (const char * path);
 

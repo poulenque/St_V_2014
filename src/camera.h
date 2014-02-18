@@ -45,6 +45,9 @@ typedef	struct Camera {
 	double y;
 	double z;
 
+	double fake_y;
+	double fake_z;
+
 	double dx;
 	double dy;
 	double dz;

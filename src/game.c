@@ -14,9 +14,6 @@
 #include "HUD.h"
 #include "levels.h"
 
-#define GOOD 1
-#define BAD 0
-
 //==========================================================
 //                                                      
 //  _|_|_|_|    _|_|    _|      _|  _|_|_|_|_|          
@@ -28,6 +25,7 @@
 //==========================================================
 //http://patorjk.com/software/taag/#p=display&f=Block&t=FONT
 //==========================================================
+
 
 static double time_=0;
 double get_time_(){
@@ -80,6 +78,19 @@ static String3d* str;
 String3d* get_str(){
 	return str;
 }
+
+void game_loop_coord(Game* game,double * X, double* Y){
+	while(*X+game->player->x+game->world_x_size*.5>0)
+		*X-=game->world_x_size;
+	while(*X+game->player->x+game->world_x_size*.5<0)
+		*X+=game->world_x_size;
+	while(*Y+game->player->y+game->world_y_size*.5>0)
+		*Y-=game->world_y_size;
+	while(*Y+game->player->y+game->world_y_size*.5<0)
+		*Y+=game->world_y_size;
+
+}
+
 
 void game_insert_Mechant(Game* game, Mechant * mechant){
 	mechant->next=game->mechants;
@@ -284,17 +295,9 @@ static void update_mechant(Game* game){
 static double trigger_value_MAX[6];
 static double fire_value_MAX[6]   ;
 
-
-static void update_arrow(Game* game){
-		Arrow* arrow_before=NULL;
-		Arrow* arrow=game->arrows_to_update;
-		while(arrow!=NULL){
-			arrow->v=sqrt(arrow->dx*arrow->dx + arrow->dy*arrow->dy + arrow->dz*arrow->dz);
-			double angle_=-1+acos(arrow->dz/arrow->v)*2./PI;
-			if(arrow->z>-4){
-
+static void update_one_arrow(Game * game, Arrow* arrow,double gravity){
 				// ACCELERATION g
-				arrow->dz -=.0002;
+				arrow->dz -=gravity;
 
 				arrow->x += arrow->dx;
 				arrow->y += arrow->dy;
@@ -303,39 +306,48 @@ static void update_arrow(Game* game){
 				arrow->alpha=180+acos(arrow->dz/arrow->v)*180/PI;
 				arrow->beta=180./PI*atan2(arrow->dy,arrow->dx);
 
-			//TODO COLLISION
-			//TODO COLLISION
-			//TODO COLLISION
-			//TODO COLLISION
-			//TODO COLLISION
-			//TODO COLLISION
-			//TODO COLLISION
-			//TODO COLLISION
-				Mechant * mechant = game->mechants;
-				while(mechant !=NULL){
-					Mechant * next = mechant->next;
-					if(arrow->z<5){
-						double dist_x=mechant->x - arrow->x;
-						double dist_y=mechant->y - arrow->y;
-						double dist_z=mechant->z - arrow->z;
-						// double dist =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
-						double dist =abs(dist_x)+abs(dist_y)+abs(dist_z);
-						if(dist<10){
-							game_add_explosion(game,GOOD,50, mechant->x,mechant->y,mechant->z,.3*arrow->dx,.3*arrow->dy,.3*arrow->dz);
-							// game_remove_mechant(game,mechant);
-							double rayon = random(300,0);
-							double angle = random(0,2*PI);
-							mechant->x=-game->player->x+rayon*cos(angle);
-							mechant->y=-game->player->y+rayon*sin(angle);
-							mechant->z=0;
 
-							mechant->dx=random(0,.05);
-							mechant->dy=random(0,.05);
-							mechant->dz=0;
-						}
-					}
-					mechant = next;
+}
+void one_arrow_collision(Game * game, Arrow* arrow){
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+			//TODO COLLISION
+	Mechant * mechant = game->mechants;
+	while(mechant !=NULL){
+		Mechant * next = mechant->next;
+		if(arrow->z<5){
+			double dist_x=mechant->x - arrow->x;
+			double dist_y=mechant->y - arrow->y;
+			double dist_z=mechant->z - arrow->z;
+			// double dist =dist_x*dist_x+dist_y*dist_y+dist_z*dist_z;
+			double dist =abs(dist_x)+abs(dist_y)+abs(dist_z);
+			if(dist<10){
+				game_add_explosion(game,GOOD,50, mechant->x,mechant->y,mechant->z,.3*arrow->dx,.3*arrow->dy,.3*arrow->dz);
+				// game_remove_mechant(game,mechant);
+				double rayon = random(300,0);
+				double angle = random(0,2*PI);
+				mechant->x=-game->player->x+rayon*cos(angle);
+				mechant->y=-game->player->y+rayon*sin(angle);
+				mechant->z=0;
+
+				mechant->type=(game->mechant_regeneration_type)();
+				if(mechant->type==-1){
+					game_remove_mechant(game,mechant);
 				}
+
+
+				mechant->dx=random(0,.05);
+				mechant->dy=random(0,.05);
+				mechant->dz=0;
+			}
+		}
+		mechant = next;
+	}
 			//TODO COLLISION
 			//TODO COLLISION
 			//TODO COLLISION
@@ -344,10 +356,30 @@ static void update_arrow(Game* game){
 			//TODO COLLISION
 			//TODO COLLISION
 
-			//WHILE LOOP
-				arrow_before=arrow;
-				arrow=arrow->next_update;
-			//WHILE LOOP
+}
+
+static void arrow_collision(Game* game){
+		Arrow* arrow=game->arrows_to_update;
+		while(arrow!=NULL){
+			double angle_=-1+acos(arrow->dz/arrow->v)*2./PI;
+			if(arrow->z>-4){
+				one_arrow_collision(game,arrow);
+			}
+			arrow=arrow->next_update;
+		}
+}
+static void update_arrow(Game* game){
+		Arrow* arrow_before=NULL;
+		Arrow* arrow=game->arrows_to_update;
+		while(arrow!=NULL){
+			arrow->v=sqrt(arrow->dx*arrow->dx + arrow->dy*arrow->dy + arrow->dz*arrow->dz);
+			double angle_=-1+acos(arrow->dz/arrow->v)*2./PI;
+			if(arrow->z>-4){
+				update_one_arrow(game,arrow,.0002);
+				//WHILE LOOP
+					arrow_before=arrow;
+					arrow=arrow->next_update;
+				//WHILE LOOP
 			}else{
 				// double k=(-4-angle_*2)/(game->arrows[i].dz);
 				// game->arrows[i].x=k*game->arrows[i].dx+x_before;
@@ -374,10 +406,6 @@ static void update_arrow(Game* game){
 	
 			}
 		}
-		// TODO
-		// THERE IS A BUG HERE :
-		// OLD ARROWS WONT UPDATE IF
-		// A MORE RECENT ONE TOUCHED THE GROUND
 }
 
 static void fire_arrow_with_bow(Game* game){
@@ -403,6 +431,10 @@ static void fire_arrow_with_bow(Game* game){
 		if(dz>0.0001)dz=0.0001;
 	}
 	to_add->dz=dz;
+
+	to_add->dx+=-game->player->dx*0.001;
+	to_add->dy+=-game->player->dy*0.001;
+	to_add->dz+=-game->player->dz*0.001;
 
 	//======================
 	//UPDATE THE UPDATE_LIST (push front)
@@ -440,8 +472,12 @@ static void fire_arrow_with_sulfateuse(Game* game){
 	to_add->y=-game->player->y + y_offset*cos(game->player->phi/360.*2.*PI) - x_offset*sin(game->player->phi/360.*2.*PI);
 	to_add->z=-game->player->z + z_offset;
 
-	to_add->dx= .6*cos(-game->player->phi/360.*2.*PI)*(1-1.6*fabs(sin(-game->player->theta/360.*2.*PI)))*random(.85,.3) + .6*sin(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
-	to_add->dy= .6*sin(-game->player->phi/360.*2.*PI)*(1-1.6*fabs(sin(-game->player->theta/360.*2.*PI)))*random(.85,.3) + .6*cos(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
+	double www = 1.6*fabs(sin(-game->player->theta/360.*2.*PI));
+	if(www>1)www=1;
+	if(www<-1)www=-1;
+
+	to_add->dx= .6*cos(-game->player->phi/360.*2.*PI)*(1-www)*random(.85,.3) + .6*sin(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
+	to_add->dy= .6*sin(-game->player->phi/360.*2.*PI)*(1-www)*random(.85,.3) + .6*cos(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
 	double dz;
 	if(game->player->theta>0){
 		//look up
@@ -449,10 +485,15 @@ static void fire_arrow_with_sulfateuse(Game* game){
 	}else{
 		//look down
 		dz=-.05*sin(-game->player->theta/180.*PI);
+		if(dz<-0.01)dz=-0.01;
 		// if(dz>.0001)dz=.001;
 		if(dz>0.0001)dz=0.0001;
 	}
 	to_add->dz=dz;
+
+	to_add->dx+=-game->player->dx*0.0002;
+	to_add->dy+=-game->player->dy*0.0002;
+	to_add->dz+=-game->player->dz*0.0002;
 
 	//======================
 	//UPDATE THE UPDATE_LIST (push front)
@@ -471,6 +512,14 @@ static void fire_arrow_with_sulfateuse(Game* game){
 	if(game->arrows_last==NULL){
 		game->arrows_last = to_add;
 	}
+	// if(>30){
+	int i_max=abs(1.5*game->player->theta);
+	// if(i_max>50)i_max=50;
+
+		for(int i=0;i<i_max;i++){
+			update_one_arrow(game,to_add,0);
+		}
+	// }
 }
 
 void update_interraction_mechant_player(Game* game){
@@ -511,6 +560,10 @@ void game_update(Game* game,int dt){
 	time_+=dt;
 	camera_update(game->player,dt);
 	fake_walk_update(game,dt);
+
+	double amplitude=audioplayer_getAmplitude(game->audio,dt);
+	if(amplitude>game->audio_amplitude) game->audio_amplitude = amplitude;
+	else game->audio_amplitude = game->audio_amplitude*.5 + amplitude*.5;
 	//=======================================================
 	//=======================================================
 	//=======================================================
@@ -571,6 +624,7 @@ void game_update(Game* game,int dt){
 			update_particles(game);
 
 		}
+		arrow_collision(game);
 	//=======================================================
 	//=======================================================
 	//=======================================================
@@ -831,7 +885,7 @@ void game_render_one_arrow_color(Arrow * arrow, Game* game){
 }
 
 
-void game_render_one_mechant(Mechant * mechant, Game * game){
+void game_render_one_mechant(Mechant * mechant, Game * game,double r,double g,double b,int reflexion){
 	// double z=exp(-get_time_()*.007);
 
 
@@ -863,9 +917,17 @@ void game_render_one_mechant(Mechant * mechant, Game * game){
 			// glTranslated(mechant->x,mechant->y,mechant->z+8);
 			// glTranslated(mechant->x,mechant->y,mechant->z);
 		if(mechant->type==0){
-			draw_gentil(audioplayer_getAmplitude(game->audio,.05),quality);
-		}else{
-
+			glColor4d(r,g,b,1);
+			// draw_gentil(game->audio_amplitude,quality);
+			draw_gentil(game->heart_beat,quality);
+		}else if(mechant->type==1){
+			glPushMatrix();
+				// glRotated(mechant->rho,1,0,0);
+				// glRotated(mechant->theta, 0.0, 1.0, 0.0);
+				glRotated(mechant->phi, 0.0, 0.0, 1.0);
+				draw_heart(game->heart_beat,quality,reflexion);
+			glPopMatrix();
+			// draw_gentil(audioplayer_getAmplitude(game->audio,.05),quality);
 		}
 			// draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
 		// glPopMatrix();
@@ -984,7 +1046,7 @@ void game_render(Game* game){
 			glPushMatrix();
 				glScaled(1,1,-1);
 				glTranslated(mechant->x,mechant->y,mechant->z+1);
-				game_render_one_mechant(mechant,game);
+				game_render_one_mechant(mechant,game,r_color,g_color,b_color,1);
 			glPopMatrix();
 
 			mechant=mechant->next;
@@ -1046,7 +1108,7 @@ void game_render(Game* game){
 		glPushMatrix();
 			// glScaled(1,1,-1);
 			glTranslated(mechant->x,mechant->y,mechant->z+1);
-			game_render_one_mechant(mechant,game);
+			game_render_one_mechant(mechant,game,r_color,g_color,b_color,0);
 		glPopMatrix();
 
 		mechant=mechant->next;
@@ -1058,6 +1120,11 @@ void game_render(Game* game){
 	Particle* p=game->particles;
 	glDisable(GL_POINT_SMOOTH);
 	glPointSize(7);
+	if(game->stereo){
+		glColor4d(.7,.2,.2,1);
+	}else{
+		glColor4d(1,0,0,1);
+	}
 	while(p!=NULL){
 		// double xx=p->x+game->player->x;
 		// double yy=p->y+game->player->y;
@@ -1127,6 +1194,9 @@ void game_pause(Game * game,int state){
 	}
 }
 
+int mechant_regeneration_type_dummy(){
+	return 0;
+}
 
 Game* initGame(Camera* player){
 
@@ -1214,6 +1284,11 @@ Game* initGame(Camera* player){
 	game->arrows_to_update=NULL;
 	game->audio= new_audioplayer();
 
+	game->audio_amplitude=0;
+	game->heart_beat=0;
+
+	game->mechant_regeneration_type=mechant_regeneration_type_dummy;
+
 	intro_setup(game);
 
 	//===========================
@@ -1232,8 +1307,16 @@ Game* initGame(Camera* player){
 	// audio_playMusic(game->audio,"music/INEXISTANT_FILE");
 	// audio_playMusic(game->audio,"music/Goto80_gopho.ogg");
 
+	// ingame_level4_setup(game);
 	// ingame_level3_setup(game);
 	// ingame_level2_setup(game);
+	// ingame_level1_setup(game);
+	// audioplayer_set_next(game->audio,"music/noise_test.ogg");
+	// audioplayer_set_next(game->audio,"music/noise_test_2.ogg");
+	// audioplayer_set_next(game->audio,"music/noise_test_3.ogg");
+	// audioplayer_set_next(game->audio,"music/noise_test_4.ogg");
+	// audioplayer_set_next(game->audio,"music/Goto80_gopho.ogg");
+	// audioplayer_set_next(game->audio,"music/Goto80_gopho_level2.ogg");
 	// level1_spawn_mechants(game);
 	game->world_x_size=600;
 	game->world_y_size=600;

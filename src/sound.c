@@ -25,52 +25,52 @@ static int openOgg (const char * path, OggVorbis_File * oggFile, int * format, i
 	return 0;
 }
 
-Sound * sound_load (const char * path) {
-	Sound * s;
-	int bitStream;
-	unsigned long bytes;
-	char array[BUFFER];
-	unsigned int total_read;
-	size_t allocated;
-	OggVorbis_File oggFile;
+// Sound * sound_load (const char * path) {
+// 	Sound * s;
+// 	int bitStream;
+// 	unsigned long bytes;
+// 	char array[BUFFER];
+// 	unsigned int total_read;
+// 	size_t allocated;
+// 	OggVorbis_File oggFile;
 
-	s = malloc (sizeof (Sound));
+// 	s = malloc (sizeof (Sound));
 
-	openOgg (path, &oggFile, &s->format, &s->freq);
+// 	openOgg (path, &oggFile, &s->format, &s->freq);
 
-	allocated = 8 * BUFFER;
-	s->data = malloc (allocated);
+// 	allocated = 8 * BUFFER;
+// 	s->data = malloc (allocated);
 
-	bitStream = 0;
-	total_read = 0;
+// 	bitStream = 0;
+// 	total_read = 0;
 
-	do {
-		bytes = ov_read (&oggFile, array, BUFFER, 0, 2, 1, &bitStream);
+// 	do {
+// 		bytes = ov_read (&oggFile, array, BUFFER, 0, 2, 1, &bitStream);
 
-		if ((total_read + bytes) >= allocated) {
-			char * tmp;
-			allocated += (8 * BUFFER);
-			tmp = realloc (s->data, allocated);
-			if (tmp == NULL) {
-				free (s->data);
-				free (s);
-				return NULL;
-			}
-			s->data = tmp;
-		}
+// 		if ((total_read + bytes) >= allocated) {
+// 			char * tmp;
+// 			allocated += (8 * BUFFER);
+// 			tmp = realloc (s->data, allocated);
+// 			if (tmp == NULL) {
+// 				free (s->data);
+// 				free (s);
+// 				return NULL;
+// 			}
+// 			s->data = tmp;
+// 		}
 
-		memcpy (&s->data[total_read], array, bytes);
+// 		memcpy (&s->data[total_read], array, bytes);
 
-		total_read += bytes;
-	}
-	while (bytes > 0);
+// 		total_read += bytes;
+// 	}
+// 	while (bytes > 0);
 
-	s->size = total_read;
+// 	s->size = total_read;
 
-	ov_clear (&oggFile);
+// 	ov_clear (&oggFile);
 
-	return s;
-}
+// 	return s;
+// }
 
 
 SoundSample * sound_loadSample (const char * path){
@@ -88,10 +88,12 @@ SoundSample * sound_loadSample (const char * path){
 	int size= ONEMEGAOCTET;
 
 	s->data = malloc (size);
+	s->old_data = malloc (size);
 	s->size = size;
 
 	s->bitStream = 0;
 	s->read_size = 0;
+	s->old_read_size = 0;
 
 	return s;
 }
@@ -101,6 +103,12 @@ int sound_nextSample (SoundSample * sample) {
 	// !! BUFFER must be smaller than s->data size
 	char array[BUFFER];
 	long bytes;
+
+
+	if(sample->read_size!=0){
+		memcpy (sample->old_data, sample->data, sample->read_size);
+		sample->old_read_size = sample->read_size;
+	}
 	sample->read_size = 0;
 	do {
 		bytes = ov_read (&sample->s_file.oggFile, array, BUFFER, 0, 2, 1, &sample->bitStream);
@@ -109,6 +117,7 @@ int sound_nextSample (SoundSample * sample) {
 
 		sample->read_size += bytes;
 	}while ((sample->read_size + BUFFER) < sample->size && bytes != 0);
+
 
 	return sample->read_size;
 }
@@ -119,6 +128,7 @@ void sound_seekSample (SoundSample * sample) {
 
 void sound_closeSample (SoundSample * sample) {
 	free (sample->data);
+	free (sample->old_data);
 	ov_clear (&sample->s_file.oggFile);
 	free (sample);
 }

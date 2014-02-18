@@ -74,7 +74,7 @@ void intro_render(Game* game){
 	glScaled(3,1,3);\
 	glTranslated(0,3.2-4*cos(PI*cos(get_time_()/15.*.1)),0);\
 	glRotated(90,1,0,0);\
-	draw_arrow_high_quality();
+	draw_arrow_high_quality_no_heart();
 
 	glPushMatrix();
 	DRAW_ONE_BOW

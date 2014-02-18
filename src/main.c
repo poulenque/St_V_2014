@@ -415,9 +415,24 @@ int main(int argc, char *argv[]) {
 						}else{
 							camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
 						}
+
 					}
 					// camera_rotate(player,0,2*event.motion.xrel,0);
 					break;
+				case SDL_MOUSEBUTTONDOWN:
+					if(MOUSE_ON){
+						if(event.button.button==4){
+							camera_move_acc(player,-400,0,0);
+						}else if(event.button.button==5){
+							camera_move_acc(player,400,0,0);
+						}else if(event.button.button==6){
+							camera_move_acc(player,0,-400,0);
+						}else if(event.button.button==7){
+							camera_move_acc(player,0,400,0);
+						}
+					}
+
+					break;		
 			}
 		}
 

@@ -14,6 +14,14 @@ void draw_init(){
 	quad=gluNewQuadric();
 }
 
+
+void change_bg_color(double r,double g,double b){
+	GLfloat fogColor[4]= {r,g,b, 1};
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glClearColor(r,g,b,1);
+}
+
+
 //===============================================
 //                                                 
 // _|_|_|      _|_|      _|_|_|  _|_|_|    _|_|_|  
@@ -101,41 +109,76 @@ void draw_cube_simple(double size){
 	glEnd();
 }
 void simple_cube(){
-	glBegin(GL_POLYGON);
-	glVertex3f(  0.5, -0.5, 0.5 );
-	glVertex3f(  0.5,  0.5, 0.5 );
-	glVertex3f( -0.5,  0.5, 0.5 );
-	glVertex3f( -0.5, -0.5, 0.5 );
-	glEnd();
+	glBegin(GL_QUADS);
+		glVertex3f(  0.5, -0.5, 0.5 );
+		glVertex3f(  0.5,  0.5, 0.5 );
+		glVertex3f( -0.5,  0.5, 0.5 );
+		glVertex3f( -0.5, -0.5, 0.5 );
 
-	glBegin(GL_POLYGON);
-	glVertex3f( 0.5, -0.5, -0.5 );
-	glVertex3f( 0.5,  0.5, -0.5 );
-	glVertex3f( 0.5,  0.5,  0.5 );
-	glVertex3f( 0.5, -0.5,  0.5 );
-	glEnd();
+		glVertex3f( 0.5, -0.5, -0.5 );
+		glVertex3f( 0.5,  0.5, -0.5 );
+		glVertex3f( 0.5,  0.5,  0.5 );
+		glVertex3f( 0.5, -0.5,  0.5 );
 
-	glBegin(GL_POLYGON);
-	glVertex3f( -0.5, -0.5,  0.5 );
-	glVertex3f( -0.5,  0.5,  0.5 );
-	glVertex3f( -0.5,  0.5, -0.5 );
-	glVertex3f( -0.5, -0.5, -0.5 );
-	glEnd();
+		glVertex3f( -0.5, -0.5,  0.5 );
+		glVertex3f( -0.5,  0.5,  0.5 );
+		glVertex3f( -0.5,  0.5, -0.5 );
+		glVertex3f( -0.5, -0.5, -0.5 );
 
-	glBegin(GL_POLYGON);
-	glVertex3f(  0.5,  0.5,  0.5 );
-	glVertex3f(  0.5,  0.5, -0.5 );
-	glVertex3f( -0.5,  0.5, -0.5 );
-	glVertex3f( -0.5,  0.5,  0.5 );
-	glEnd();
+		glVertex3f(  0.5,  0.5,  0.5 );
+		glVertex3f(  0.5,  0.5, -0.5 );
+		glVertex3f( -0.5,  0.5, -0.5 );
+		glVertex3f( -0.5,  0.5,  0.5 );
 
-	glBegin(GL_POLYGON);
-	glVertex3f(  0.5, -0.5, -0.5 );
-	glVertex3f(  0.5, -0.5,  0.5 );
-	glVertex3f( -0.5, -0.5,  0.5 );
-	glVertex3f( -0.5, -0.5, -0.5 );
+		glVertex3f(  0.5, -0.5, -0.5 );
+		glVertex3f(  0.5, -0.5,  0.5 );
+		glVertex3f( -0.5, -0.5,  0.5 );
+		glVertex3f( -0.5, -0.5, -0.5 );
 	glEnd();
  
+}
+void simple_cube_color(double r1,double g1,double b1,double r2,double g2,double b2){
+	glBegin(GL_QUADS);
+
+		glColor4d(r1,g1,b1,1);
+		glVertex3f(  0.5, -0.5, 0.5 );
+		glVertex3f(  0.5,  0.5, 0.5 );
+		glVertex3f( -0.5,  0.5, 0.5 );
+		glVertex3f( -0.5, -0.5, 0.5 );
+
+		glColor4d(r2,g2,b2,1);
+		glVertex3f( 0.5, -0.5, -0.5 );
+		glVertex3f( 0.5,  0.5, -0.5 );
+		glColor4d(r1,g1,b1,1);
+		glVertex3f( 0.5,  0.5,  0.5 );
+		glVertex3f( 0.5, -0.5,  0.5 );
+
+		glVertex3f( -0.5, -0.5,  0.5 );
+		glVertex3f( -0.5,  0.5,  0.5 );
+		glColor4d(r2,g2,b2,1);
+		glVertex3f( -0.5,  0.5, -0.5 );
+		glVertex3f( -0.5, -0.5, -0.5 );
+		glColor4d(r1,g1,b1,1);
+
+		glVertex3f(  0.5,  0.5,  0.5 );
+		glColor4d(r2,g2,b2,1);
+		glVertex3f(  0.5,  0.5, -0.5 );
+		glVertex3f( -0.5,  0.5, -0.5 );
+		glColor4d(r1,g1,b1,1);
+		glVertex3f( -0.5,  0.5,  0.5 );
+
+
+		glVertex3f(  0.5, -0.5,  0.5 );
+		glVertex3f( -0.5, -0.5,  0.5 );
+		glColor4d(r2,g2,b2,1);
+		glVertex3f( -0.5, -0.5, -0.5 );
+		glVertex3f(  0.5, -0.5, -0.5 );
+		glColor4d(r1,g1,b1,1);
+
+		// glColor4d(1,0,0,1);
+		// glColor4d(0,1,0,1);
+	glEnd();
+
 }
 
 void draw_face(double size,double noise){
@@ -258,52 +301,53 @@ void draw_sphere2(double size,double time_,double noise){
 //==========================================
 
 void draw_gentil(double noise,int detail){
+
+	noise-=.2;
+
+	// if (noise>1)noise=1;
+
 	if (detail==0){
 
 		// glColor4d(0,0,0,1);
-		//REAL OBJECT
-		glLineWidth(3.0);
+
+		noise=2*noise;
+
+		glLineWidth(3.0+noise);
 		glBegin(GL_LINES);
-			glVertex3d(0,0,1);
-			glVertex3d(0,0,0);
+			glVertex3d(0,0,1+noise);
+			glVertex3d(0,0,0+noise);
 		glEnd();
-		glLineWidth(2.0);
+		glLineWidth(2.0+noise);
 		glBegin(GL_LINES);
-			glVertex3d(0,0,0);
-			glVertex3d(0,0,-1);
+			glVertex3d(0,0,0+noise);
+			glVertex3d(0,0,-1+noise);
 		glEnd();
 
-		glLineWidth(7.0);
+		glLineWidth(7.0+noise);
 		glBegin(GL_LINES);
-			glVertex3d(0,0,-1);
-			glVertex3d(0,0,-1.4);
+			glVertex3d(0,0,-1+noise);
+			glVertex3d(0,0,-1.4+noise);
 		glEnd();
-		glLineWidth(4);
+		glLineWidth(4+noise);
 		glBegin(GL_LINES);
-			glVertex3d(0,0,-1.4);
-			glVertex3d(0,0,-2.2);
+			glVertex3d(0,0,-1.4+noise);
+			glVertex3d(0,0,-2.2+noise);
 		glEnd();
-		glLineWidth(2.0);
+		glLineWidth(2.0+noise);
 		glBegin(GL_LINES);
-			glVertex3d(0,0,-2.2);
-			glVertex3d(0,0,-3);
+			glVertex3d(0,0,-2.2+noise);
+			glVertex3d(0,0,-3+noise);
 		glEnd();
-		glLineWidth(4);
+		glLineWidth(4+noise);
 		glBegin(GL_LINES);
-			glVertex3d(0,0,-3);
-			glVertex3d(0,0,-4);
+			glVertex3d(0,0,-3+noise);
+			glVertex3d(0,0,-4+noise);
 		glEnd();
-		glLineWidth(7);
+		glLineWidth(7+noise);
 		glBegin(GL_LINES);
-			glVertex3d(0,0,-4);
+			glVertex3d(0,0,-4+noise);
 			glVertex3d(0,0,-5);
 		glEnd();
-		// //REFLEXION
-		// glColor4d(.9,.9,.9,1);
-		// glBegin(GL_LINES);
-		// 	glVertex3d(0,0,-5);
-		// 	glVertex3d(0,0,-11);
-		// glEnd();
 		return;
 	}
 
@@ -316,44 +360,53 @@ void draw_gentil(double noise,int detail){
 	//REAL OBJECT
 	glPushMatrix();
 
-		glTranslated(0,0,1);
+		// glTranslated(0,0,1);
 		// glColor4d(0,0,0,1);
 
+		double x=noise/4.;
+		double y=noise/2.;
+		double a=noise*2;
 		//HEAD
-		glTranslated(0,0,-1.);
+		// glTranslated(0,0,-1.);
+		glTranslated(0,0,3*x);
 		glPushMatrix();
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,random(.5,noise), random(1,noise), 1.,cylinder_subivision,1);
+			// gluCylinder(quad,random(.5,noise), random(1,noise), 1.,cylinder_subivision,1);
+			gluCylinder(quad,random(.5+y,a), random(1+y,a), 1.+x,cylinder_subivision,1);
 		glPopMatrix();
 
 
-		glTranslated(0,0,-1.);
+		glTranslated(0,0,-1.-x);
 		glPushMatrix();
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,0.,random(.5,noise),1.,cylinder_subivision,1);
+			// gluCylinder(quad,0.,random(.5,noise),1.,cylinder_subivision,1);
+			gluCylinder(quad,0.,random(.5+y,a),1.+x,cylinder_subivision,1);
 		glPopMatrix();
+
 
 		//BODY
-		glTranslated(0,0,-2.);
+		glTranslated(0,0,-2.-x);
 		glPushMatrix();
 
 			if(detail>=2){
 				glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-				gluCylinder(quad,random(1-.5,noise),random(1+.5,noise),2.,cylinder_subivision,1);
+				// gluCylinder(quad,random(1-.5,noise),random(1+.5,noise),2.,cylinder_subivision,1);
+				gluCylinder(quad,random(1-.5+y,a),random(1+.5+y,a),2.+x,cylinder_subivision,1);
 			}
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,1-.5,1+.5,2.,cylinder_subivision,1);
+			gluCylinder(quad,1-.5,1+.5,2.+x,cylinder_subivision,1);
 		glPopMatrix();
 
-		glTranslated(0,0,-2.);
+		glTranslated(0,0,-2.-x);
 		glPushMatrix();
 
 			if(detail>=2){
 				glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-				gluCylinder(quad,random(1+.5,noise),random(1-.5,noise),2.,cylinder_subivision,1);
+				// gluCylinder(quad,random(1+.5,noise),random(1-.5,noise),2.,cylinder_subivision,1);
+				gluCylinder(quad,random(1+.5+y,a),random(1-.5+y,a),2.+x,cylinder_subivision,1);
 			}
 			glRotated(random(0,noise*40),random(0,noise*40),random(0,noise*40),1);
-			gluCylinder(quad,1+.5,1-.5,2,cylinder_subivision,1);
+			gluCylinder(quad,1+.5,1-.5,2+x,cylinder_subivision,1);
 		glPopMatrix();
 
 	glPopMatrix();
@@ -364,6 +417,7 @@ void draw_mechant(double noise,int detail){
 	detail ++;noise++;
 	//TODO
 }
+
 
 
 
@@ -392,6 +446,160 @@ void draw_wing(double noise,int detail){
 
 }
 
+void draw_heart(double lambda0,int quality,int reflexion){
+	glPushMatrix();
+		glScaled(-2,2,2);
+		draw_heart_half(lambda0,quality,reflexion);
+		glScaled(-1,1,1);
+		draw_heart_half(lambda0,quality,reflexion);
+	glPopMatrix();
+}
+void draw_heart_half(double lambda0,int quality,int reflexion){
+	//source : http://mathworld.wolfram.com/BonneProjection.html
+	const double phi1 = 85.*PI/180.;
+	double phi;
+	double lambda;
+
+	double rho;
+	double E;
+	double x;
+	double y;
+
+	// int i_MAX=30;
+	// int j_MAX=30;
+	// for(int i=0;i<=i_MAX;i++){
+	// 	glBegin(GL_LINE_STRIP);
+
+	// 	for(int j=0;j<=j_MAX;j++){
+
+	// 		lambda=i*2*PI/i_MAX-PI;
+	// 		lambda0=0;
+	// 		phi=j*PI/j_MAX-PI/2.;
+
+
+	// 		rho=1./tan(phi1)+phi1 - phi;
+	// 		E=(lambda-lambda0)*cos(phi)/rho;
+	// 		x=rho*sin(E);
+	// 		y=1./tan(phi1)-rho*cos(E) + 1;
+	// 		// glVertex3d(x,sin(y+SDL_GetTicks()*0.01),y);
+	// 		// printf("%lf\n",x );
+	// 		glVertex3d(0,x,y);
+	// 		// glVertex3d(x,-cos(x),y);
+	// 		// glVertex3d(x,-cos(x)+sin(y),y);
+	// 		// glVertex3d(x,0,y);
+	// 	}
+	// 	glEnd();
+	// }
+
+	// double t=fmod(time_,deltat);
+	// R=2*exp(-4*t)*sin(fabs(2*theta) + 2*phi + t/deltat*2*PI* 8*exp(-2*t/deltat) )+10;
+
+	int i_MAX=1;
+	int j_MAX=20;
+	int k_MAX=7;
+	double w=1;
+	if(quality==1){
+		j_MAX=7;
+		k_MAX=5;
+		w=1.2;
+	}else 	if(quality==0){
+		j_MAX=5;
+		k_MAX=3;
+		w=1.5;
+	}
+
+
+	GLfloat bkColor[3];
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
+	double r_color=.5+.5*bkColor[0];
+	double g_color=0+.5*bkColor[1];
+	double b_color=0+.5*bkColor[2];
+
+	for (int k=0;k<k_MAX;k++){
+		double a=k*1./k_MAX;
+		for(int i=0;i<=i_MAX;i++){
+			// glBegin(GL_LINE_STRIP);
+			glBegin(GL_POLYGON);
+
+			for(int j=0;j<=j_MAX;j++){
+
+				lambda=i*2*PI/i_MAX-PI;
+				phi=j*PI/j_MAX-PI/2.;
+
+				double cot=1./tan(phi1);
+
+				rho=cot + phi1 - phi;
+				E=(lambda-lambda0)*cos(phi)/rho;
+				x=rho*sin(E);
+				y=cot-rho*cos(E) + 1;
+
+				if(reflexion){
+					glColor4d(r_color,g_color,b_color,1);
+				}else{
+					glColor4d(1-j*.5/j_MAX,0,0,1);
+				}
+
+				if(lambda<0){
+					x=x*a- (1-a)*(.0*cos(phi));
+					y=y*a+ (1-a)*(.0*sin(phi)+.6);
+				}else{
+					x=x*a+ (1-a)*(.0*cos(phi));
+					y=y*a+ (1-a)*(.0*sin(phi)+.6);
+				}
+				glVertex3d(-.7*cos(a*PI/2.),w*x,w*y);
+			}
+			glEnd();
+		}
+	}
+
+	j_MAX=2;
+
+	for(int i=0;i<=i_MAX;i++){
+
+		for(int j=0;j<=j_MAX;j++){
+			// glBegin(GL_LINE_STRIP);
+			glBegin(GL_POLYGON);
+			for (int k=0;k<k_MAX;k++){
+				double a=k*1./k_MAX;
+
+
+				lambda=i*2*PI/i_MAX-PI;
+				phi=j*PI/j_MAX-PI/2.;
+
+				double cot=1./tan(phi1);
+				double cosphi=cos(phi);
+
+				rho=cot + phi1 - phi;
+				E=(lambda-lambda0)*cosphi/rho;
+				x=rho*sin(E);
+				y=cot-rho*cos(E) + 1;
+				if(reflexion){
+					glColor4d(r_color,g_color,b_color,1);
+				}else{
+					glColor4d(1-j*.5/j_MAX,0,0,1);
+				}
+				if(lambda<0){
+					x=x*a- (1-a)*(.0*cosphi);
+					y=y*a+ (1-a)*(.0*sin(phi)+.6);
+				}else{
+					x=x*a+ (1-a)*(.0*cosphi);
+					y=y*a+ (1-a)*(.0*sin(phi)+.6);
+				}
+				if(k==0||k==k_MAX-1){
+					if(reflexion){
+						glColor4d(r_color,g_color,b_color,1);
+					}else{
+						glColor4d(1-.2,0,0,1);
+					}
+					glVertex3d(0,x,y);
+				}
+				glVertex3d(-.7*cos(a*PI/2.),w*x,w*y);
+			}
+			glEnd();
+		}
+	}
+
+}
 
 
 //==============================
@@ -1089,6 +1297,33 @@ void draw_bow_to_take(double noise,double force){
 //==================================================
 //==================================================
 //==================================================
+void draw_arrow_high_quality_no_heart(){
+		glPushMatrix();
+			// glTranslated(-1,10,0);
+			// glRotated(t,1,0,0);
+			gluQuadricDrawStyle(quad, GLU_FILL);
+
+			//fleche
+			gluCylinder(quad,.04,.2,1,3,1);
+			glTranslated(0,0,1);
+
+			//tige
+			gluCylinder(quad,.04,.04,9,3,1);
+
+			glTranslated(0,0,7);
+			gluCylinder(quad,.08,.2,.5,2,1);
+			glTranslated(0,0,.5);
+			gluCylinder(quad,.2,.2,1,2,1);
+
+			glTranslated(0,0,-.5);
+			glRotated(90,0,0,1);
+
+			gluCylinder(quad,.08,.2,.5,2,1);
+			glTranslated(0,0,.5);
+			gluCylinder(quad,.2,.2,1,2,1);
+
+		glPopMatrix();
+}
 void draw_arrow_high_quality(){
 		glPushMatrix();
 			// glTranslated(-1,10,0);
@@ -1097,6 +1332,35 @@ void draw_arrow_high_quality(){
 
 			//fleche
 			gluCylinder(quad,.04,.2,1,3,1);
+
+			for(int j=-10;j<=10;j++){
+			double y=j/10.;
+			glPushAttrib(GL_CURRENT_BIT);
+			// glBegin(GL_LINE_STRIP);
+			glBegin(GL_POLYGON);
+				for(int i=0;i<40;i++){
+					double x=i/40.*2*PI + PI/2.;
+					double r=2-2*sin(x)+sin(x)*sqrt(fabs(cos(x)))/(sin(x)+1.4+fabs(y));
+					// r/=6.+fabs(16*y);
+
+					r/=6.;
+					r*=cos(PI*y/2.);
+
+					// glColor4d(1,1-fabs(y),0,1);
+					double w=0;
+					if(i<10){
+						w+=(10-i)/10.;
+					}
+					if(i>30){
+						w+=(i-30)/10.;
+					}
+					glColor4d(1-w/4.,0,0,1);
+					glVertex3d(r*cos(x),y*.2,3*r*sin(x)+1);
+				}
+			glEnd();
+			}
+			glPopAttrib();
+
 			glTranslated(0,0,1);
 
 			//tige
@@ -1333,7 +1597,7 @@ void draw_sulfateuse(double noise,double angle, int color){
 
 
 				if(color){
-				glPushAttrib(GL_CURRENT_BIT);
+				// glPushAttrib(GL_CURRENT_BIT);
 				// glColor4d(0,1,0,1);
 					glLineWidth(4);
 					for(int j=0;j<10;j++){
@@ -1346,7 +1610,7 @@ void draw_sulfateuse(double noise,double angle, int color){
 						}
 					glEnd();
 					}
-				glPopAttrib();
+				// glPopAttrib();
 				}
 
 				glPushAttrib(GL_CURRENT_BIT);

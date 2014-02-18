@@ -34,6 +34,10 @@ typedef struct Mechant{
 	double theta;
 	double rho;
 
+	double dphi;
+	double dtheta;
+	double drho;
+
 	int type;
 
 	struct Mechant * next;

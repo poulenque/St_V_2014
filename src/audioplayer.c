@@ -106,10 +106,39 @@ double audioplayer_getTime(AudioPlayer* player){
 //      return = sum but[x]^2  for x from t to t+dt
 //            where t is the position now
 //                  t+dt is the position in time_dt
-double audioplayer_getAmplitude(AudioPlayer* audioplayer, int time_dt){
-	int delta=time_dt*audioplayer->s1->freq;
-	//integrer le buffer entre now et min(now+delta,bufsize) 
-	return 1;
+double audioplayer_getAmplitude(AudioPlayer* player, int time_dt){
+	//MUTEX NEEDED !!!
+
+	// time_dt=2;//en millisecondes
+
+
+	float time_position;
+	alGetSourcef( player->source_id, AL_SAMPLE_OFFSET, &time_position );
+	int begin = (int)time_position*4;// + .2*player->s1->freq;//lire a l'avance
+
+	{
+		int delta=time_dt*player->s1->freq*.001;//.001 pour se mettre en seconde car Hz
+		int end =delta+begin;
+		if(end>player->s1->old_read_size)
+			end=player->s1->old_read_size;
+		double ret=0;
+		int i;
+		for(i=begin+1;i<end;i+=4){
+			// ret+=pow(player->s1->old_data[i]*.001,2);
+			ret+=pow(fabs(player->s1->old_data[i]/128.),4);
+			// ret+=fabs((float)(player->s1->old_data[i]/128.));
+			// ret+=fabs((float)(player->s1->old_data[i]/128.));
+		}
+		i-=begin;
+		// ret=ret/i*200;
+		// ret=ret/i*75;
+		ret=ret/i*50;
+		if(i==0)ret=0;
+		// printf("%2.8lf,%.10i,%.10i\n", ret ,begin,player->s1->old_read_size);
+		return ret;
+	}
+
+	//MUTEX NEEDED !!!
 }
 
 
@@ -126,7 +155,6 @@ double audioplayer_getAmplitude(AudioPlayer* audioplayer, int time_dt){
 // 	alSource3f (player->source_id, AL_POSITION, x, y, z);
 // }
 
-
 // this thread sould be playing a file and play the next one as the first one finished,
 static void * play (void * p) {
 	AudioPlayer * player = (AudioPlayer *)p;
@@ -134,13 +162,14 @@ static void * play (void * p) {
 	int no_buf;
 	unsigned int buf;
 
-	int cached=0;
 	int music_changed=0;
 	int music_looped=0;
 
 	float buf_time=0;
 	float buf_time_next=0;
 	char * next_file_path;
+
+	int cache=0;
 
 	do {
 			//how many buf to unqueue ?
@@ -161,7 +190,17 @@ static void * play (void * p) {
 					music_looped=0;
 					player->time_buffer_offset=0;
 				}
-				if (cached) {
+				
+				#undef AMPLITUDE_BETA
+				/////////////////////////////////////////////////////////
+				/////////////////////////////////////////////////////////
+				#ifdef AMPLITUDE_BETA
+					//IF SOUND_NEXTSAMPLE_CALLEF HERE : AMPLITUDE WORKS FINE UNTIL LAST LOOP
+					cache = sound_nextSample (player->s1);
+				#endif
+				/////////////////////////////////////////////////////////
+				/////////////////////////////////////////////////////////
+				if (cache) {
 					// printf("______________CONTINUE\n");
 					alBufferData (buf, player->s1->format, player->s1->data, player->s1->read_size, player->s1->freq);
 					alSourceQueueBuffers (player->source_id, 1, &buf);
@@ -199,11 +238,13 @@ static void * play (void * p) {
 					alSourcePlay (player->source_id);
 					buf_time_next=player->s1->read_size/(double)player->s1->freq/4.;
 				}
-				cached=sound_nextSample (player->s1);
-				// if(cached==0){
-				// 	printf("______________CACHE IS EMPTY\n");
-				// 	player->time_buffer_offset=0;
-				// }
+				/////////////////////////////////////////////////////////
+				/////////////////////////////////////////////////////////
+				#ifndef AMPLITUDE_BETA
+					cache = sound_nextSample (player->s1);
+				#endif
+				/////////////////////////////////////////////////////////
+				/////////////////////////////////////////////////////////
 			}
 	}while (1);
 

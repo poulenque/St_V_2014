@@ -61,6 +61,15 @@ double fake_HUD_drho_compensation=0;
 double fake_walking=0;
 
 void fake_walk_update(Game* game,int dt){
+
+	fake_walking=
+		 game->player->dx*game->player->dx
+		+game->player->dy*game->player->dy
+		+game->player->dz*game->player->dz;
+	fake_walking=sqrt(fake_walking);
+	fake_walking*=0.007;
+
+
 	// fake_drho+=fake_walking*70*sin(PI+PI/2*cos(SDL_GetTicks()*.008))/4.;
 
 	for(int i=0;i<dt;i++){
@@ -79,6 +88,13 @@ void fake_walk_update(Game* game,int dt){
 		HUD_drho_compensation= (.02)* game->player->drho*(.3) 
 							+ (1-.02)*HUD_drho_compensation;
 	}
+	// printf("%lf\n",fake_rho );
+	// game->player->fake_z=fake_drho*.05;
+	// // game->player->fake_y=fake_drho*.05;
+
+	// game->player->fake_z=8*sin(fake_drho/100.);
+	// game->player->fake_y=24*cos(fake_drho/100.)-24;
+
 }
 
 void bow_HUD(Game* game, int mode,double time_offset){
@@ -101,12 +117,6 @@ void viseur(Game * game){
 		precision=0;
 	}
 
-	fake_walking=
-		 game->player->dx*game->player->dx
-		+game->player->dy*game->player->dy
-		+game->player->dz*game->player->dz;
-	fake_walking=sqrt(fake_walking);
-	fake_walking*=0.007;
 	/////////////////////////////////////////////////////////////////////
 	glPushMatrix();
 		glColor4d(1,0,0,1);
@@ -131,12 +141,6 @@ void viseur(Game * game){
 
 void weapon_HUD_ARM(Game* game,int mode,double time_offset){
 #define BOW_GL_MATRIX() \
-	fake_walking=\
-		 game->player->dx*game->player->dx\
-		+game->player->dy*game->player->dy\
-		+game->player->dz*game->player->dz;\
-	fake_walking=sqrt(fake_walking);\
-	fake_walking*=0.007;\
 	double real_rho=game->player->rho    +fake_rho;\
 	double real_theta=game->player->theta+fake_theta;\
 	glRotated(real_rho*(-4),1,0,0);\
@@ -481,12 +485,6 @@ void sulfateuse_HUD(Game* game, int color,double time_offset){
 	for(int i=0;i<n;i++){
 		double x=1-i*1./n;
 		glPushMatrix();
-				fake_walking=
-					 game->player->dx*game->player->dx
-					+game->player->dy*game->player->dy
-					+game->player->dz*game->player->dz;
-				fake_walking=sqrt(fake_walking);
-				fake_walking*=0.007;
 				double real_rho=game->player->rho    +fake_rho;
 				double real_theta=game->player->theta+fake_theta;
 				glRotated(real_rho*(-4),1,0,0);
@@ -498,8 +496,41 @@ void sulfateuse_HUD(Game* game, int color,double time_offset){
 				glRotated(real_theta*(1),0,0,1);
 				glRotated(real_HUD_drho_compensation,0,1,0);
 				glTranslated(0,1-x*game->fire_value,-1);
+				glRotated(2*x*game->fire_value,0,0,1);
 				glLineWidth(3.0);
 
+			// double c=.2;
+			// switch(i){
+			// 	case 0:
+			// 		break;
+			// 	case 1:
+			// 		glTranslated(0,0,c);
+			// 		break;
+			// 	case 2:
+			// 		glTranslated(0,c,0);
+			// 		break;
+			// 	case 3:
+			// 		glTranslated(c,0,0);
+			// 		break;
+			// 	case 4:
+			// 		glTranslated(0,c,c);
+			// 		break;
+			// 	case 5:
+			// 		glTranslated(c,0,c);
+			// 		break;
+			// 	case 6:
+			// 		glTranslated(c,c,0);
+			// 		break;
+			// 	case 7:
+			// 		glTranslated(c,c,c);
+			// 		break;
+			// 	case 8:
+			// 		// glTranslated();
+			// 		break;
+			// 	case 9:
+			// 		// glTranslated();
+			// 		break;
+			// }
 				draw_hand(  .3+.1*oscill_force,0,FALSE);
 				// printf("%lf\n",i*game->trigger_value );
 				draw_sulfateuse(0,angle-4*i*game->trigger_value,color);

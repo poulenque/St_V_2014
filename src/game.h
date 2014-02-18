@@ -5,6 +5,9 @@
 #include "objects.h"
 #include "audioplayer.h"
 
+#define BAD 0
+#define GOOD 1
+
 typedef struct Camera Camera;
 
 
@@ -43,10 +46,13 @@ typedef struct Game{
 	Particle * particles_update;
 
 	AudioPlayer* audio;
+	double audio_amplitude;
+	double heart_beat;
 
 	void (*update)(struct Game* game,int dt);
 	void (*render)(struct Game* game);
 	void (*HUD_render)(struct Game* game);
+	int (*mechant_regeneration_type)(void);
 
 	// fire_value = 0 -> loaded
 	// fire_value = 1 -> fired once
@@ -72,5 +78,6 @@ void game_render(Game* game);
 void clear_arrow(Game* game);
 void clear_mechant(Game* game);
 void clear_particles(Game* game);
+void game_loop_coord(Game* game,double * X, double* Y);
 
 #endif

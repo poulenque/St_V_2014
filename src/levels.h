@@ -35,6 +35,7 @@ void ingame_level2_render(Game* game);
 void ingame_level3_setup(Game* game);
 void ingame_level3_update(Game* game,int dt);
 void ingame_level3_render(Game* game);
+double level3_get_time_offset();
 //boss finale !
 void ingame_level4_setup(Game* game);
 void ingame_level4_update(Game* game,int dt);
