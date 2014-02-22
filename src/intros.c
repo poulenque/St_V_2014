@@ -202,7 +202,7 @@ void intro_render(Game* game){
 						glLineWidth(1);
 						for(int i=0;i<i_MAX;i++){
 							for(int j=-20;j<20;j++){
-								double pipi=1./i_MAX;
+								double pipi=1./(i_MAX);
 
 								double jj=j/2.;
 
@@ -219,9 +219,16 @@ void intro_render(Game* game){
 									// printf("%lf\n",-d +200);
 
 									// glColor4d(0,0,0,(1-exp(-time_/100.)) * (d/200.) );
+									// if(2-d/200.>9){
+									// 	d=200.*(-.9+2);
+									// }
+									d=225;
 									double v= (2-d/200.) ;
 									if(v<.2)
 										v=.2;
+									// if(v>.9)
+									// 	v=.9;
+									// printf("%lf\n",v );
 									double e=exp(-(1+sin(12*PI*(i+2*j)*pipi+tps*.1)));
 									double k=(1-i*pipi)*3;
 									if(k>1)k=1;

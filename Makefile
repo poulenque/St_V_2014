@@ -14,23 +14,25 @@ C_FLAGS += -O2
 C_FLAGS += -std=c11
 C_FLAGS += -march=native
 
+# C_FLAGS += -lmingw32
+# C_FLAGS += -lSDLmain
+# C_FLAGS += -lSDL
+# C_FLAGS += -lopengl32
+# C_FLAGS += -lglu32
 
 
-
-
-
-
+# LIBS += -lmingw32
 
 LIBS += -pg -g
-
 LIBS += -lm
-LIBS += -lSDL
-# LIBS += -lSDL_image
-LIBS += -lvorbisfile -lopenal
-LIBS += -lpthread
-LIBS += -lGL -lGLU
-# LIBS += -lGLEW
+LIBS += -lvorbisfile
+LIBS += -lopenal
 
+LIBS += -lpthread
+
+LIBS += -lGL -lGLU
+
+LIBS += -lSDL
 
 SOURCES = $(wildcard src/*.c)
 OBJECTS = $(SOURCES:%.c=%.o)

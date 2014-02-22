@@ -522,18 +522,18 @@ static void fire_arrow_with_sulfateuse(Game* game){
 
 
 
-	to_add->dx+=-game->player->dx*0.0002;
-	to_add->dy+=-game->player->dy*0.0002;
-	to_add->dz+=-game->player->dz*0.0002;
+	// to_add->dx+=-game->player->dx*0.0002;
+	// to_add->dy+=-game->player->dy*0.0002;
+	// to_add->dz+=-game->player->dz*0.0002;
 
-	to_add->x+=-game->player->dx*0.01;
-	to_add->y+=-game->player->dy*0.01;
-	// to_add->z+=-game->player->dz*0.02;
+	to_add->x+=-game->player->dx*0.02;
+	to_add->y+=-game->player->dy*0.02;
+	to_add->z+=-game->player->dz*0.01;
 
 	to_add->v=sqrt(to_add->dx*to_add->dx + to_add->dy*to_add->dy + to_add->dz*to_add->dz);
-	to_add->dx=to_add->dx/to_add->v*.2;
-	to_add->dy=to_add->dy/to_add->v*.2;
-	to_add->dz=to_add->dz/to_add->v*.2;
+	to_add->dx=to_add->dx/to_add->v*.3;
+	to_add->dy=to_add->dy/to_add->v*.3;
+	to_add->dz=to_add->dz/to_add->v*.3;
 
 	//======================
 	//UPDATE THE UPDATE_LIST (push front)

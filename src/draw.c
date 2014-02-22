@@ -667,20 +667,20 @@ void draw_hand(double force,double distance, int side_view){
 						//index avant
 						glVertex3d(-.5, .3,-.16);
 						glVertex3d(-.5, .3, .16);
-						glVertex3d(.2, .5, .16);
-						glVertex3d(.2, .5,-.16);
+						glVertex3d(.4, .5, .16);
+						glVertex3d(.4, .5,-.16);
 
 						//index droite
 						glVertex3d(-.5, .0, .19);
 						glVertex3d(-.5, .3, .16);
-						glVertex3d( .2, .5, .16);
-						glVertex3d( .2, .0, .19);
+						glVertex3d( .4, .5, .16);
+						glVertex3d( .4, .0, .19);
 
 						//index gauche
 						glVertex3d(-.5, .0,-.19);
 						glVertex3d(-.5, .3,-.16);
-						glVertex3d( .2, .5,-.16);
-						glVertex3d( .2, .0,-.19);
+						glVertex3d( .4, .5,-.16);
+						glVertex3d( .4, .0,-.19);
 
 					glEnd();
 					if(i==1)
@@ -734,6 +734,13 @@ void draw_hand(double force,double distance, int side_view){
 			glVertex3d(-.0, .3,-.8);
 
 
+			//main dessus cache trou
+		// glColor4d(0,1,0,1);
+			glVertex3d(-.5, .5, .2);
+			glVertex3d(-.5, .4,-.3);
+		// glColor4d(.8,.6,.4,1);
+			glVertex3d(-.5,-.6,-.5);
+			glVertex3d(-.5,-.6, .4);
 			//main dessus
 			glVertex3d(-.5, .4, .6);
 			glVertex3d(-.5, .2,-.7);
@@ -744,9 +751,7 @@ void draw_hand(double force,double distance, int side_view){
 			glVertex3d(-.5, .4, .6);
 			glVertex3d(-.5,-.6, .4);
 			glVertex3d(-.0,-.6, .7);
-		// glColor4d(0,1,0,1);
 			glVertex3d(.2, .4, 1.);
-		// glColor4d(.8,.6,.4,1);
 
 			//doigts dessous
 			glVertex3d(+.3,  .1,-.4);
