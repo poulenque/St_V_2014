@@ -554,11 +554,12 @@ static void fire_arrow_with_sulfateuse(Game* game){
 	}
 	// int i_max=30+abs(50*sin(game->player->theta/180.*PI));
 	// // printf("%i\n",abs(1.5*game->player->theta) );
-	// if(i_max>50)i_max=50;
+	int i_max=7;
+	if(i_max>50)i_max=50;
 
-	// for(int i=0;i<i_max;i++){
-	// 	update_one_arrow(game,to_add,0);
-	// }
+	for(int i=0;i<i_max;i++){
+		update_one_arrow(game,to_add,0);
+	}
 }
 
 void update_interraction_mechant_player(Game* game){
