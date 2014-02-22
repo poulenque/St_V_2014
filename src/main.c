@@ -5,9 +5,10 @@
 #include <unistd.h>
 #include <math.h>
 #include <pthread.h>
-#include <GL/glew.h>
 #include "random.h"
 #include "constants.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include "game.h"
 #include "camera.h"
@@ -158,7 +159,6 @@ int main(int argc, char *argv[]) {
 	SDL_Init( SDL_INIT_EVERYTHING );
 	// SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL | SDL_FULLSCREEN  );
 	SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL  );
-	glewInit ();
 	SDL_EnableUNICODE( SDL_TRUE );
 	SDL_WM_GrabInput(SDL_GRAB_ON);
 

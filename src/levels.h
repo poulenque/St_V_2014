@@ -4,13 +4,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <math.h>
 #include "string3d.h"
 #include "constants.h"
-#include "shader.h"
 #include "draw.h"
 #include "HUD.h"
 

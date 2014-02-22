@@ -28,7 +28,8 @@ LIBS += -lSDL
 # LIBS += -lSDL_image
 LIBS += -lvorbisfile -lopenal
 LIBS += -lpthread
-LIBS += -lGL -lGLU -lGLEW
+LIBS += -lGL -lGLU
+# LIBS += -lGLEW
 
 
 SOURCES = $(wildcard src/*.c)

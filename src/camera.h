@@ -1,7 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <GL/glew.h>
 #include <SDL/SDL.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,13 +16,13 @@ typedef	struct Camera {
 	// String3d* interface_txt;
 
 
-	unsigned int shader_id_dummy;
-	unsigned int shader_id_dof;
-	unsigned int shader_dof_color_id;
+	// unsigned int shader_id_dummy;
+	// unsigned int shader_id_dof;
+	// unsigned int shader_dof_color_id;
 	//
-	unsigned int frame_buffer_id;
-	unsigned int color_tex_id;
-	unsigned int depth_tex_id;
+	// unsigned int frame_buffer_id;
+	// unsigned int color_tex_id;
+	// unsigned int depth_tex_id;
 	// unsigned int depth_tex_id;
 	//
 

@@ -2,7 +2,10 @@
 #include "draw.h"
 #include "constants.h"
 #include <math.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
+// #define VISEUR_ENABLED
 
 void bow_HUD(Game* game, int mode,double time_offset);
 void weapon_HUD_ARM(Game* game, int mode,double time_offset);
@@ -159,7 +162,9 @@ void weapon_HUD_ARM(Game* game,int mode,double time_offset){
 	double time_pos=game->trigger_value+time_offset;
 
 
+	#ifdef VISEUR_ENABLED
 	viseur(game);
+	#endif
 
 	double oscill_force=.5*sin(SDL_GetTicks()*.001)+.5*sin(SDL_GetTicks()*.00085);
 
@@ -261,7 +266,9 @@ void weapon_HUD_ARM(Game* game,int mode,double time_offset){
 
 
 void weapon_HUD_FIRE(Game* game, int mode,double time_offset){
+	#ifdef VISEUR_ENABLED
 	viseur(game);
+	#endif
 
 
 	glPushMatrix();
@@ -472,7 +479,9 @@ static int n=10;
 static double angle=0;
 void sulfateuse_HUD(Game* game, int color,double time_offset){
 
+	#ifdef VISEUR_ENABLED
 	viseur(game);
+	#endif
 
 	double oscill_force=.5*sin(SDL_GetTicks()*.001)+.5*sin(SDL_GetTicks()*.00085);
 
@@ -495,8 +504,16 @@ void sulfateuse_HUD(Game* game, int color,double time_offset){
 				glRotated(70, 1, 0, 0);
 				glRotated(real_theta*(1),0,0,1);
 				glRotated(real_HUD_drho_compensation,0,1,0);
-				glTranslated(0,1-x*game->fire_value,-1);
-				glRotated(2*x*game->fire_value,0,0,1);
+
+				// if(game->weapon==2){
+					glTranslated(0,0,-1);
+				// }else if (game->weapon==3){
+					// glTranslated(0,1,-1);
+				// }
+				if(x*game->trigger_value){
+					glTranslated(0,-x*game->fire_value,0);
+					glRotated(-2*x*game->fire_value,0,0,1);
+				}
 				glLineWidth(3.0);
 
 			// double c=.2;

@@ -1,8 +1,8 @@
 #include "camera.h"
 #include <math.h>
-#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include "constants.h"
-#include "shader.h"
 
 double hyperbolicLimit(const double nb,const double limit){
 	return (nb*limit)/sqrt(limit*limit+nb*nb);
@@ -102,30 +102,30 @@ Camera* new_Camera(){
 	// glGenFramebuffers (1, &c->frame_buffer_id);
 	// c->depth_tex_id=lr_texture_depthmap (800,600);
 
-	c->shader_id_dummy=shader_createProgram("dummy");
-	c->shader_id_dof=shader_createProgram("dof");
-	glGenFramebuffers(1,& (c->frame_buffer_id));
+	// c->shader_id_dummy=shader_createProgram("dummy");
+	// c->shader_id_dof=shader_createProgram("dof");
+	// glGenFramebuffers(1,& (c->frame_buffer_id));
 
-	glGenTextures (1, &(c->depth_tex_id));
-	glBindTexture (GL_TEXTURE_2D, c->depth_tex_id);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 800, 600, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
+	// glGenTextures (1, &(c->depth_tex_id));
+	// glBindTexture (GL_TEXTURE_2D, c->depth_tex_id);
+	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// glTexImage2D (GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 800, 600, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
 
 
-	glGenTextures (1, &(c->color_tex_id));
-	glBindTexture (GL_TEXTURE_2D, c->color_tex_id);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	// glGenTextures (1, &(c->color_tex_id));
+	// glBindTexture (GL_TEXTURE_2D, c->color_tex_id);
+	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
-	glBindTexture (GL_TEXTURE_2D, 0);
+	// glBindTexture (GL_TEXTURE_2D, 0);
 
-	c->shader_dof_color_id = glGetUniformLocation(c->shader_id_dof,"color");
+	// c->shader_dof_color_id = glGetUniformLocation(c->shader_id_dof,"color");
 	// glUniform4f (color_id, 1, 0, 0, 1);
 	return c;
 }

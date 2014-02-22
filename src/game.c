@@ -2,14 +2,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <math.h>
 #include "random.h"
 #include "string3d.h"
 #include "constants.h"
-#include "shader.h"
 #include "draw.h"
 #include "HUD.h"
 #include "levels.h"
@@ -303,7 +303,12 @@ static void update_one_arrow(Game * game, Arrow* arrow,double gravity){
 				arrow->y += arrow->dy;
 				arrow->z += arrow->dz;
 
-				arrow->alpha=180+acos(arrow->dz/arrow->v)*180/PI;
+
+				// if(arrow->dz/arrow->v>1)
+					arrow->alpha=180+acos(arrow->dz/arrow->v)*180/PI;
+				// else
+					// arrow->alpha=180+acos(arrow->dz/arrow->v+1)*180/PI;
+				// printf("%.10lf\n",arrow->alpha);
 				arrow->beta=180./PI*atan2(arrow->dy,arrow->dx);
 
 
@@ -361,7 +366,7 @@ void one_arrow_collision(Game * game, Arrow* arrow){
 static void arrow_collision(Game* game){
 		Arrow* arrow=game->arrows_to_update;
 		while(arrow!=NULL){
-			double angle_=-1+acos(arrow->dz/arrow->v)*2./PI;
+			// double angle_=-1+acos(arrow->dz/arrow->v)*2./PI;
 			if(arrow->z>-4){
 				one_arrow_collision(game,arrow);
 			}
@@ -373,7 +378,6 @@ static void update_arrow(Game* game){
 		Arrow* arrow=game->arrows_to_update;
 		while(arrow!=NULL){
 			arrow->v=sqrt(arrow->dx*arrow->dx + arrow->dy*arrow->dy + arrow->dz*arrow->dz);
-			double angle_=-1+acos(arrow->dz/arrow->v)*2./PI;
 			if(arrow->z>-4){
 				update_one_arrow(game,arrow,.0002);
 				//WHILE LOOP
@@ -381,6 +385,7 @@ static void update_arrow(Game* game){
 					arrow=arrow->next_update;
 				//WHILE LOOP
 			}else{
+				double angle_=-1+acos(arrow->dz/arrow->v)*2./PI;
 				// double k=(-4-angle_*2)/(game->arrows[i].dz);
 				// game->arrows[i].x=k*game->arrows[i].dx+x_before;
 				// game->arrows[i].y=k*game->arrows[i].dy+y_before;
@@ -458,42 +463,77 @@ static void fire_arrow_with_bow(Game* game){
 static void fire_arrow_with_sulfateuse(Game* game){
 	Arrow* to_add= malloc(sizeof(Arrow));
 
-	double x_offset=1;
-	double y_offset=-.5  + 2./180.*game->player->theta;
+	double x_offset=2;
+	// double y_offset=-.5  + 2.*sin(game->player->theta/180.*PI);
+	double y_offset=0;
 	double z_offset;
+	if(game->weapon==3){
+		y_offset+=-.3;
+	}
+
 	if(game->player->theta<0){
-		x_offset=0;
-		z_offset=-1.5 + 5./180.*game->player->theta;
+		// x_offset+= - 5.*sin(game->player->theta/180.*PI);
+		// x_offset+= - 6.*sin(game->player->theta/180.*PI);
+		// y_offset+=-.5-.8*sin(game->player->theta/180.*PI);
+		// z_offset= -2 + 4.*sin(game->player->theta/180.*PI);
+		x_offset+= - 4*(game->player->theta/180.*PI);
+		y_offset+=-.5-.8*(game->player->theta/180.*PI);
+		// z_offset= -2 + 4.*sin(game->player->theta/180.*PI);
+		z_offset= -2 + 2.*(game->player->theta/180.*PI);
 	}else{
-		z_offset=-1.5 - 10./180.*game->player->theta;
+		y_offset+=-.5 + .8*sin(game->player->theta/180.*PI);
+		z_offset= - 2.*cos(game->player->theta/180.*PI);
 	}
 
 	to_add->x=-game->player->x + y_offset*sin(game->player->phi/360.*2.*PI) + x_offset*cos(game->player->phi/360.*2.*PI);
 	to_add->y=-game->player->y + y_offset*cos(game->player->phi/360.*2.*PI) - x_offset*sin(game->player->phi/360.*2.*PI);
 	to_add->z=-game->player->z + z_offset;
 
-	double www = 1.6*fabs(sin(-game->player->theta/360.*2.*PI));
+	// double www = 1.6*fabs(sin(-game->player->theta/360.*2.*PI));
+	// if(www>1)www=1;
+	// if(www<-1)www=-1;
+
+	// to_add->dx= .5*cos(-game->player->phi/360.*2.*PI)*(1-www)*random(1,.15) + .5*sin(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
+	// to_add->dy= .5*sin(-game->player->phi/360.*2.*PI)*(1-www)*random(1,.15) + .5*cos(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
+	// double dz;
+	// if(game->player->theta>0){
+	// 	//look up
+	// 	dz=-.4*sin(-game->player->theta/180.*PI);
+	// }else{
+	// 	//look down
+	// 	dz=-.07*sin(-game->player->theta/180.*PI);
+	// 	// if(dz<-0.01)dz=-0.01;
+	// 	// if(dz>.0001)dz=.001;
+	// 	// if(dz>0.0001)dz=0.0001;
+	// }
+
+
+
+
+	double www = 1.2*fabs(sin(-game->player->theta/360.*2.*PI));
 	if(www>1)www=1;
 	if(www<-1)www=-1;
 
-	to_add->dx= .6*cos(-game->player->phi/360.*2.*PI)*(1-www)*random(.85,.3) + .6*sin(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
-	to_add->dy= .6*sin(-game->player->phi/360.*2.*PI)*(1-www)*random(.85,.3) + .6*cos(game->player->phi/360.*2.*PI-180.)*random(-.015,.1);
-	double dz;
-	if(game->player->theta>0){
-		//look up
-		dz=-.4*sin(-game->player->theta/180.*PI);
-	}else{
-		//look down
-		dz=-.05*sin(-game->player->theta/180.*PI);
-		if(dz<-0.01)dz=-0.01;
-		// if(dz>.0001)dz=.001;
-		if(dz>0.0001)dz=0.0001;
-	}
-	to_add->dz=dz;
+	// to_add->dx= .8*cos(-game->player->phi/360.*2.*PI)*(1-www)*random(1,.10) + .5*sin(game->player->phi/360.*2.*PI-180.)*random(-0.1*(1-www),.15);
+	// to_add->dy= .8*sin(-game->player->phi/360.*2.*PI)*(1-www)*random(1,.10) + .5*cos(game->player->phi/360.*2.*PI-180.)*random(-0.1*(1-www),.15);
+	to_add->dx= .8*cos(-game->player->phi/360.*2.*PI)*(1-www)*random(1,.10) + .5*sin(game->player->phi/360.*2.*PI-180.)*random(-0.1*(1-www),.15);
+	to_add->dy= .8*sin(-game->player->phi/360.*2.*PI)*(1-www)*random(1,.10) + .5*cos(game->player->phi/360.*2.*PI-180.)*random(-0.1*(1-www),.15);
+	to_add->dz=-.5*sin(-game->player->theta/180.*PI);
+
+
 
 	to_add->dx+=-game->player->dx*0.0002;
 	to_add->dy+=-game->player->dy*0.0002;
 	to_add->dz+=-game->player->dz*0.0002;
+
+	to_add->x+=-game->player->dx*0.01;
+	to_add->y+=-game->player->dy*0.01;
+	// to_add->z+=-game->player->dz*0.02;
+
+	to_add->v=sqrt(to_add->dx*to_add->dx + to_add->dy*to_add->dy + to_add->dz*to_add->dz);
+	to_add->dx=to_add->dx/to_add->v*.2;
+	to_add->dy=to_add->dy/to_add->v*.2;
+	to_add->dz=to_add->dz/to_add->v*.2;
 
 	//======================
 	//UPDATE THE UPDATE_LIST (push front)
@@ -512,13 +552,12 @@ static void fire_arrow_with_sulfateuse(Game* game){
 	if(game->arrows_last==NULL){
 		game->arrows_last = to_add;
 	}
-	// if(>30){
-	int i_max=abs(1.5*game->player->theta);
+	// int i_max=30+abs(50*sin(game->player->theta/180.*PI));
+	// // printf("%i\n",abs(1.5*game->player->theta) );
 	// if(i_max>50)i_max=50;
 
-		for(int i=0;i<i_max;i++){
-			update_one_arrow(game,to_add,0);
-		}
+	// for(int i=0;i<i_max;i++){
+	// 	update_one_arrow(game,to_add,0);
 	// }
 }
 
@@ -603,6 +642,7 @@ void game_update(Game* game,int dt){
 					if(game->weapon==1){
 						fire_arrow_with_bow(game);
 					}else if(game->weapon==2||game->weapon==3){
+						// fire_arrow_with_bow(game);
 						fire_arrow_with_sulfateuse(game);
 					}else if(game->weapon==4){
 						fire_arrow_with_bow(game);
