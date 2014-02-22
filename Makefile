@@ -1,3 +1,31 @@
+ifeq ($(OS),Windows_NT)
+    CCFLAGS += -D WIN32
+    ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+        CCFLAGS += -D AMD64
+    endif
+    ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+        CCFLAGS += -D IA32
+    endif
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        CCFLAGS += -D LINUX
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        CCFLAGS += -D OSX
+    endif
+    UNAME_P := $(shell uname -p)
+    ifeq ($(UNAME_P),x86_64)
+        CCFLAGS += -D AMD64
+    endif
+    ifneq ($(filter %86,$(UNAME_P)),)
+        CCFLAGS += -D IA32
+    endif
+    ifneq ($(filter arm%,$(UNAME_P)),)
+        CCFLAGS += -D ARM
+    endif
+endif
+
 
 CC = gcc
 
@@ -15,8 +43,8 @@ C_FLAGS += -std=c11
 C_FLAGS += -march=native
 
 # C_FLAGS += -lmingw32
-# C_FLAGS += -lSDLmain
-# C_FLAGS += -lSDL
+C_FLAGS += -lSDLmain
+C_FLAGS += -lSDL
 # C_FLAGS += -lopengl32
 # C_FLAGS += -lglu32
 
@@ -27,12 +55,17 @@ LIBS += -pg -g
 LIBS += -lm
 LIBS += -lvorbisfile
 LIBS += -lopenal
+# LIBS += -lopenal32
 
-LIBS += -lpthread
+LIBS += -lSDLmain
+LIBS += -lSDL
 
 LIBS += -lGL -lGLU
+# LIBS += -lopengl32 -lglu32
+LIBS += -lpthread
+# LIBS += -lpthreadGC2
 
-LIBS += -lSDL
+
 
 SOURCES = $(wildcard src/*.c)
 OBJECTS = $(SOURCES:%.c=%.o)
@@ -40,7 +73,7 @@ OBJECTS = $(SOURCES:%.c=%.o)
 PROG = St_V_2014
 
 all:$(OBJECTS)
-	$(CC) $(LIBS) $(OBJECTS) -o $(PROG)
+	$(CC) $(LIBS) $(OBJECTS) $(LIBS) -o $(PROG)
 	
 # To obtain object files
 %.o: %.c
