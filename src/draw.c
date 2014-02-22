@@ -289,6 +289,61 @@ void draw_sphere2(double size,double time_,double noise){
 //=========================================================================
 
 
+
+void draw_strange_ball(double heart_beat_time,double heart_beat_time_normalized,int quality){
+	int i_max=40;
+	int j_max=40;
+	if (quality==2){
+		i_max=15;
+		j_max=15;
+	}else if(quality==1){
+		i_max=10;
+		j_max=10;
+	}else if(quality==0){
+		i_max=5;
+		j_max=5;
+	}
+	glDisable(GL_POINT_SMOOTH);
+	// glColor4d(1,0,0,1);
+	glPointSize(10);
+	for(int i=-i_max;i<i_max;i++){
+		for(int j=-j_max;j<j_max;j++){
+			double R;
+			// double t=fmod(time_,deltat);
+			double t=heart_beat_time;
+
+			// R=exp(-4*t)*sin(heart_beat_time_normalized*2*PI* (16-16*heart_beat_time_normalized) )+10;
+			double theta = PI*i/i_max;
+			double phi = PI*(i_max+j/(2.*j_max));
+			// R=2*exp(-4*t)*sin(fabs(.3*theta) * heart_beat_time_normalized*2*PI* 8*exp(-2*heart_beat_time_normalized) )+10;
+			// R=2*exp(-4*t)*sin(fabs(2*theta) + heart_beat_time_normalized*2*PI* 8*exp(-2*heart_beat_time_normalized) )+10;
+			R=2*exp(-4*t)*sin(fabs(2*theta) + 2*phi + heart_beat_time_normalized*2*PI* 8*exp(-2*heart_beat_time_normalized) )+3;
+			// R=((fabs(theta)+1)*10+9*cos(5*time_+2*phi))/(2+sin(phi+time_));
+			// R = exp( sin (theta*2*phi*cos(time_*0.05)) );
+			// R =  sin (theta*2*phi*(1+cos(time_*0.05))) ;
+			// R = (theta-phi)*sin (theta+2*phi+time_) ;
+			// R = 10 *sin(2*theta-time_)/(2+cos(2*phi+time_));
+
+			// glColor4d(.5+.5*cos(time_),0.4,0,1);
+			glBegin(GL_POINTS);
+				// glVertex3d(R*cos(theta)*sin(phi),R*sin(theta)*sin(phi),R*cos(theta));
+				glVertex3d(R*sin(theta)*cos(phi),R*sin(theta)*sin(phi),R*cos(theta));
+			glEnd();
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
 //==========================================
 //                                           
 //   _|_|_|  _|    _|  _|      _|    _|_|_|  
@@ -447,14 +502,6 @@ void draw_wing(double noise,int detail){
 
 }
 
-void draw_heart(double lambda0,int quality,int reflexion){
-	glPushMatrix();
-		glScaled(-2,2,2);
-		draw_heart_half(lambda0,quality,reflexion);
-		glScaled(-1,1,1);
-		draw_heart_half(lambda0,quality,reflexion);
-	glPopMatrix();
-}
 void draw_heart_half(double lambda0,int quality,int reflexion){
 	//source : http://mathworld.wolfram.com/BonneProjection.html
 	const double phi1 = 85.*PI/180.;
@@ -600,6 +647,14 @@ void draw_heart_half(double lambda0,int quality,int reflexion){
 		}
 	}
 
+}
+void draw_heart(double lambda0,int quality,int reflexion){
+	glPushMatrix();
+		glScaled(-2,2,2);
+		draw_heart_half(lambda0,quality,reflexion);
+		glScaled(-1,1,1);
+		draw_heart_half(lambda0,quality,reflexion);
+	glPopMatrix();
 }
 
 

@@ -614,7 +614,26 @@ void game_update(Game* game,int dt){
 	//=======================================================
 		for(int i=0;i<dt;i++){
 
-			if(game->trigger_state){
+			if(game->trigger_state || game->FIRST_SHOT){
+
+				//===CAMERA===
+				game->player->theta+=.001*game->player->dtheta;
+				game->player->mFOV+=-.01*(game->player->mFOV-80);
+
+				if(game->player->theta>30){
+					game->player->theta+=-.01*(game->player->theta-29);
+				}
+				else if(game->player->theta<-30){
+					game->player->theta+=-.01*(game->player->theta+29);
+				}else{
+					// c->theta+=-.005*(c->theta-0);
+				}
+				//============
+
+
+				if(game->trigger_value==0){
+					game->FIRST_SHOT=1;
+				}
 				//augmente jusqu'a trigger_value_MAX
 				game->trigger_value+=1./trigger_value_MAX[game->weapon];
 				if(game->trigger_value>1){
@@ -622,6 +641,11 @@ void game_update(Game* game,int dt){
 					game->trigger_value=1;
 				}
 			}else{
+				//===CAMERA===
+				game->player->theta+=.001*game->player->dtheta -.01*game->player->theta;
+				game->player->mFOV+=-.01*(game->player->mFOV-100);
+				//============
+
 				//diminue jusqu'a 0
 				//!! VITESSE DIMINUTION PLUS GRANDE 
 				game->trigger_value-=1.5/trigger_value_MAX[game->weapon];
@@ -639,6 +663,7 @@ void game_update(Game* game,int dt){
 			}
 
 			if(game->fire_state && game->trigger_value==1){
+				game->FIRST_SHOT=0;
 				if(game->fire_value<=0){
 					game->fire_value+=1;
 					if(game->weapon==1){
@@ -970,6 +995,8 @@ void game_render_one_mechant(Mechant * mechant, Game * game,double r,double g,do
 				draw_heart(game->heart_beat,quality,reflexion);
 			glPopMatrix();
 			// draw_gentil(audioplayer_getAmplitude(game->audio,.05),quality);
+		}else if(mechant->type==2){
+			draw_strange_ball(game->heart_beat_time,game->heart_beat_time_normalized,quality);
 		}
 			// draw_gentil(2*(100-(int)get_time_()%100)*.01,quality);
 		// glPopMatrix();
@@ -1243,7 +1270,7 @@ int mechant_regeneration_type_dummy(){
 Game* initGame(Camera* player){
 
 	//no weapon
-	trigger_value_MAX[0]=1;//avoid 1./0.
+	trigger_value_MAX[0]=200;//avoid 1./0.
 	fire_value_MAX[0]   =1;//avoid 1./0.
 	//bow
 	trigger_value_MAX[1]=200;
@@ -1316,6 +1343,7 @@ Game* initGame(Camera* player){
 	game->fire=fire;
 	game->fire_value=0;
 	game->weapon=0;
+	game->FIRST_SHOT=0;
 
 	game->mechants=NULL;
 	game->particles=NULL;
@@ -1328,11 +1356,15 @@ Game* initGame(Camera* player){
 
 	game->audio_amplitude=0;
 	game->heart_beat=0;
+	game->heart_beat_time=0;
+	game->heart_beat_time_normalized=0;
 
 	game->mechant_regeneration_type=mechant_regeneration_type_dummy;
 
 	intro_setup(game);
 
+	game->world_x_size=600;
+	game->world_y_size=600;
 	//===========================
 	// 
 	//  _|_|_|_|_|  _|_|_|_|    _|_|_|  _|_|_|_|_|  _|_|_|  _|      _|    _|_|_|  
@@ -1359,9 +1391,13 @@ Game* initGame(Camera* player){
 	// audioplayer_set_next(game->audio,"music/noise_test_4.ogg");
 	// audioplayer_set_next(game->audio,"music/Goto80_gopho.ogg");
 	// audioplayer_set_next(game->audio,"music/Goto80_gopho_level2.ogg");
+
+	// int mechant_regeneration_test(){
+	// 	return 2;
+	// }
+	// game->mechant_regeneration_type=mechant_regeneration_test;
+
 	// level1_spawn_mechants(game);
-	game->world_x_size=600;
-	game->world_y_size=600;
 	// audioplayer_set_next(game->audio,"music/Goto80_gopho_loop.ogg");
 
 	// Mechant * mechant = malloc(sizeof(mechant));

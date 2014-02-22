@@ -39,7 +39,7 @@ void draw_sulfateuse(double noise,double angle, int color);
 void draw_gentil(double noise,int detail);
 void draw_mechant(double noise,int detail);
 void draw_heart(double lambda0,int quality,int reflexion);
-
+void draw_strange_ball(double time_,double deltat,int quality);
 
 void draw_wing(double noise,int detail);
 

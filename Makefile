@@ -1,30 +1,34 @@
 ifeq ($(OS),Windows_NT)
-    CCFLAGS += -D WIN32
-    ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-        CCFLAGS += -D AMD64
-    endif
-    ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-        CCFLAGS += -D IA32
-    endif
+	CCFLAGS += -D WIN32
+	COMPILE_WINDOWS=1
+	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+		CCFLAGS += -D AMD64
+	endif
+	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+		CCFLAGS += -D IA32
+	endif
 else
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-        CCFLAGS += -D LINUX
-    endif
-    ifeq ($(UNAME_S),Darwin)
-        CCFLAGS += -D OSX
-    endif
-    UNAME_P := $(shell uname -p)
-    ifeq ($(UNAME_P),x86_64)
-        CCFLAGS += -D AMD64
-    endif
-    ifneq ($(filter %86,$(UNAME_P)),)
-        CCFLAGS += -D IA32
-    endif
-    ifneq ($(filter arm%,$(UNAME_P)),)
-        CCFLAGS += -D ARM
-    endif
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		COMPILE_LINUX=1
+		CCFLAGS += -D LINUX
+	endif
+	ifeq ($(UNAME_S),Darwin)
+		COMPILE_MAC=1
+		CCFLAGS += -D OSX
+	endif
+	UNAME_P := $(shell uname -p)
+	ifeq ($(UNAME_P),x86_64)
+		CCFLAGS += -D AMD64
+	endif
+	ifneq ($(filter %86,$(UNAME_P)),)
+		CCFLAGS += -D IA32
+	endif
+	ifneq ($(filter arm%,$(UNAME_P)),)
+		CCFLAGS += -D ARM
+	endif
 endif
+
 
 
 CC = gcc
@@ -32,9 +36,10 @@ CC = gcc
 #profiling
 C_FLAGS += -pg
 
-C_FLAGS += -W -ansi -pedantic -static -g
-C_FLAGS += -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual
-C_FLAGS += -Wpointer-arith -Wformat=2 -Wlogical-op
+C_FLAGS += -g
+# C_FLAGS += -W -ansi -pedantic -static
+# C_FLAGS += -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual
+# C_FLAGS += -Wpointer-arith -Wformat=2 -Wlogical-op
 #CFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-unused
 
 C_FLAGS += -O2
@@ -42,11 +47,13 @@ C_FLAGS += -O2
 C_FLAGS += -std=c11
 C_FLAGS += -march=native
 
-# C_FLAGS += -lmingw32
+ifdef COMPILE_WINDOWS
+	C_FLAGS += -lmingw32
+	C_FLAGS += -lopengl32
+	C_FLAGS += -lglu32
+endif
 C_FLAGS += -lSDLmain
 C_FLAGS += -lSDL
-# C_FLAGS += -lopengl32
-# C_FLAGS += -lglu32
 
 
 # LIBS += -lmingw32
@@ -54,17 +61,26 @@ C_FLAGS += -lSDL
 LIBS += -pg -g
 LIBS += -lm
 LIBS += -lvorbisfile
-LIBS += -lopenal
-# LIBS += -lopenal32
+ifdef COMPILE_LINUX
+	LIBS += -lopenal
+endif
+ifdef COMPILE_WINDOWS
+	LIBS += -lopenal32
+endif
 
 LIBS += -lSDLmain
 LIBS += -lSDL
 
-LIBS += -lGL -lGLU
-# LIBS += -lopengl32 -lglu32
+ifdef COMPILE_LINUX
+	LIBS += -lGL -lGLU
+endif
+ifdef COMPILE_WINDOWS
+	LIBS += -lopengl32 -lglu32
+endif
 # LIBS += -lpthread
 # LIBS += -lpthreadGC2
 
+# ifdef COMPILE_MAC
 
 
 SOURCES = $(wildcard src/*.c)

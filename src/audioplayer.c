@@ -1,7 +1,8 @@
 #include "audioplayer.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 int audio_init () {
 	ALCdevice * device = alcOpenDevice(NULL);
@@ -40,14 +41,14 @@ AudioPlayer* new_audioplayer(){
 
 	if (player->s1 == NULL) {
 		printf("ERROR : STUPID SILENT FILE MISSING X¬D NEED : \"%s\"\n",player->next_file_path);
-		return;
+		return NULL;
 	}
 
 	//ecrire un bout dans le buffer
 	if (!sound_nextSample (player->s1)) {
 		printf("FILE EMPTY, COULD NOT PLAY\n");
 		sound_closeSample (player->s1);
-		return;
+		return NULL;
 	}
 	alBufferData (player->buffer_id[0], player->s1->format, player->s1->data, player->s1->read_size, player->s1->freq);
 
@@ -79,9 +80,15 @@ void audioplayer_pause(AudioPlayer* player){
 		alSourcePause (player->source_id);
 }
 
-void audioplayer_set_next(AudioPlayer* player, const char * path){
+void audioplayer_set_next(AudioPlayer* player, char * path){
 	//TODO MUTEX
+	//I know this is dangerous, lets not use dynamic char *  
 	player->next_file_path=path;
+
+	
+	// free(player->next_file_path);
+	// player->next_file_path=malloc(1024*sizeof(char));
+	// strcpy(player->next_file_path,path);
 	//TODO MUTEX
 }
 

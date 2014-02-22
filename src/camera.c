@@ -29,10 +29,11 @@ void camera_move_acc(Camera* c,double ddx,double ddy,double ddz){
 	c->ddx+=ddx*cos(-c->phi/360*2*PI)  +  ddy*cos(-c->phi/360*2*PI+PI/2);
 	c->ddy+=ddx*sin(-c->phi/360*2*PI)  +  ddy*sin(-c->phi/360*2*PI+PI/2);
 	c->ddz+=ddz;
-	if((!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(1)))
-		&& (!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(3)))
-		&& (!SDL_GetKeyState(NULL)[SDLK_LCTRL])
-		&& (!SDL_GetKeyState(NULL)[SDLK_LALT])){
+	// if((!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(1)))
+	// 	&& (!(SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(3)))
+	// 	&& (!SDL_GetKeyState(NULL)[SDLK_LCTRL])
+	// 	&& (!SDL_GetKeyState(NULL)[SDLK_LALT])){
+	if((!c->game->trigger_value)){
 	c->dtheta+=ddx/50.;
 	}
 	c->drho+=ddy/50.;
@@ -333,26 +334,26 @@ void camera_update(Camera* c,int dt){
 		//===============================================
 		// c->theta+=.001*dt*c->dtheta -.01*(c->theta+90);
 		//===============================================
-		if(   SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(1)
-			||SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(3)
-			||SDL_GetKeyState(NULL)[SDLK_LCTRL]
-			||SDL_GetKeyState(NULL)[SDLK_LALT]){
+		// if(   SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(1)
+		// 	||SDL_GetMouseState( NULL, NULL )&SDL_BUTTON(3)
+		// 	||SDL_GetKeyState(NULL)[SDLK_LCTRL]
+		// 	||SDL_GetKeyState(NULL)[SDLK_LALT]){
 
-			c->theta+=.001*c->dtheta;
-			c->mFOV+=-.01*(c->mFOV-80);
+		// 	c->theta+=.001*c->dtheta;
+		// 	c->mFOV+=-.01*(c->mFOV-80);
 
-			if(c->theta>30){
-				c->theta+=-.01*(c->theta-29);
-			}
-			else if(c->theta<-30){
-				c->theta+=-.01*(c->theta+29);
-			}else{
-				// c->theta+=-.005*(c->theta-0);
-			}
-		}else{
-			c->theta+=.001*c->dtheta -.01*c->theta;
-			c->mFOV+=-.01*(c->mFOV-100);
-		}
+		// 	if(c->theta>30){
+		// 		c->theta+=-.01*(c->theta-29);
+		// 	}
+		// 	else if(c->theta<-30){
+		// 		c->theta+=-.01*(c->theta+29);
+		// 	}else{
+		// 		// c->theta+=-.005*(c->theta-0);
+		// 	}
+		// }else{
+		// 	c->theta+=.001*c->dtheta -.01*c->theta;
+		// 	c->mFOV+=-.01*(c->mFOV-100);
+		// }
 		c->phi  +=.001*c->dphi ;
 		c->rho  +=.001*c->drho -.03*c->rho ;
 	}

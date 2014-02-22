@@ -48,6 +48,8 @@ typedef struct Game{
 	AudioPlayer* audio;
 	double audio_amplitude;
 	double heart_beat;
+	double heart_beat_time;
+	double heart_beat_time_normalized;
 
 	void (*update)(struct Game* game,int dt);
 	void (*render)(struct Game* game);
@@ -61,6 +63,7 @@ typedef struct Game{
 	int fire_state;
 	double trigger_value;
 	int trigger_state;
+	int FIRST_SHOT;
 
 	int weapon;
 	int stereo;

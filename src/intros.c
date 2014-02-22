@@ -24,6 +24,15 @@ static double messages_dephasage[200];
 //==================================================================
 //==================================================================
 void intro_setup(Game* game){
+	glEnable(GL_FOG);
+	GLfloat fogColor[4]= {0,0, 0, 1};
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glFogf(GL_FOG_DENSITY, 0.35f);
+	glHint(GL_FOG_HINT, GL_DONT_CARE);
+	glFogi(GL_FOG_MODE, GL_LINEAR);
+	glFogf(GL_FOG_START, 700);
+	glFogf(GL_FOG_END, 1000);
+
 	glClearColor( 0., 0., 0., 1. );
 	game->update=intro_update;
 	game->render=intro_render;
@@ -317,6 +326,8 @@ void intro_render(Game* game){
 static double shared_var1;
 
 void intro_get_weapon_setup(Game* game){
+
+
 		audioplayer_set_next(game->audio,"music/Goto80_gopho_loop_far.ogg");
 		// audioplayer_set_next(game->audio,"music/Goto80_gopho_far.ogg");
 
@@ -390,6 +401,7 @@ void intro_get_weapon_update(Game* game,int dt){
 			game->player->dz=0;
 			game->player->x=0;
 			game->player->y=0;
+			clear_arrow(game);
 			ingame_level1_setup(game);
 		}
 	}

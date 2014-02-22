@@ -27,7 +27,7 @@ void audio_shutdown ();
 
 AudioPlayer* new_audioplayer();
 
-void audioplayer_set_next(AudioPlayer* audioplayer, const char * path_to_file);
+void audioplayer_set_next(AudioPlayer* audioplayer, char * path_to_file);
 
 void audioplayer_play(AudioPlayer* audioplayer);
 void audioplayer_pause(AudioPlayer* audioplayer);

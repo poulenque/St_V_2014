@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
 
 	SDL_WarpMouse(SCREEN_WIDTH/2,SCREEN_HEIGHT/2);
 	//well sometimes the mouse does not move immediatly
-	usleep(10000);
+	SDL_Delay(10);
 
 	SDL_Event event;
 	while( SDL_PollEvent( &event ) );
@@ -410,7 +410,8 @@ int main(int argc, char *argv[]) {
 					break;
 				case SDL_MOUSEMOTION:
 					if(MOUSE_ON){
-						if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LCTRL]||keystate[SDLK_LALT]){
+						// if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LCTRL]||keystate[SDLK_LALT]){
+						if(game->trigger_value){
 							camera_rotate(player,-.5*event.motion.yrel,.5*event.motion.xrel,0);
 						}else{
 							camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
@@ -433,6 +434,11 @@ int main(int argc, char *argv[]) {
 					}
 
 					break;		
+				case SDL_MOUSEBUTTONUP:
+						if(event.button.button==3){
+							game->FIRST_SHOT=0;
+						}
+					break;		
 			}
 		}
 
@@ -443,12 +449,11 @@ int main(int argc, char *argv[]) {
 			if(mouse_buttons&SDL_BUTTON(1)||keystate[SDLK_LCTRL]){
 				game->trigger(game,1);
 				game->fire(game,1);
-				//walk slowly if on ground
-				if(game->player->z==0)
-					speed=400;
 			}
 			if(mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LALT]){
 				game->trigger(game,1);
+			}
+			if(game->trigger_value){
 				//walk slowly if on ground
 				if(game->player->z==0)
 					speed=400;

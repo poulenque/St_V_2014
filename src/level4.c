@@ -191,7 +191,7 @@ void ingame_level4_setup(Game* game){
 	change_bg_color(1,1,1);
 }
 
-static ending_cleared=0;
+static int ending_cleared=0;
 static int mega_sulfateuse_transition=0;
 static double deltat=.960;
 void ingame_level4_update(Game* game,int dt){
@@ -212,12 +212,18 @@ void ingame_level4_update(Game* game,int dt){
 	// double t=fmod(time_,deltat);
 	// game->heart_beat=2*exp(-4*t)*sin(24*t);
 
+	int mechant_regeneration_type_level4(){
+		return rand()%3;
+	}
+
+	game->mechant_regeneration_type=mechant_regeneration_type_level4;
+
 	if(!strcmp(game->audio->now_playing,"music/Goto80_gopho_level4.ogg")){
 		audioplayer_set_next(game->audio,"music/silence.ogg");
 
 		double music_time=audioplayer_getTime(game->audio);
 
-		double time_=SDL_GetTicks()*0.001;
+		double time_=SDL_GetTicks()*0.001-level3_get_time_offset();
 		t=fmod(time_,deltat);
 
 		if(music_time>69 && music_time<69+7){
@@ -255,6 +261,8 @@ void ingame_level4_update(Game* game,int dt){
 				game->weapon=3;
 				mega_sulfateuse_transition=0;
 			}
+			game->heart_beat_time=t;
+			game->heart_beat_time_normalized=t/deltat;
 			game->heart_beat=2*exp(-4*t)*sin(24*t);
 		}
 
@@ -272,5 +280,16 @@ void ingame_level4_render(Game* game){
 			double k=(music_time-69)/7.;
 			draw_sky_random_cubes(game,1-k);
 		}
+
+		// if(music_time>69 && music_time<69+7){
+		// 	double xxx =(music_time-69.)/7.;
+		// 	glPushMatrix();
+		// 		glTranslated(.1,0,0);
+		// 		glRotated(90,1,0,0);
+		// 		glColor4d(1,0,0,xxx);
+		// 		draw_face(10,0);
+		// 	glPopMatrix();
+		// }
 	}
+
 }
