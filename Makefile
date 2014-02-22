@@ -1,32 +1,32 @@
 ifeq ($(OS),Windows_NT)
-	CCFLAGS += -D WIN32
+	# CCFLAGS += -D WIN32
 	COMPILE_WINDOWS=1
-	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-		CCFLAGS += -D AMD64
-	endif
-	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-		CCFLAGS += -D IA32
-	endif
+	# ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+		# CCFLAGS += -D AMD64
+	# endif
+	# ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+		# CCFLAGS += -D IA32
+	# endif
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
 		COMPILE_LINUX=1
-		CCFLAGS += -D LINUX
+		# CCFLAGS += -D LINUX
 	endif
 	ifeq ($(UNAME_S),Darwin)
 		COMPILE_MAC=1
-		CCFLAGS += -D OSX
+		# CCFLAGS += -D OSX
 	endif
-	UNAME_P := $(shell uname -p)
-	ifeq ($(UNAME_P),x86_64)
-		CCFLAGS += -D AMD64
-	endif
-	ifneq ($(filter %86,$(UNAME_P)),)
-		CCFLAGS += -D IA32
-	endif
-	ifneq ($(filter arm%,$(UNAME_P)),)
-		CCFLAGS += -D ARM
-	endif
+	# UNAME_P := $(shell uname -p)
+	# ifeq ($(UNAME_P),x86_64)
+	# 	CCFLAGS += -D AMD64
+	# endif
+	# ifneq ($(filter %86,$(UNAME_P)),)
+	# 	CCFLAGS += -D IA32
+	# endif
+	# ifneq ($(filter arm%,$(UNAME_P)),)
+	# 	CCFLAGS += -D ARM
+	# endif
 endif
 
 
@@ -49,34 +49,41 @@ C_FLAGS += -march=native
 
 ifdef COMPILE_WINDOWS
 	C_FLAGS += -lmingw32
+	C_FLAGS += -lSDLmain
+	C_FLAGS += -lSDL
 	C_FLAGS += -lopengl32
 	C_FLAGS += -lglu32
 endif
-C_FLAGS += -lSDLmain
-C_FLAGS += -lSDL
 
-
-# LIBS += -lmingw32
-
-LIBS += -pg -g
-LIBS += -lm
-LIBS += -lvorbisfile
 ifdef COMPILE_LINUX
-	LIBS += -lopenal
+	C_FLAGS += -lSDLmain
+	C_FLAGS += -lSDL
 endif
+
 ifdef COMPILE_WINDOWS
+	LIBS += -lmingw32
+	LIBS += -pg -g
+	LIBS += -lm
+	LIBS += -lvorbisfile
 	LIBS += -lopenal32
+	LIBS += -lSDLmain
+	LIBS += -lSDL
+	LIBS += -lmingw32
+	LIBS += -lopengl32
+	LIBS += -lglu32
 endif
 
-LIBS += -lSDLmain
-LIBS += -lSDL
-
 ifdef COMPILE_LINUX
+	LIBS += -pg -g
+	LIBS += -lm
+	LIBS += -lvorbisfile
+	LIBS += -lopenal
+	LIBS += -lSDLmain
+	LIBS += -lSDL
 	LIBS += -lGL -lGLU
 endif
-ifdef COMPILE_WINDOWS
-	LIBS += -lopengl32 -lglu32
-endif
+
+
 # LIBS += -lpthread
 # LIBS += -lpthreadGC2
 

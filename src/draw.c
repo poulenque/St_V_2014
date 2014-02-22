@@ -563,6 +563,9 @@ void draw_heart_half(double lambda0,int quality,int reflexion){
 	double g_color=0+.5*bkColor[1];
 	double b_color=0+.5*bkColor[2];
 
+	// GLfloat bkColor[3];
+	// glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
+
 	for (int k=0;k<k_MAX;k++){
 		double a=k*1./k_MAX;
 		for(int i=0;i<=i_MAX;i++){
@@ -584,7 +587,10 @@ void draw_heart_half(double lambda0,int quality,int reflexion){
 				if(reflexion){
 					glColor4d(r_color,g_color,b_color,1);
 				}else{
-					glColor4d(1-j*.5/j_MAX,0,0,1);
+					if(bkColor[1]==0)
+						glColor4d(1-j*.5/j_MAX+.5*bkColor[0],0,0,1);
+					else
+						glColor4d(1-j*.5/j_MAX,0,0,1);
 				}
 
 				if(lambda<0){

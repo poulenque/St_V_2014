@@ -38,6 +38,8 @@ typedef struct Game{
 	double world_x_size;
 	double world_y_size;
 
+	double speed_custom;
+
 
 	Mechant* mechants;
 	Mechant* mechants_last;

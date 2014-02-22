@@ -371,8 +371,6 @@ double fadout=1;
 
 void intro_get_weapon_update(Game* game,int dt){
 
-	String3d* str=get_str();
-
 	//distace player begin square
 	double x_temp=(game->player->x+200);
 	double y_temp=(game->player->y-0);
@@ -502,6 +500,7 @@ void intro_get_weapon_render_fadout(Game* game){
 void intro_get_weapon_render(Game* game){
 
 	String3d* str=get_str();
+
 
 	double tps=get_time_()/15.;
 
@@ -637,8 +636,7 @@ void intro_get_weapon_render(Game* game){
 		glPopMatrix();
 	}
 
-
-
+	glDepthFunc(GL_LESS);
 	glPushMatrix();
 				//ALIGNER WORLD A LA CAMERA 
 				glTranslated(200,0,0);
@@ -677,6 +675,7 @@ void intro_get_weapon_render(Game* game){
 				i_MAX=70;
 				glPushMatrix();
 						glLineWidth(1);
+						glDepthFunc(GL_ALWAYS);
 						for(int i=0;i<i_MAX;i++){
 							for(int j=-20;j<20;j++){
 								double pipi=1./i_MAX;
@@ -736,4 +735,25 @@ void intro_get_weapon_render(Game* game){
 	glPopMatrix();
 
 	glDepthFunc(GL_LESS);
+
+	glPushMatrix();
+		glTranslated(200,0,0);
+		glRotated(-90-atan2(-game->player->x-200,-game->player->y)*180/PI,0,0,1);
+		// glScaled(1,-1,1);
+		double col=1-d/150.;
+		if(col<0)col=0;
+		glColor4d(1,0,0,col);
+		char * buffer = malloc(256*sizeof(char));
+		snprintf(buffer,256*sizeof(char) , "use <k> and <l>\nto change mouse\n   sensivity   \n     %2.3lf", game->speed_custom);
+		// string3d_setTxt(str,"use <k> and <l>\nto change mouse\n   sensivity   ");
+		string3d_setTxt(str,buffer);
+		str->size=2.3;
+		str->dist=16;
+		str->x=0;
+		str->y=0;
+		str->z=exp(6+1-tps/30.) + 5 ;
+		str->phi=95;
+		string3d_draw(str);
+	glPopMatrix();
+
 }

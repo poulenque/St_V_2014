@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <unistd.h>
+// #include <unistd.h>
 #include <math.h>
 #include <pthread.h>
 #include "random.h"
@@ -412,9 +412,9 @@ int main(int argc, char *argv[]) {
 					if(MOUSE_ON){
 						// if(mouse_buttons&SDL_BUTTON(1)||mouse_buttons&SDL_BUTTON(3)||keystate[SDLK_LCTRL]||keystate[SDLK_LALT]){
 						if(game->trigger_value){
-							camera_rotate(player,-.5*event.motion.yrel,.5*event.motion.xrel,0);
+							camera_rotate(player,-.5*event.motion.yrel*game->speed_custom,.5*event.motion.xrel*game->speed_custom,0);
 						}else{
-							camera_rotate(player,-2*event.motion.yrel,2*event.motion.xrel,0);
+							camera_rotate(player,-2*event.motion.yrel*game->speed_custom,2*event.motion.xrel*game->speed_custom,0);
 						}
 
 					}
@@ -438,9 +438,25 @@ int main(int argc, char *argv[]) {
 						if(event.button.button==3){
 							game->FIRST_SHOT=0;
 						}
-					break;		
+					break;
+				case SDL_KEYUP:
+						if(event.key.keysym.sym==SDLK_LALT){
+							game->FIRST_SHOT=0;
+						}
+					break;
 			}
 		}
+
+		if (keystate[SDLK_k]){
+			game->speed_custom-=0.05;
+		}
+		if (keystate[SDLK_l]){
+			game->speed_custom+=0.05;
+		}
+		if(game->speed_custom<1)
+			game->speed_custom=1;
+		if(game->speed_custom>5)
+			game->speed_custom=5;
 
 		double speed=1000;
 		if(MOUSE_ON){
@@ -494,7 +510,8 @@ int main(int argc, char *argv[]) {
 			// }
 			// else{
 				speed=5000;
-				if(keystate[SDLK_LCTRL]||keystate[SDLK_LALT])
+				// if(keystate[SDLK_LCTRL]||keystate[SDLK_LALT])
+				if(game->trigger_value)
 					speed=1000;
 				if (keystate[SDLK_LEFT]){
 					camera_rotate_acc(player,0,-speed,0);

@@ -5,7 +5,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+// #include <SDL/SDL_image.h>
 #include <math.h>
 #include "random.h"
 #include "string3d.h"
@@ -614,7 +614,7 @@ void game_update(Game* game,int dt){
 	//=======================================================
 		for(int i=0;i<dt;i++){
 
-			if(game->trigger_state || game->FIRST_SHOT){
+			if(game->trigger_state || game->FIRST_SHOT==1){
 
 				//===CAMERA===
 				game->player->theta+=.001*game->player->dtheta;
@@ -1314,8 +1314,8 @@ Game* initGame(Camera* player){
 	
 	glHint(GL_LINE_SMOOTH_HINT,GL_FASTEST);
 	glHint(GL_POLYGON_SMOOTH_HINT,GL_FASTEST);
-	glHint(GL_TEXTURE_COMPRESSION_HINT,GL_FASTEST);
-	glHint(GL_FRAGMENT_SHADER_DERIVATIVE_HINT,GL_FASTEST);
+	// glHint(GL_TEXTURE_COMPRESSION_HINT,GL_FASTEST);
+	// glHint(GL_FRAGMENT_SHADER_DERIVATIVE_HINT,GL_FASTEST);
 
 	//GL_FASTEST, GL_NICEST, and GL_DONT_CARE
 	// glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
@@ -1337,7 +1337,8 @@ Game* initGame(Camera* player){
 	game->sorting_arrow=NULL;
 	game->sorting_next=NULL;
 
-
+	game->speed_custom=1;
+	
 	game->trigger=trigger;
 	game->trigger_value=0;
 	game->fire=fire;

@@ -7,7 +7,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+// #include <SDL/SDL_image.h>
 #include <math.h>
 #include "string3d.h"
 #include "constants.h"
