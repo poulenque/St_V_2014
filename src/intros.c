@@ -184,6 +184,7 @@ void intro_render(Game* game){
 				z_temp*=z_temp;//square
 
 				double d= (sqrt(x_temp+y_temp+z_temp));
+				d=225;
 				double tps=get_time_()/15.;
 				int i_MAX=100;
 				glPushMatrix();
@@ -222,7 +223,6 @@ void intro_render(Game* game){
 									// if(2-d/200.>9){
 									// 	d=200.*(-.9+2);
 									// }
-									d=225;
 									double v= (2-d/200.) ;
 									if(v<.2)
 										v=.2;
