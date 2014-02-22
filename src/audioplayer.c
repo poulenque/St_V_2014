@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void * play (void * p);
 
 int audio_init () {
 	ALCdevice * device = alcOpenDevice(NULL);
@@ -63,8 +62,8 @@ AudioPlayer* new_audioplayer(){
 	alSourcePlay (player->source_id);
 
 	//le thread tourne en permanence
-	pthread_create (&player->t, NULL, play, player);
-	pthread_detach (player->t);
+	// pthread_create (&player->t, NULL, play, player);
+	// pthread_detach (player->t);
 
 	return player;
 }
@@ -156,8 +155,6 @@ double audioplayer_getAmplitude(AudioPlayer* player, int time_dt){
 // }
 
 // this thread sould be playing a file and play the next one as the first one finished,
-static void * play (void * p) {
-	AudioPlayer * player = (AudioPlayer *)p;
 	int i;
 	int no_buf;
 	unsigned int buf;
@@ -170,8 +167,9 @@ static void * play (void * p) {
 	char * next_file_path;
 
 	int cache=0;
+void audioplayer_update (AudioPlayer * player) {
 
-	do {
+	// do {
 			//how many buf to unqueue ?
 			alGetSourcei (player->source_id, AL_BUFFERS_PROCESSED, &no_buf);
 			while(no_buf--){
@@ -246,13 +244,12 @@ static void * play (void * p) {
 				/////////////////////////////////////////////////////////
 				/////////////////////////////////////////////////////////
 			}
-	}while (1);
+	// }while (1);
 
-	alGetSourcei (player->source_id, AL_BUFFERS_QUEUED, &no_buf);
+	// alGetSourcei (player->source_id, AL_BUFFERS_QUEUED, &no_buf);
 
-	for (i = 0; i < no_buf; i++){
-		alSourceUnqueueBuffers (player->source_id, 1, &buf);
-	}
+	// for (i = 0; i < no_buf; i++){
+		// alSourceUnqueueBuffers (player->source_id, 1, &buf);
+	// }
 
-	return NULL;
 }

@@ -2,7 +2,7 @@
 #define AUDIOPLAYER_H
 
 
-#include <pthread.h>
+// #include <pthread.h>
 #include "sound.h"
 
 
@@ -17,7 +17,7 @@ typedef struct AudioPlayer{
 	unsigned int source_id;
 	unsigned int buffer_id[2];
 	unsigned int sound_buffer;
-	pthread_t t;
+	// pthread_t t;
 	// unsigned int flags;
 }AudioPlayer;
 
@@ -48,6 +48,7 @@ double audioplayer_getTime(AudioPlayer* audioplayer);
 //                  t+dt is the position in time_dt
 double audioplayer_getAmplitude(AudioPlayer* audioplayer, int time_dt);
 
+void audioplayer_update(AudioPlayer* audioplayer);
 
 // maybe a function to get what is in the buffer between t and t+time_dt ?
 // might be very useful :¬D

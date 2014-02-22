@@ -62,7 +62,7 @@ LIBS += -lSDL
 
 LIBS += -lGL -lGLU
 # LIBS += -lopengl32 -lglu32
-LIBS += -lpthread
+# LIBS += -lpthread
 # LIBS += -lpthreadGC2
 
 

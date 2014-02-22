@@ -601,6 +601,7 @@ void game_update(Game* game,int dt){
 	camera_update(game->player,dt);
 	fake_walk_update(game,dt);
 
+	audioplayer_update(game->audio);
 	double amplitude=audioplayer_getAmplitude(game->audio,dt);
 	if(amplitude>game->audio_amplitude) game->audio_amplitude = amplitude;
 	else game->audio_amplitude = game->audio_amplitude*.5 + amplitude*.5;
